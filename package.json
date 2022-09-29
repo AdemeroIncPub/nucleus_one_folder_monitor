@@ -1,0 +1,23 @@
+{
+  "name": "nucleus_one_folder_monitor",
+  "description": "This npm package was created to enable commitizen.",
+  "license": "Apache-2.0",
+  "private": true,
+  "scripts": {
+    "commit": "git-cz",
+    "prepare": "husky install && dart pub global activate derry",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "config": {
+    "commitizen": {
+      "path": "@commitlint/cz-commitlint"
+    }
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^17.1.2",
+    "@commitlint/config-conventional": "^17.1.0",
+    "@commitlint/cz-commitlint": "^17.1.2",
+    "commitizen": "^4.2.5",
+    "husky": "^8.0.1"
+  }
+}

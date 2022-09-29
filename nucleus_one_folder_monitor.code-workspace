@@ -1,0 +1,21 @@
+{
+	"folders": [
+		{
+			"path": "gui"
+		},
+		{
+			"path": "service"
+		},
+		{
+			"name": "root",
+			"path": "."
+		},
+	],
+	"settings": {
+		"files.exclude": {
+			"node_modules/": true,
+			"gui/": true,
+			"service/": true,
+		},
+	}
+}
