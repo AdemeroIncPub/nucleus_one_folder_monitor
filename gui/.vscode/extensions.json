@@ -1,0 +1,9 @@
+{
+  "recommendations": [
+    "joshbolduc.commitlint",
+    "dart-code.dart-code",
+    "dart-code.flutter",
+    "gmlewis-vscode.flutter-stylizer",
+    "stkb.rewrap"
+  ]
+}

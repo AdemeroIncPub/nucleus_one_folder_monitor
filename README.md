@@ -1,8 +1,8 @@
 ## Nucleus One Monitor Tool
 
-This tool monitors configured folders for documents and uploads them to N1. A
-common use case is documents created by copier machines, but any device or
-process that saves documents to folders will work.
+This tool monitors configured folders for documents and uploads them to Nucleus
+One. A common use case is documents created by copier machines, but any device
+or process that saves documents to folders will work.
 
 For more information about Nucleus One, visit https://nucleus.one/.
 

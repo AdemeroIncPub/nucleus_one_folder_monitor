@@ -1,0 +1,25 @@
+{
+  "files.exclude": {
+    "**/*.freezed.dart": true,
+  },
+  "flutterStylizer": {
+    "groupAndSortGetterMethods": true,
+    "groupAndSortVariableTypes": true,
+    "memberOrdering": [
+      "public-constructor",
+      "named-constructors",
+      "public-static-variables",
+      "public-instance-variables",
+      "public-override-variables",
+      "private-static-variables",
+      "private-instance-variables",
+      "public-override-methods",
+      "build-method",
+      "public-other-methods",
+      "private-other-methods"
+    ],
+    "processEnumsLikeClasses": false,
+    "sortClassesWithinFile": false,
+    "sortOtherMethods": false
+  }
+}

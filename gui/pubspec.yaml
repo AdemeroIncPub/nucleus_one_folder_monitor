@@ -1,5 +1,6 @@
 name: nucleus_one_folder_monitor
-description: A new Flutter project.
+description: This tool monitors configured folders for documents and uploads them to Nucleus One.
+homepage: https://nucleus.one
 
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -31,11 +32,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
-
-  # The following adds the Cupertino Icons font to your application.
-  # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.2
 
 dev_dependencies:
   flutter_test:

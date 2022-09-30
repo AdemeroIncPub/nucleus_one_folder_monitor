@@ -22,8 +22,96 @@ linter:
   # `// ignore_for_file: name_of_lint` syntax on the line or in the file
   # producing the lint.
   rules:
-    # avoid_print: false  # Uncomment to disable the `avoid_print` rule
-    # prefer_single_quotes: true  # Uncomment to enable the `prefer_single_quotes` rule
+    ## Error Rules
+    - avoid_dynamic_calls
+    - avoid_returning_null_for_future
+    - avoid_slow_async_io
+    - avoid_type_to_string
+    - cancel_subscriptions
+    - close_sinks
+    - discarded_futures
+    - no_adjacent_strings_in_list
+    - prefer_relative_imports
+    - test_types_in_equals
+    - throw_in_finally
+    - unnecessary_statements
+    - unsafe_html
+    ## Style Rules
+    - always_declare_return_types
+    - avoid_bool_literals_in_conditional_expressions
+    - avoid_catches_without_on_clauses
+    - avoid_catching_errors
+    - avoid_classes_with_only_static_members
+    - avoid_double_and_int_checks
+    - avoid_equals_and_hash_code_on_mutable_classes
+    - avoid_escaping_inner_quotes
+    - avoid_field_initializers_in_const_classes
+    - avoid_implementing_value_types
+    - avoid_js_rounded_ints
+    - avoid_positional_boolean_parameters
+    - avoid_returning_null
+    - avoid_returning_this
+    - avoid_unused_constructor_parameters
+    - avoid_void_async
+    - cast_nullable_to_non_nullable
+    # - combinators_ordering # released in Dart 2.19 (Linter 1.26.0)
+    - conditional_uri_does_not_exist
+    - deprecated_consistency
+    - directives_ordering
+    - flutter_style_todos
+    - leading_newlines_in_multiline_strings
+    - missing_whitespace_between_adjacent_strings
+    - no_runtimeType_toString
+    - noop_primitive_operations
+    - one_member_abstracts
+    - only_throw_errors
+    - parameter_assignments
+    - prefer_asserts_in_initializer_lists
+    - prefer_constructors_over_static_methods
+    - prefer_final_in_for_each
+    - prefer_final_locals
+    - prefer_foreach
+    - prefer_if_elements_to_conditional_expressions
+    - prefer_mixin
+    - prefer_null_aware_method_calls
+    - prefer_single_quotes
+    - sized_box_shrink_expand
+    - sort_constructors_first
+    - sort_unnamed_constructors_first
+    - tighten_type_of_initializing_formals
+    - type_annotate_public_apis
+    - unawaited_futures
+    - unnecessary_await_in_return
+    - unnecessary_null_aware_operator_on_extension_on_nullable
+    - unnecessary_null_checks
+    - unnecessary_to_list_in_spreads
+    - use_colored_box
+    - use_decorated_box
+    - use_enums
+    - use_if_null_to_convert_nulls_to_bools
+    - use_named_constants
+    - use_raw_strings
+    - use_super_parameters
+    - use_to_and_as_if_applicable
+    ## Pub Rules
+    - secure_pubspec_urls
+    - sort_pub_dependencies
+
+analyzer:
+  # exclude:
+  #   - path/to/excluded/files/**
+  language:
+    # strict-casts: A value of true ensures that the type inference engine never
+    # implicitly casts from dynamic to a more specific type. (default: false)
+    strict-casts: true
+    # strict-inference: A value of true ensures that the type inference engine
+    # never chooses the dynamic type when it can’t determine a static type.
+    # (default: false)
+    strict-inference: true
+    # strict-raw-types: A value of true ensures that the type inference engine
+    # never chooses the dynamic type when it can’t determine a static type due
+    # to omitted type arguments. (default: false)
+    strict-raw-types: true
 
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options

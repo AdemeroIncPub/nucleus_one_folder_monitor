@@ -1,21 +1,41 @@
 {
-	"folders": [
-		{
-			"path": "gui"
-		},
-		{
-			"path": "service"
-		},
-		{
-			"name": "root",
-			"path": "."
-		},
-	],
-	"settings": {
-		"files.exclude": {
-			"node_modules/": true,
-			"gui/": true,
-			"service/": true,
-		},
-	}
+  "folders": [
+    {
+      "path": "gui"
+    },
+    {
+      "path": "service"
+    },
+    {
+      "name": "root",
+      "path": "."
+    }
+  ],
+  "settings": {
+    "files.exclude": {
+      "gui/": true,
+      "service/": true
+    },
+    "flutterStylizer": {
+      "groupAndSortGetterMethods": true,
+      "groupAndSortVariableTypes": true,
+      "memberOrdering": [
+        "public-constructor",
+        "named-constructors",
+        "public-static-variables",
+        "public-instance-variables",
+        "public-override-variables",
+        "private-static-variables",
+        "private-instance-variables",
+        "public-override-methods",
+        "build-method",
+        "public-other-methods",
+        "private-other-methods"
+      ],
+      "processEnumsLikeClasses": false,
+      "sortClassesWithinFile": false,
+      "sortOtherMethods": false
+    },
+    "FSharp.suggestGitignore": false
+  }
 }
