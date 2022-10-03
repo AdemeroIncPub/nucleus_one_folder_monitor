@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart'
     hide DataTable, DataColumn, DataRow, DataCell;
+import 'package:package_info_plus/package_info_plus.dart';
 
 import '../util/style.dart';
 import '../widgets/data_table.dart';
@@ -40,6 +41,17 @@ class _MainScreenState extends State<MainScreen> {
           icon: const Icon(Icons.settings),
           onPressed: () {},
         ),
+        IconButton(
+          icon: const Icon(Icons.help),
+          onPressed: () async {
+            final info = await PackageInfo.fromPlatform();
+            showAboutDialog(
+              context: context,
+              applicationVersion: 'version ${info.version}+${info.buildNumber}',
+            );
+          },
+        ),
+        const SizedBox(width: Insets.compXSmall),
       ],
     );
   }
