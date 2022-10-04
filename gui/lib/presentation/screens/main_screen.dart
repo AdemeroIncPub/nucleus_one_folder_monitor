@@ -1,57 +1,84 @@
 import 'package:flutter/material.dart'
     hide DataTable, DataColumn, DataRow, DataCell;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
+import '../../application/providers.dart';
+import '../../application/settings.dart';
+import '../util/dialog_helper.dart';
 import '../util/style.dart';
 import '../widgets/data_table.dart';
 
-class MainScreen extends StatefulWidget {
+class MainScreen extends ConsumerStatefulWidget {
   const MainScreen({super.key});
 
   @override
-  State<MainScreen> createState() => _MainScreenState();
+  ConsumerState<MainScreen> createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> {
+class _MainScreenState extends ConsumerState<MainScreen> {
   static const int numItems = 10;
+
+  bool sortAscending = true;
 
   int? selectedRow;
   int? sortColumn;
-  bool sortAscending = true;
 
   @override
   Widget build(BuildContext context) {
+    final settings = ref.watch(settingsProvider);
+
     return Scaffold(
-      appBar: _appBar(),
-      body: Container(
-        margin: const EdgeInsets.only(left: screenPadding, top: 12),
-        child: _mainContent(context),
+      appBar: settings.whenOrNull(
+        data: (settings) => _appBar(context, settings),
       ),
-      floatingActionButton: _addButton(),
+      body: Container(
+        margin: const EdgeInsets.symmetric(horizontal: screenPadding)
+            .copyWith(top: 12),
+        child: settings.when(
+          loading: _loading,
+          //todo(apn): show error
+          error: (error, stackTrace) => Text('$error\n$stackTrace'),
+          data: (_) => _mainContent(context),
+        ),
+      ),
+      floatingActionButton: settings.whenOrNull(
+        data: (settings) => _addButton(context, settings),
+      ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
-      bottomNavigationBar: _bottomAppBar(context),
+      bottomNavigationBar: settings.whenOrNull(
+        data: (_) => _bottomAppBar(context),
+      ),
     );
   }
 
-  AppBar _appBar() {
+  AppBar _appBar(BuildContext context, Settings settings) {
     return AppBar(
       title: const Text('Monitored Folders'),
       actions: [
-        IconButton(
-          icon: const Icon(Icons.settings),
-          onPressed: () {},
-        ),
-        IconButton(
-          icon: const Icon(Icons.help),
-          onPressed: () async {
-            final info = await PackageInfo.fromPlatform();
-            showAboutDialog(
-              context: context,
-              applicationVersion: 'version ${info.version}+${info.buildNumber}',
-            );
-          },
-        ),
+        _settingsButton(context, settings),
+        _aboutButton(context),
         const SizedBox(width: Insets.compXSmall),
+      ],
+    );
+  }
+
+  Widget _loading() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: const [
+        Expanded(
+          child: Center(
+            child: AspectRatio(
+              aspectRatio: 1,
+              child: FractionallySizedBox(
+                heightFactor: 0.25,
+                widthFactor: 0.25,
+                child: CircularProgressIndicator(),
+              ),
+            ),
+          ),
+        ),
       ],
     );
   }
@@ -60,13 +87,6 @@ class _MainScreenState extends State<MainScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Container(
-        //   margin: const EdgeInsets.only(right: screenPadding),
-        //   child: Text(
-        //     'Monitored Folders',
-        //     style: Theme.of(context).textTheme.titleLarge,
-        //   ),
-        // ),
         Expanded(
           child: SizedBox(
             width: double.infinity,
@@ -172,9 +192,37 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  FloatingActionButton _addButton() {
+  IconButton _settingsButton(BuildContext context, Settings settings) {
+    return IconButton(
+      icon: const Icon(Icons.settings),
+      onPressed: () async {
+        await _showSettings(context, settings);
+      },
+    );
+  }
+
+  IconButton _aboutButton(BuildContext context) {
+    return IconButton(
+      icon: const Icon(Icons.help),
+      onPressed: () async {
+        final info = await PackageInfo.fromPlatform();
+        showAboutDialog(
+          context: context,
+          applicationVersion: 'version ${info.version}',
+        );
+      },
+    );
+  }
+
+  FloatingActionButton _addButton(BuildContext context, Settings settings) {
     return FloatingActionButton(
-      onPressed: () {},
+      onPressed: () async {
+        if (settings.apiKey.isEmpty) {
+          return _showSettings(context, settings);
+        } else {
+          // go to add screen
+        }
+      },
       child: const Icon(Icons.add),
     );
   }
@@ -210,5 +258,20 @@ class _MainScreenState extends State<MainScreen> {
       onPressed: (selectedRow == null) ? null : () {},
       child: const Text('DELETE'),
     );
+  }
+
+  Future<void> _showSettings(BuildContext context, Settings settings) async {
+    final apiKey = await showTextInputDialog(
+      context,
+      contentConstraints: const BoxConstraints(minWidth: 500),
+      title: const Text('Set API key'),
+      text: settings.apiKey,
+      helperText:
+          'Generate API keys in your profile in the Nucleus One web app',
+      hintText: 'Your API key',
+    );
+    if (apiKey != null) {
+      ref.read(settingsProvider.notifier).setApiKey(apiKey);
+    }
   }
 }

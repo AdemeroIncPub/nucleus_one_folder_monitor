@@ -1,0 +1,9 @@
+# Do not show lint warnings for json_serializable (or any generated file it appears)
+# https://github.com/dart-lang/linter/issues/320#issuecomment-1229255108
+targets:
+  $default:
+    builders:
+      source_gen:combining_builder:
+        options:
+          ignore_for_file:
+            - "type=lint"

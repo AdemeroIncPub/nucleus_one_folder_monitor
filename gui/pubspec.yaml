@@ -2,6 +2,13 @@ name: nucleus_one_folder_monitor
 description: This tool monitors configured folders for documents and uploads them to Nucleus One.
 homepage: https://nucleus.one
 
+# Derry scripts: https://pub.dev/packages/derry
+# pub global activate derry
+# derry [script]
+scripts:
+  gen: flutter pub run build_runner build --delete-conflicting-outputs
+  outdated: flutter pub outdated --color
+
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -32,7 +39,14 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_riverpod: any
+  fpdart: any
+  freezed_annotation: any
+  json_annotation: any
   package_info_plus: any
+  path: any
+  path_provider: any
+  path_provider_windows: any
 
 dev_dependencies:
   # The "flutter_lints" package below contains a set of recommended lints to
@@ -40,9 +54,12 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
+  build_runner: any
   flutter_lints: ^2.0.0
   flutter_test:
     sdk: flutter
+  freezed: any
+  json_serializable: any
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

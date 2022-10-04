@@ -1,6 +1,9 @@
 {
   "files.exclude": {
+    // freezed generated files
     "**/*.freezed.dart": true,
+    // json_serialized generated files
+    "**/*.g.dart": true
   },
   "flutterStylizer": {
     "groupAndSortGetterMethods": true,
