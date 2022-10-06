@@ -21,6 +21,8 @@ Settings _$SettingsFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$Settings {
   String get apiKey => throw _privateConstructorUsedError;
+  List<MonitoredFolder> get monitoredFolders =>
+      throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -32,7 +34,7 @@ mixin _$Settings {
 abstract class $SettingsCopyWith<$Res> {
   factory $SettingsCopyWith(Settings value, $Res Function(Settings) then) =
       _$SettingsCopyWithImpl<$Res>;
-  $Res call({String apiKey});
+  $Res call({String apiKey, List<MonitoredFolder> monitoredFolders});
 }
 
 /// @nodoc
@@ -46,12 +48,17 @@ class _$SettingsCopyWithImpl<$Res> implements $SettingsCopyWith<$Res> {
   @override
   $Res call({
     Object? apiKey = freezed,
+    Object? monitoredFolders = freezed,
   }) {
     return _then(_value.copyWith(
       apiKey: apiKey == freezed
           ? _value.apiKey
           : apiKey // ignore: cast_nullable_to_non_nullable
               as String,
+      monitoredFolders: monitoredFolders == freezed
+          ? _value.monitoredFolders
+          : monitoredFolders // ignore: cast_nullable_to_non_nullable
+              as List<MonitoredFolder>,
     ));
   }
 }
@@ -62,7 +69,7 @@ abstract class _$$_SettingsCopyWith<$Res> implements $SettingsCopyWith<$Res> {
           _$_Settings value, $Res Function(_$_Settings) then) =
       __$$_SettingsCopyWithImpl<$Res>;
   @override
-  $Res call({String apiKey});
+  $Res call({String apiKey, List<MonitoredFolder> monitoredFolders});
 }
 
 /// @nodoc
@@ -78,12 +85,17 @@ class __$$_SettingsCopyWithImpl<$Res> extends _$SettingsCopyWithImpl<$Res>
   @override
   $Res call({
     Object? apiKey = freezed,
+    Object? monitoredFolders = freezed,
   }) {
     return _then(_$_Settings(
       apiKey: apiKey == freezed
           ? _value.apiKey
           : apiKey // ignore: cast_nullable_to_non_nullable
               as String,
+      monitoredFolders: monitoredFolders == freezed
+          ? _value._monitoredFolders
+          : monitoredFolders // ignore: cast_nullable_to_non_nullable
+              as List<MonitoredFolder>,
     ));
   }
 }
@@ -91,17 +103,26 @@ class __$$_SettingsCopyWithImpl<$Res> extends _$SettingsCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$_Settings implements _Settings {
-  const _$_Settings({required this.apiKey});
+  const _$_Settings(
+      {required this.apiKey,
+      required final List<MonitoredFolder> monitoredFolders})
+      : _monitoredFolders = monitoredFolders;
 
   factory _$_Settings.fromJson(Map<String, dynamic> json) =>
       _$$_SettingsFromJson(json);
 
   @override
   final String apiKey;
+  final List<MonitoredFolder> _monitoredFolders;
+  @override
+  List<MonitoredFolder> get monitoredFolders {
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_monitoredFolders);
+  }
 
   @override
   String toString() {
-    return 'Settings(apiKey: $apiKey)';
+    return 'Settings(apiKey: $apiKey, monitoredFolders: $monitoredFolders)';
   }
 
   @override
@@ -109,13 +130,17 @@ class _$_Settings implements _Settings {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$_Settings &&
-            const DeepCollectionEquality().equals(other.apiKey, apiKey));
+            const DeepCollectionEquality().equals(other.apiKey, apiKey) &&
+            const DeepCollectionEquality()
+                .equals(other._monitoredFolders, _monitoredFolders));
   }
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, const DeepCollectionEquality().hash(apiKey));
+  int get hashCode => Object.hash(
+      runtimeType,
+      const DeepCollectionEquality().hash(apiKey),
+      const DeepCollectionEquality().hash(_monitoredFolders));
 
   @JsonKey(ignore: true)
   @override
@@ -131,12 +156,16 @@ class _$_Settings implements _Settings {
 }
 
 abstract class _Settings implements Settings {
-  const factory _Settings({required final String apiKey}) = _$_Settings;
+  const factory _Settings(
+      {required final String apiKey,
+      required final List<MonitoredFolder> monitoredFolders}) = _$_Settings;
 
   factory _Settings.fromJson(Map<String, dynamic> json) = _$_Settings.fromJson;
 
   @override
   String get apiKey;
+  @override
+  List<MonitoredFolder> get monitoredFolders;
   @override
   @JsonKey(ignore: true)
   _$$_SettingsCopyWith<_$_Settings> get copyWith =>

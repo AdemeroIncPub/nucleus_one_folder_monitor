@@ -43,10 +43,16 @@ dependencies:
   fpdart: any
   freezed_annotation: any
   json_annotation: any
+  nucleus_one_dart_sdk:
+    git:
+      url: https://github.com/AdemeroIncPub/nucleus_one_dart_sdk
+      ref: '0463836'
   package_info_plus: any
   path: any
   path_provider: any
   path_provider_windows: any
+  quiver: any
+  uuid: any
 
 dev_dependencies:
   # The "flutter_lints" package below contains a set of recommended lints to
@@ -60,6 +66,10 @@ dev_dependencies:
     sdk: flutter
   freezed: any
   json_serializable: any
+
+# dependency_overrides:
+  # nucleus_one_dart_sdk:
+  #   path: ../../nucleus_one_dart_sdk
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

@@ -2,12 +2,14 @@ import 'package:flutter/material.dart'
     hide DataTable, DataColumn, DataRow, DataCell;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:quiver/strings.dart' as quiver;
 
 import '../../application/providers.dart';
 import '../../application/settings.dart';
 import '../util/dialog_helper.dart';
 import '../util/style.dart';
 import '../widgets/data_table.dart';
+import 'monitored_folder_details_screen.dart';
 
 class MainScreen extends ConsumerStatefulWidget {
   const MainScreen({super.key});
@@ -32,22 +34,23 @@ class _MainScreenState extends ConsumerState<MainScreen> {
       appBar: settings.whenOrNull(
         data: (settings) => _appBar(context, settings),
       ),
-      body: Container(
-        margin: const EdgeInsets.symmetric(horizontal: screenPadding)
-            .copyWith(top: 12),
-        child: settings.when(
-          loading: _loading,
-          //todo(apn): show error
-          error: (error, stackTrace) => Text('$error\n$stackTrace'),
-          data: (_) => _mainContent(context),
+      body: settings.when(
+        loading: _loading,
+        //todo(apn): clean up error display
+        error: (error, stackTrace) => _error(error, stackTrace),
+        data: (_) => Scrollbar(
+          thumbVisibility: true,
+          child: SingleChildScrollView(
+            primary: true,
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: screenPadding),
+              child: _mainContent(context),
+            ),
+          ),
         ),
       ),
-      floatingActionButton: settings.whenOrNull(
-        data: (settings) => _addButton(context, settings),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
       bottomNavigationBar: settings.whenOrNull(
-        data: (_) => _bottomAppBar(context),
+        data: (settings) => _bottomAppBar(context, settings),
       ),
     );
   }
@@ -64,40 +67,36 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   }
 
   Widget _loading() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: const [
-        Expanded(
-          child: Center(
-            child: AspectRatio(
-              aspectRatio: 1,
-              child: FractionallySizedBox(
-                heightFactor: 0.25,
-                widthFactor: 0.25,
-                child: CircularProgressIndicator(),
+    return Container(
+      margin: const EdgeInsets.all(screenPadding),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: const [
+          Expanded(
+            child: Center(
+              child: AspectRatio(
+                aspectRatio: 1,
+                child: FractionallySizedBox(
+                  heightFactor: 0.25,
+                  widthFactor: 0.25,
+                  child: CircularProgressIndicator(),
+                ),
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
-  Column _mainContent(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          child: SizedBox(
-            width: double.infinity,
-            child: _dataTable(context),
-          ),
-        ),
-      ],
+  Container _error(Object error, StackTrace stackTrace) {
+    return Container(
+      margin: const EdgeInsets.all(screenPadding),
+      child: Text('$error\n$stackTrace'),
     );
   }
 
-  Widget _dataTable(BuildContext context) {
+  Widget _mainContent(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
     final columns = [
@@ -168,26 +167,23 @@ class _MainScreenState extends ConsumerState<MainScreen> {
       return rows;
     }();
 
-    return Scrollbar(
-      thumbVisibility: true,
-      child: SingleChildScrollView(
-        primary: true,
-        child: DataTable(
-          expandColumnIndex: 1,
-          sortColumnIndex: sortColumn,
-          sortAscending: sortAscending,
-          showCheckboxColumn: false,
-          headingRowColor: MaterialStateProperty.resolveWith<Color?>(
-            (Set<MaterialState> states) {
-              if (states.contains(MaterialState.hovered)) {
-                return colorScheme.primary.withOpacity(0.1);
-              }
-              return null; // Use the default value.
-            },
-          ),
-          columns: columns,
-          rows: rowsSorted,
+    return SizedBox(
+      width: double.infinity,
+      child: DataTable(
+        expandColumnIndex: 1,
+        sortColumnIndex: sortColumn,
+        sortAscending: sortAscending,
+        showCheckboxColumn: false,
+        headingRowColor: MaterialStateProperty.resolveWith<Color?>(
+          (Set<MaterialState> states) {
+            if (states.contains(MaterialState.hovered)) {
+              return colorScheme.primary.withOpacity(0.1);
+            }
+            return null; // Use the default value.
+          },
         ),
+        columns: columns,
+        rows: rowsSorted,
       ),
     );
   }
@@ -215,25 +211,53 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   }
 
   FloatingActionButton _addButton(BuildContext context, Settings settings) {
+    Future<void> pushRoute(BuildContext context) async {
+      await Navigator.push(
+        context,
+        MaterialPageRoute<void>(
+          builder: (context) => const MonitoredFolderDetailsScreen(),
+          settings: const RouteSettings(
+            name: '/MonitoredFolderDetailsScreen',
+          ),
+        ),
+      );
+    }
+
     return FloatingActionButton(
+      elevation: 0,
+      disabledElevation: 0,
+      focusElevation: 0,
+      highlightElevation: 0,
+      hoverElevation: 0,
       onPressed: () async {
-        if (settings.apiKey.isEmpty) {
-          return _showSettings(context, settings);
+        if (quiver.isNotBlank(settings.apiKey)) {
+          await pushRoute(context);
         } else {
-          // go to add screen
+          await _showSettings(context, settings);
+          final apiKey = ref.read(settingsProvider).valueOrNull?.apiKey;
+          if (quiver.isNotBlank(apiKey) && mounted) {
+            await pushRoute(context);
+          }
         }
       },
       child: const Icon(Icons.add),
     );
   }
 
-  BottomAppBar _bottomAppBar(BuildContext context) {
+  BottomAppBar _bottomAppBar(BuildContext context, Settings settings) {
     return BottomAppBar(
       child: Container(
-        constraints: const BoxConstraints(minHeight: 48),
-        padding: const EdgeInsets.only(left: screenPadding),
+        constraints: const BoxConstraints(
+          minHeight: bottomAppBarMinHeight,
+        ),
+        // padding: const EdgeInsets.symmetric(horizontal: screenPadding),
         child: Row(
           children: [
+            Container(
+              margin: const EdgeInsets.all(Insets.compSmall),
+              child: _addButton(context, settings),
+            ),
+            const SizedBox(width: Insets.compXSmall),
             _editButton(),
             const SizedBox(width: Insets.compXSmall),
             _deleteButton(context),
@@ -271,7 +295,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
       hintText: 'Your API key',
     );
     if (apiKey != null) {
-      ref.read(settingsProvider.notifier).setApiKey(apiKey);
+      await ref.read(settingsProvider.notifier).setApiKey(apiKey);
     }
   }
 }

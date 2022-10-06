@@ -5,9 +5,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as path_;
 import 'package:path_provider_windows/path_provider_windows.dart'
     as path_provider_windows;
+import 'package:quiver/strings.dart' as quiver;
 
 import '../util/constants.dart';
 import 'settings.dart';
+
+typedef WriteSettingsFunc = Future<File> Function(Settings);
 
 // todo(apn): need cross platform path solution, possibly issue
 // https://github.com/flutter/flutter/issues/112792
@@ -38,33 +41,24 @@ final _settingsJsonWriterProvider = FutureProvider((ref) async {
   final path = await ref.watch(_settingsPathProvider.future);
   final filePath = File(path);
   return (Settings settings) {
+    filePath.parent.createSync();
     final json = jsonEncode(settings.toJson());
-    return filePath.writeAsString(json);
+    return filePath.writeAsString(json, flush: true, mode: FileMode.writeOnly);
   };
 });
 
 final settingsProvider =
     StateNotifierProvider<SettingsNotifier, AsyncValue<Settings>>((ref) {
-  final settingsPath = ref.watch(_settingsPathProvider);
   final jsonAsync = ref.watch(_settingsJsonReaderProvider);
-  final writeSettings = ref.watch(_settingsJsonWriterProvider);
-
-  ref.listenSelf((previous, next) async {
-    settingsPath.whenData((settingsPath) async {
-      if (next.hasValue && previous != next) {
-        Directory(path_.dirname(settingsPath)).createSync();
-        await writeSettings.asData?.value(next.value!);
-      }
-    });
-  });
+  final writeSettingsAsync = ref.watch(_settingsJsonWriterProvider);
 
   final settingsAsync = jsonAsync.whenData((json) {
-    if (json != null) {
-      final jsonMap = jsonDecode(json) as Map<String, dynamic>;
+    if (quiver.isNotBlank(json)) {
+      final jsonMap = jsonDecode(json!) as Map<String, dynamic>;
       return Settings.fromJson(jsonMap);
     }
-    return const Settings(apiKey: '');
+    return Settings.defaultValue();
   });
 
-  return SettingsNotifier(settingsAsync);
+  return SettingsNotifier(settingsAsync, writeSettingsAsync);
 });
