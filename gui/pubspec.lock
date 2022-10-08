@@ -121,7 +121,7 @@ packages:
     source: hosted
     version: "4.3.0"
   collection:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: collection
       url: "https://pub.dartlang.org"
@@ -349,8 +349,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "0463836"
-      resolved-ref: "04638368e3e478a7ff23c35d56c7e63aa9cdcab3"
+      ref: "8be0ec8"
+      resolved-ref: "8be0ec84b33421c8461016c710aa737e2e1e4321"
       url: "https://github.com/AdemeroIncPub/nucleus_one_dart_sdk"
     source: git
     version: "0.0.0"

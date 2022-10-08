@@ -8,6 +8,7 @@ import 'package:path_provider_windows/path_provider_windows.dart'
 import 'package:quiver/strings.dart' as quiver;
 
 import '../util/constants.dart';
+import 'monitored_folder.dart';
 import 'settings.dart';
 
 typedef WriteSettingsFunc = Future<File> Function(Settings);
@@ -61,4 +62,16 @@ final settingsProvider =
   });
 
   return SettingsNotifier(settingsAsync, writeSettingsAsync);
+});
+
+final monitoredFoldersProvider = Provider<List<MonitoredFolder>>((ref) {
+  final monitoredFolders = ref.watch(
+    settingsProvider.select((value) => value.asData?.value.monitoredFolders),
+  );
+
+  if (monitoredFolders == null) {
+    return [];
+  } else {
+    return monitoredFolders;
+  }
 });

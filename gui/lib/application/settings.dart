@@ -37,6 +37,21 @@ class SettingsNotifier extends StateNotifier<AsyncValue<Settings>> {
     return _writeSettings();
   }
 
+  /// Will add or update depending if the [id] matches an existing item.
+  Future<void> saveMonitoredFolder(MonitoredFolder monitoredFolder) async {
+    state = state.whenData((state) {
+      final mfs = state.monitoredFolders;
+      final index = mfs.indexWhere((x) => x.id == monitoredFolder.id);
+      if (index == -1) {
+        return state.copyWith(monitoredFolders: [...mfs, monitoredFolder]);
+      } else {
+        final newMfs = mfs.toList()..[index] = monitoredFolder;
+        return state.copyWith(monitoredFolders: newMfs);
+      }
+    });
+    return _writeSettings();
+  }
+
   Future<void> _writeSettings() async {
     final settings = state.asData?.value;
     if (settings != null) {

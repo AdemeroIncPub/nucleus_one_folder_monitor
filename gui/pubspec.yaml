@@ -37,6 +37,7 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  collection: any
   flutter:
     sdk: flutter
   flutter_riverpod: any
@@ -46,7 +47,7 @@ dependencies:
   nucleus_one_dart_sdk:
     git:
       url: https://github.com/AdemeroIncPub/nucleus_one_dart_sdk
-      ref: '0463836'
+      ref: '8be0ec8' # main
   package_info_plus: any
   path: any
   path_provider: any

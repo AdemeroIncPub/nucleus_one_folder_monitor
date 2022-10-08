@@ -11,12 +11,12 @@ part of 'monitored_folder.dart';
 _$_MonitoredFolder _$$_MonitoredFolderFromJson(Map<String, dynamic> json) =>
     _$_MonitoredFolder(
       id: json['id'] as String,
-      name: json['name'] as String,
-      description: json['description'] as String,
-      localPath: json['localPath'] as String,
-      n1FolderId: json['n1FolderId'] as String,
-      fileDisposition:
-          $enumDecode(_$FileDispositionEnumMap, json['fileDisposition']),
+      name: json['name'] as String? ?? '',
+      description: json['description'] as String? ?? '',
+      localPath: json['localPath'] as String? ?? '',
+      n1FolderId: json['n1FolderId'] as String? ?? '',
+      fileDisposition: $enumDecodeNullable(
+          _$FileDispositionEnumMap, json['fileDisposition']),
       fileDispositionMoveToPath: json['fileDispositionMoveToPath'] as String?,
     );
 
@@ -27,7 +27,7 @@ Map<String, dynamic> _$$_MonitoredFolderToJson(_$_MonitoredFolder instance) =>
       'description': instance.description,
       'localPath': instance.localPath,
       'n1FolderId': instance.n1FolderId,
-      'fileDisposition': _$FileDispositionEnumMap[instance.fileDisposition]!,
+      'fileDisposition': _$FileDispositionEnumMap[instance.fileDisposition],
       'fileDispositionMoveToPath': instance.fileDispositionMoveToPath,
     };
 

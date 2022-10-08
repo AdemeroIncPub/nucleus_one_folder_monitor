@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart'
     hide DataTable, DataColumn, DataRow, DataCell;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,12 +20,10 @@ class MainScreen extends ConsumerStatefulWidget {
 }
 
 class _MainScreenState extends ConsumerState<MainScreen> {
-  static const int numItems = 10;
+  bool _sortAscending = true;
 
-  bool sortAscending = true;
-
-  int? selectedRow;
-  int? sortColumn;
+  int? _selectedRow;
+  int? _sortColumn;
 
   @override
   Widget build(BuildContext context) {
@@ -38,13 +37,13 @@ class _MainScreenState extends ConsumerState<MainScreen> {
         loading: _loading,
         //todo(apn): clean up error display
         error: (error, stackTrace) => _error(error, stackTrace),
-        data: (_) => Scrollbar(
+        data: (settings) => Scrollbar(
           thumbVisibility: true,
           child: SingleChildScrollView(
             primary: true,
             child: Container(
               margin: const EdgeInsets.symmetric(horizontal: screenPadding),
-              child: _mainContent(context),
+              child: _mainContent(context, settings),
             ),
           ),
         ),
@@ -96,7 +95,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     );
   }
 
-  Widget _mainContent(BuildContext context) {
+  Widget _mainContent(BuildContext context, Settings settings) {
     final colorScheme = Theme.of(context).colorScheme;
 
     final columns = [
@@ -104,8 +103,8 @@ class _MainScreenState extends ConsumerState<MainScreen> {
         label: const Text('Name'),
         onSort: (columnIndex, ascending) {
           setState(() {
-            sortColumn = columnIndex;
-            sortAscending = ascending;
+            _sortColumn = columnIndex;
+            _sortAscending = ascending;
           });
         },
       ),
@@ -113,14 +112,14 @@ class _MainScreenState extends ConsumerState<MainScreen> {
         label: const Text('Description'),
         onSort: (columnIndex, ascending) {
           setState(() {
-            sortColumn = columnIndex;
-            sortAscending = ascending;
+            _sortColumn = columnIndex;
+            _sortAscending = ascending;
           });
         },
       ),
     ];
 
-    final rows = List<DataRow>.generate(numItems, (index) {
+    final rows = settings.monitoredFolders.mapIndexed((index, mf) {
       return DataRow(
         color: MaterialStateProperty.resolveWith<Color?>(
             (Set<MaterialState> states) {
@@ -135,30 +134,30 @@ class _MainScreenState extends ConsumerState<MainScreen> {
             return colorScheme.surface.withOpacity(0.1);
           }
         }),
-        selected: selectedRow == index,
+        selected: _selectedRow == index,
         onSelectChanged: (bool? value) {
           setState(() {
             if (value ?? true) {
-              selectedRow = index;
+              _selectedRow = index;
             } else {
-              selectedRow = null;
+              _selectedRow = null;
             }
           });
         },
         cells: [
           DataCell(
-            Text('name $index'),
+            Text(mf.name),
           ),
           DataCell(
-            Text('description $index'),
+            Text(mf.description),
           ),
         ],
       );
-    });
+    }).toList();
 
     final rowsSorted = () {
-      if (sortColumn != null) {
-        if (sortAscending) {
+      if (_sortColumn != null) {
+        if (_sortAscending) {
           return rows;
         } else {
           return rows.reversed.toList();
@@ -171,9 +170,10 @@ class _MainScreenState extends ConsumerState<MainScreen> {
       width: double.infinity,
       child: DataTable(
         expandColumnIndex: 1,
-        sortColumnIndex: sortColumn,
-        sortAscending: sortAscending,
+        sortColumnIndex: _sortColumn,
+        sortAscending: _sortAscending,
         showCheckboxColumn: false,
+        showBottomBorder: true,
         headingRowColor: MaterialStateProperty.resolveWith<Color?>(
           (Set<MaterialState> states) {
             if (states.contains(MaterialState.hovered)) {
@@ -250,7 +250,6 @@ class _MainScreenState extends ConsumerState<MainScreen> {
         constraints: const BoxConstraints(
           minHeight: bottomAppBarMinHeight,
         ),
-        // padding: const EdgeInsets.symmetric(horizontal: screenPadding),
         child: Row(
           children: [
             Container(
@@ -258,7 +257,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
               child: _addButton(context, settings),
             ),
             const SizedBox(width: Insets.compXSmall),
-            _editButton(),
+            _editButton(context, settings),
             const SizedBox(width: Insets.compXSmall),
             _deleteButton(context),
           ],
@@ -267,9 +266,23 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     );
   }
 
-  Widget _editButton() {
+  Widget _editButton(BuildContext context, Settings settings) {
     return TextButton(
-      onPressed: (selectedRow == null) ? null : () {},
+      onPressed: (_selectedRow == null)
+          ? null
+          : () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute<void>(
+                  builder: (context) => MonitoredFolderDetailsScreen(
+                    mfToEdit: settings.monitoredFolders[_selectedRow!],
+                  ),
+                  settings: const RouteSettings(
+                    name: '/MonitoredFolderDetailsScreen',
+                  ),
+                ),
+              );
+            },
       child: const Text('EDIT'),
     );
   }
@@ -279,7 +292,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
       style: TextButton.styleFrom(
         foregroundColor: Theme.of(context).colorScheme.error,
       ),
-      onPressed: (selectedRow == null) ? null : () {},
+      onPressed: (_selectedRow == null) ? null : () {},
       child: const Text('DELETE'),
     );
   }

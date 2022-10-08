@@ -27,7 +27,7 @@ mixin _$MonitoredFolder {
       throw _privateConstructorUsedError; // probably not sufficient, may end up using freezed union
 // currently unsure of difference between Projects and Departments
   String get n1FolderId => throw _privateConstructorUsedError;
-  FileDisposition get fileDisposition =>
+  FileDisposition? get fileDisposition =>
       throw _privateConstructorUsedError; // union?
   String? get fileDispositionMoveToPath => throw _privateConstructorUsedError;
 
@@ -48,7 +48,7 @@ abstract class $MonitoredFolderCopyWith<$Res> {
       String description,
       String localPath,
       String n1FolderId,
-      FileDisposition fileDisposition,
+      FileDisposition? fileDisposition,
       String? fileDispositionMoveToPath});
 }
 
@@ -95,7 +95,7 @@ class _$MonitoredFolderCopyWithImpl<$Res>
       fileDisposition: fileDisposition == freezed
           ? _value.fileDisposition
           : fileDisposition // ignore: cast_nullable_to_non_nullable
-              as FileDisposition,
+              as FileDisposition?,
       fileDispositionMoveToPath: fileDispositionMoveToPath == freezed
           ? _value.fileDispositionMoveToPath
           : fileDispositionMoveToPath // ignore: cast_nullable_to_non_nullable
@@ -117,7 +117,7 @@ abstract class _$$_MonitoredFolderCopyWith<$Res>
       String description,
       String localPath,
       String n1FolderId,
-      FileDisposition fileDisposition,
+      FileDisposition? fileDisposition,
       String? fileDispositionMoveToPath});
 }
 
@@ -166,7 +166,7 @@ class __$$_MonitoredFolderCopyWithImpl<$Res>
       fileDisposition: fileDisposition == freezed
           ? _value.fileDisposition
           : fileDisposition // ignore: cast_nullable_to_non_nullable
-              as FileDisposition,
+              as FileDisposition?,
       fileDispositionMoveToPath: fileDispositionMoveToPath == freezed
           ? _value.fileDispositionMoveToPath
           : fileDispositionMoveToPath // ignore: cast_nullable_to_non_nullable
@@ -180,11 +180,11 @@ class __$$_MonitoredFolderCopyWithImpl<$Res>
 class _$_MonitoredFolder implements _MonitoredFolder {
   const _$_MonitoredFolder(
       {required this.id,
-      required this.name,
-      required this.description,
-      required this.localPath,
-      required this.n1FolderId,
-      required this.fileDisposition,
+      this.name = '',
+      this.description = '',
+      this.localPath = '',
+      this.n1FolderId = '',
+      this.fileDisposition,
       this.fileDispositionMoveToPath});
 
   factory _$_MonitoredFolder.fromJson(Map<String, dynamic> json) =>
@@ -193,17 +193,21 @@ class _$_MonitoredFolder implements _MonitoredFolder {
   @override
   final String id;
   @override
+  @JsonKey()
   final String name;
   @override
+  @JsonKey()
   final String description;
   @override
+  @JsonKey()
   final String localPath;
 // probably not sufficient, may end up using freezed union
 // currently unsure of difference between Projects and Departments
   @override
+  @JsonKey()
   final String n1FolderId;
   @override
-  final FileDisposition fileDisposition;
+  final FileDisposition? fileDisposition;
 // union?
   @override
   final String? fileDispositionMoveToPath;
@@ -259,11 +263,11 @@ class _$_MonitoredFolder implements _MonitoredFolder {
 abstract class _MonitoredFolder implements MonitoredFolder {
   const factory _MonitoredFolder(
       {required final String id,
-      required final String name,
-      required final String description,
-      required final String localPath,
-      required final String n1FolderId,
-      required final FileDisposition fileDisposition,
+      final String name,
+      final String description,
+      final String localPath,
+      final String n1FolderId,
+      final FileDisposition? fileDisposition,
       final String? fileDispositionMoveToPath}) = _$_MonitoredFolder;
 
   factory _MonitoredFolder.fromJson(Map<String, dynamic> json) =
@@ -281,7 +285,7 @@ abstract class _MonitoredFolder implements MonitoredFolder {
 // currently unsure of difference between Projects and Departments
   String get n1FolderId;
   @override
-  FileDisposition get fileDisposition;
+  FileDisposition? get fileDisposition;
   @override // union?
   String? get fileDispositionMoveToPath;
   @override
