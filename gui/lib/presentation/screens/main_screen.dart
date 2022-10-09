@@ -30,27 +30,18 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     final settings = ref.watch(settingsProvider);
 
     return Scaffold(
-      appBar: settings.whenOrNull(
-        data: (settings) => _appBar(context, settings),
-      ),
-      body: settings.when(
-        loading: _loading,
-        //todo(apn): clean up error display
-        error: (error, stackTrace) => _error(error, stackTrace),
-        data: (settings) => Scrollbar(
-          thumbVisibility: true,
-          child: SingleChildScrollView(
-            primary: true,
-            child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: screenPadding),
-              child: _mainContent(context, settings),
-            ),
+      appBar: _appBar(context, settings),
+      body: Scrollbar(
+        thumbVisibility: true,
+        child: SingleChildScrollView(
+          primary: true,
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: screenPadding),
+            child: _mainContent(context, settings),
           ),
         ),
       ),
-      bottomNavigationBar: settings.whenOrNull(
-        data: (settings) => _bottomAppBar(context, settings),
-      ),
+      bottomNavigationBar: _bottomAppBar(context, settings),
     );
   }
 
@@ -62,36 +53,6 @@ class _MainScreenState extends ConsumerState<MainScreen> {
         _aboutButton(context),
         const SizedBox(width: Insets.compXSmall),
       ],
-    );
-  }
-
-  Widget _loading() {
-    return Container(
-      margin: const EdgeInsets.all(screenPadding),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: const [
-          Expanded(
-            child: Center(
-              child: AspectRatio(
-                aspectRatio: 1,
-                child: FractionallySizedBox(
-                  heightFactor: 0.25,
-                  widthFactor: 0.25,
-                  child: CircularProgressIndicator(),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Container _error(Object error, StackTrace stackTrace) {
-    return Container(
-      margin: const EdgeInsets.all(screenPadding),
-      child: Text('$error\n$stackTrace'),
     );
   }
 
@@ -191,6 +152,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   IconButton _settingsButton(BuildContext context, Settings settings) {
     return IconButton(
       icon: const Icon(Icons.settings),
+      tooltip: 'Settings',
       onPressed: () async {
         await _showSettings(context, settings);
       },
@@ -200,6 +162,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   IconButton _aboutButton(BuildContext context) {
     return IconButton(
       icon: const Icon(Icons.help),
+      tooltip: 'About',
       onPressed: () async {
         final info = await PackageInfo.fromPlatform();
         showAboutDialog(
@@ -234,7 +197,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
           await pushRoute(context);
         } else {
           await _showSettings(context, settings);
-          final apiKey = ref.read(settingsProvider).valueOrNull?.apiKey;
+          final apiKey = ref.read(settingsProvider).apiKey;
           if (quiver.isNotBlank(apiKey) && mounted) {
             await pushRoute(context);
           }
@@ -308,7 +271,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
       hintText: 'Your API key',
     );
     if (apiKey != null) {
-      await ref.read(settingsProvider.notifier).setApiKey(apiKey);
+      ref.read(settingsProvider.notifier).setApiKey(apiKey);
     }
   }
 }

@@ -37,6 +37,10 @@ class _MonitoredFolderDetailsScreenState
         title: (isNew)
             ? const Text('New Monitored Folder')
             : const Text('Edit Monitored Folder'),
+        actions: [
+          _resetButton(context),
+          const SizedBox(width: Insets.compXSmall),
+        ],
       ),
       body: Scrollbar(
         thumbVisibility: true,
@@ -290,11 +294,9 @@ class _MonitoredFolderDetailsScreenState
         constraints: const BoxConstraints(
           minHeight: bottomAppBarMinHeight,
         ),
-        padding: const EdgeInsets.only(left: screenPadding),
+        padding: const EdgeInsets.symmetric(horizontal: screenPadding),
         child: Row(
           children: [
-            _resetButton(context),
-            const SizedBox(width: Insets.compSmall),
             _saveButton(context),
           ],
         ),
@@ -303,8 +305,10 @@ class _MonitoredFolderDetailsScreenState
   }
 
   Widget _resetButton(BuildContext context) {
-    return TextButton(
-      style: TextButton.styleFrom(
+    return IconButton(
+      icon: const Icon(Icons.restore),
+      tooltip: 'Reset form',
+      style: IconButton.styleFrom(
         foregroundColor: Theme.of(context).colorScheme.error,
       ),
       onPressed: () {
@@ -312,7 +316,6 @@ class _MonitoredFolderDetailsScreenState
           _formKey.currentState?.reset();
         });
       },
-      child: const Text('RESET'),
     );
   }
 
@@ -321,7 +324,7 @@ class _MonitoredFolderDetailsScreenState
       onPressed: () async {
         if (_formKey.currentState?.validate() ?? true) {
           _formKey.currentState?.save();
-          await ref.read(settingsProvider.notifier).saveMonitoredFolder(_mf);
+          ref.read(settingsProvider.notifier).saveMonitoredFolder(_mf);
           if (mounted) Navigator.pop(context);
         } else {
           final colorScheme = Theme.of(context).colorScheme;
@@ -344,7 +347,7 @@ class _MonitoredFolderDetailsScreenState
           );
         }
       },
-      child: (isNew) ? const Text('CREATE') : const Text('UPDATE'),
+      child: const Text('SAVE'),
     );
   }
 }

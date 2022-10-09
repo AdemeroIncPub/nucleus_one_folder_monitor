@@ -22,40 +22,29 @@ class Settings with _$Settings {
       const Settings(apiKey: '', monitoredFolders: []);
 }
 
-class SettingsNotifier extends StateNotifier<AsyncValue<Settings>> {
+class SettingsNotifier extends StateNotifier<Settings> {
   SettingsNotifier(
     super.state,
-    AsyncValue<WriteSettingsFunc> writeSettingsFunc,
+    WriteSettingsFunc writeSettingsFunc,
   ) : _writeSettingsFunc = writeSettingsFunc;
 
-  final AsyncValue<WriteSettingsFunc> _writeSettingsFunc;
+  final WriteSettingsFunc _writeSettingsFunc;
 
-  Future<void> setApiKey(String apiKey) async {
-    state = state.whenData((state) {
-      return state.copyWith(apiKey: apiKey);
-    });
-    return _writeSettings();
+  void setApiKey(String apiKey) {
+    state = state.copyWith(apiKey: apiKey);
+    _writeSettingsFunc(state);
   }
 
   /// Will add or update depending if the [id] matches an existing item.
-  Future<void> saveMonitoredFolder(MonitoredFolder monitoredFolder) async {
-    state = state.whenData((state) {
-      final mfs = state.monitoredFolders;
-      final index = mfs.indexWhere((x) => x.id == monitoredFolder.id);
-      if (index == -1) {
-        return state.copyWith(monitoredFolders: [...mfs, monitoredFolder]);
-      } else {
-        final newMfs = mfs.toList()..[index] = monitoredFolder;
-        return state.copyWith(monitoredFolders: newMfs);
-      }
-    });
-    return _writeSettings();
-  }
-
-  Future<void> _writeSettings() async {
-    final settings = state.asData?.value;
-    if (settings != null) {
-      await _writeSettingsFunc.asData?.value(settings);
+  void saveMonitoredFolder(MonitoredFolder monitoredFolder) {
+    final mfs = state.monitoredFolders;
+    final index = mfs.indexWhere((x) => x.id == monitoredFolder.id);
+    if (index == -1) {
+      state = state.copyWith(monitoredFolders: [...mfs, monitoredFolder]);
+    } else {
+      final newMfs = mfs.toList()..[index] = monitoredFolder;
+      state = state.copyWith(monitoredFolders: newMfs);
     }
+    _writeSettingsFunc(state);
   }
 }
