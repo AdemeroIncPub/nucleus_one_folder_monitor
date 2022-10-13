@@ -5,12 +5,15 @@ import 'package:quiver/strings.dart' as quiver;
 import '../../application/monitored_folder.dart';
 import '../../application/providers.dart';
 import '../util/style.dart';
+import 'select_nucleus_one_folder_screen.dart';
 
 const Widget _fieldEditButtonWidthSpacer = SizedBox(width: 48);
 const Widget _formRowSpacer = SizedBox(height: Insets.compSmall);
 
 class MonitoredFolderDetailsScreen extends ConsumerStatefulWidget {
   const MonitoredFolderDetailsScreen({super.key, this.mfToEdit});
+
+  static const routeName = '/MonitoredFolderDetailsScreen';
 
   /// If null then anew [MonitoredFolder] will be created.
   final MonitoredFolder? mfToEdit;
@@ -47,8 +50,7 @@ class _MonitoredFolderDetailsScreenState
         child: SingleChildScrollView(
           primary: true,
           child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: screenPadding)
-                .copyWith(bottom: screenPadding),
+            margin: const EdgeInsets.all(screenPadding).copyWith(top: 0),
             child: _mainContent(context),
           ),
         ),
@@ -159,6 +161,7 @@ class _MonitoredFolderDetailsScreenState
           child: TextFormField(
             decoration: const InputDecoration(
               labelText: 'Folder to monitor',
+              hintText: 'Use the edit button to select the folder to monitor',
             ),
             readOnly: true,
           ),
@@ -172,13 +175,14 @@ class _MonitoredFolderDetailsScreenState
       children: [
         IconButton(
           onPressed: () async {
-            await showDialog<void>(
-              context: context,
-              builder: (context) {
-                return const AlertDialog(
-                  content: Text('OK'),
-                );
-              },
+            return Navigator.push<void>(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const SelectNucleusOneFolderScreen(),
+                settings: const RouteSettings(
+                  name: SelectNucleusOneFolderScreen.routeName,
+                ),
+              ),
             );
           },
           icon: const Icon(Icons.edit),
@@ -188,6 +192,8 @@ class _MonitoredFolderDetailsScreenState
           child: TextFormField(
             decoration: const InputDecoration(
               labelText: 'Nucleus One destination',
+              hintText:
+                  'Use the edit button to select the Nucleus One destination',
             ),
             readOnly: true,
           ),

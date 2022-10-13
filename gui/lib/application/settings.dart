@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -25,10 +26,10 @@ class Settings with _$Settings {
 class SettingsNotifier extends StateNotifier<Settings> {
   SettingsNotifier(
     super.state,
-    WriteSettingsFunc writeSettingsFunc,
+    WriteSettingsFn writeSettingsFunc,
   ) : _writeSettingsFunc = writeSettingsFunc;
 
-  final WriteSettingsFunc _writeSettingsFunc;
+  final WriteSettingsFn _writeSettingsFunc;
 
   void setApiKey(String apiKey) {
     state = state.copyWith(apiKey: apiKey);

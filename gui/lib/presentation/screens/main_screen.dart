@@ -82,6 +82,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
 
     final rows = settings.monitoredFolders.mapIndexed((index, mf) {
       return DataRow(
+        key: ObjectKey(mf),
         color: MaterialStateProperty.resolveWith<Color?>(
             (Set<MaterialState> states) {
           if (states.contains(MaterialState.selected)) {
@@ -180,7 +181,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
         MaterialPageRoute<void>(
           builder: (context) => const MonitoredFolderDetailsScreen(),
           settings: const RouteSettings(
-            name: '/MonitoredFolderDetailsScreen',
+            name: MonitoredFolderDetailsScreen.routeName,
           ),
         ),
       );
@@ -241,7 +242,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
                     mfToEdit: settings.monitoredFolders[_selectedRow!],
                   ),
                   settings: const RouteSettings(
-                    name: '/MonitoredFolderDetailsScreen',
+                    name: MonitoredFolderDetailsScreen.routeName,
                   ),
                 ),
               );

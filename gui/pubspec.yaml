@@ -44,6 +44,7 @@ dependencies:
   fpdart: any
   freezed_annotation: any
   json_annotation: any
+  meta: any
   nucleus_one_dart_sdk:
     git:
       url: https://github.com/AdemeroIncPub/nucleus_one_dart_sdk
@@ -113,3 +114,8 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+
+  fonts:
+   - family:  FlutterIconCustomIcons
+     fonts:
+      - asset: fonts/FlutterIconCustomIcons.ttf

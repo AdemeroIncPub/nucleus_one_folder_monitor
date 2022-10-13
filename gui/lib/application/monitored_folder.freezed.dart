@@ -177,7 +177,9 @@ class __$$_MonitoredFolderCopyWithImpl<$Res>
 
 /// @nodoc
 @JsonSerializable()
-class _$_MonitoredFolder implements _MonitoredFolder {
+class _$_MonitoredFolder
+    with DiagnosticableTreeMixin
+    implements _MonitoredFolder {
   const _$_MonitoredFolder(
       {required this.id,
       this.name = '',
@@ -213,8 +215,23 @@ class _$_MonitoredFolder implements _MonitoredFolder {
   final String? fileDispositionMoveToPath;
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'MonitoredFolder(id: $id, name: $name, description: $description, localPath: $localPath, n1FolderId: $n1FolderId, fileDisposition: $fileDisposition, fileDispositionMoveToPath: $fileDispositionMoveToPath)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'MonitoredFolder'))
+      ..add(DiagnosticsProperty('id', id))
+      ..add(DiagnosticsProperty('name', name))
+      ..add(DiagnosticsProperty('description', description))
+      ..add(DiagnosticsProperty('localPath', localPath))
+      ..add(DiagnosticsProperty('n1FolderId', n1FolderId))
+      ..add(DiagnosticsProperty('fileDisposition', fileDisposition))
+      ..add(DiagnosticsProperty(
+          'fileDispositionMoveToPath', fileDispositionMoveToPath));
   }
 
   @override

@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nucleus_one_dart_sdk/nucleus_one_dart_sdk.dart' as n1;
 
 import 'application/providers_initialized.dart';
 import 'presentation/screens/main_screen.dart';
 import 'presentation/util/style.dart';
+import 'presentation/widgets/quarter_size_circular_progress_indicator.dart';
 import 'util/constants.dart';
 
 Future<void> main() async {
   // Show loading
   runApp(const LoadingApp());
+
+  // test loading screen
+  // await Future<void>.delayed(const Duration(seconds: 5));
 
   // Initialize
   ProviderContainer container;
@@ -34,6 +39,7 @@ Future<void> main() async {
 
 Future<ProviderContainer> _initialize() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await n1.NucleusOne.intializeSdk();
 
   final container = ProviderContainer();
   await initializeProviders(container);
@@ -57,26 +63,9 @@ class LoadingApp extends StatelessWidget {
       title: productName,
       debugShowCheckedModeBanner: false,
       theme: _themeData(),
-      home: Scaffold(
-        body: Container(
-          margin: const EdgeInsets.all(screenPadding),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
-              Expanded(
-                child: Center(
-                  child: AspectRatio(
-                    aspectRatio: 1,
-                    child: FractionallySizedBox(
-                      heightFactor: 0.25,
-                      widthFactor: 0.25,
-                      child: CircularProgressIndicator(),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
+      home: const Scaffold(
+        body: Center(
+          child: QuarterSizeCircularProgressIndicator(),
         ),
       ),
     );

@@ -102,7 +102,7 @@ class __$$_SettingsCopyWithImpl<$Res> extends _$SettingsCopyWithImpl<$Res>
 
 /// @nodoc
 @JsonSerializable()
-class _$_Settings implements _Settings {
+class _$_Settings with DiagnosticableTreeMixin implements _Settings {
   const _$_Settings(
       {required this.apiKey,
       required final List<MonitoredFolder> monitoredFolders})
@@ -121,8 +121,17 @@ class _$_Settings implements _Settings {
   }
 
   @override
-  String toString() {
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'Settings(apiKey: $apiKey, monitoredFolders: $monitoredFolders)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'Settings'))
+      ..add(DiagnosticsProperty('apiKey', apiKey))
+      ..add(DiagnosticsProperty('monitoredFolders', monitoredFolders));
   }
 
   @override
