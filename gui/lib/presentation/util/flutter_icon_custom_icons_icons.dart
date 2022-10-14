@@ -21,6 +21,6 @@ class FlutterIconCustomIcons {
   static const _kFontFam = 'FlutterIconCustomIcons';
   static const String? _kFontPkg = null;
 
-  static const IconData departments = IconData(0xe800, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData projects = IconData(0xe802, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData project = IconData(0xe800, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData department = IconData(0xe801, fontFamily: _kFontFam, fontPackage: _kFontPkg);
 }

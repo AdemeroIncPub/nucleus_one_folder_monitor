@@ -1,9 +1,11 @@
+import 'dart:io' as io;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nucleus_one_dart_sdk/nucleus_one_dart_sdk.dart' as n1;
 
 import '../../application/providers.dart';
-import '../util/flutter_icon_custom_icons.dart';
+import '../util/flutter_icon_custom_icons_icons.dart';
 import '../util/style.dart';
 import '../widgets/quarter_size_circular_progress_indicator.dart';
 
@@ -20,8 +22,8 @@ class SelectNucleusOneFolderScreen extends ConsumerStatefulWidget {
 
 class _SelectNucleusOneFolderScreenState
     extends ConsumerState<SelectNucleusOneFolderScreen> {
-  // final List<AsyncValue<List<n1.DocumentFolder>>> _folderLists = [];
-  final _selectedFolderIds = <String?>[];
+  final _selectedFolderIds = <String>[];
+  final _selectedFolderNames = <String>[];
 
   int _level = 0;
   var _orgsAsync = const AsyncValue<List<n1.UserOrganization>>.loading();
@@ -83,12 +85,6 @@ class _SelectNucleusOneFolderScreenState
       );
 
       _folders = ref.watch(n1DocumentFoldersProvider(args));
-
-      // if (_folderLists.length > folderLevel) {
-      //   _folderLists[folderLevel] = ref.watch(n1DocumentFoldersProvider(args));
-      // } else {
-      //   _folderLists.add(ref.watch(n1DocumentFoldersProvider(args)));
-      // }
     }
 
     return Scaffold(
@@ -99,13 +95,6 @@ class _SelectNucleusOneFolderScreenState
       bottomNavigationBar: _bottomAppBar(),
     );
   }
-
-  // AsyncValue<List<n1.DocumentFolder>> get _currentFolders {
-  //   if (_folderLevel != null && _folderLists.length > _folderLevel!) {
-  //     return _folderLists[_folderLevel!];
-  //   }
-  //   return const AsyncValue.data([]);
-  // }
 
   int? get _folderLevel {
     final folderLevel = _level - _N1LevelType.folders.index;
@@ -127,31 +116,49 @@ class _SelectNucleusOneFolderScreenState
     );
   }
 
-  Row _folderPathBar() {
+  Widget _folderPathBar() {
     return Row(
       children: [
         const SizedBox(width: Insets.compSmall),
-        Visibility(
-          maintainSize: true,
-          maintainAnimation: true,
-          maintainState: true,
-          visible: _n1LevelType != _N1LevelType.organizations,
-          child: _upButton(),
-        ),
+        _upButton(),
+        const SizedBox(width: Insets.compMedium),
+        ..._folderPath(),
       ],
     );
   }
 
   Widget _upButton() {
-    return IconButton(
-      onPressed: () {
-        setState(() {
-          if (_level > 0) {
-            _level--;
-          }
-        });
-      },
-      icon: Row(
+    return TextButton(
+      style: TextButton.styleFrom(
+        foregroundColor: Theme.of(context).iconTheme.color,
+      ),
+      onPressed: (_n1LevelType == _N1LevelType.organizations)
+          ? null
+          : () {
+              setState(() {
+                if (_level > 0) {
+                  _level--;
+                  switch (_n1LevelType) {
+                    case _N1LevelType.organizations:
+                      _selectedOrg = null;
+                      break;
+                    case _N1LevelType.projectTypes:
+                      _selectedProjectType = null;
+                      break;
+                    case _N1LevelType.projectNames:
+                      _selectedProject = null;
+                      break;
+                    case _N1LevelType.folders:
+                      if (_selectedFolderIds.isNotEmpty) {
+                        _selectedFolderIds.removeLast();
+                        _selectedFolderNames.removeLast();
+                      }
+                      break;
+                  }
+                }
+              });
+            },
+      child: Row(
         mainAxisSize: MainAxisSize.min,
         children: const [
           Icon(Icons.keyboard_arrow_up),
@@ -161,6 +168,39 @@ class _SelectNucleusOneFolderScreenState
         ],
       ),
     );
+  }
+
+  List<Widget> _folderPath() {
+    final parts = <Widget>[];
+    final slash = io.Platform.pathSeparator;
+    if (_selectedOrg != null) {
+      parts.addAll([
+        const Icon(Icons.business),
+        const SizedBox(width: 4),
+        Text(_selectedOrg!.organizationName),
+      ]);
+    }
+    if (_selectedProjectType != null) {
+      if (_selectedProjectType == _N1ProjectType.projects) {
+        parts.add(Text(slash));
+        parts.add(const Icon(FlutterIconCustomIcons.project));
+        parts.add(const SizedBox(width: 2));
+      } else {
+        parts.add(Text(slash));
+        parts.add(const SizedBox(width: 2));
+        parts.add(const Icon(FlutterIconCustomIcons.department));
+        parts.add(const SizedBox(width: 4));
+      }
+    }
+    if (_selectedProject != null) {
+      parts.add(Text(_selectedProject!.name));
+    }
+    final folderPath = _selectedFolderNames.fold('', (acc, name) {
+      return '$acc$slash$name';
+    });
+    parts.add(Text(folderPath));
+
+    return parts;
   }
 
   Widget _listView() {
@@ -224,7 +264,6 @@ class _SelectNucleusOneFolderScreenState
   }
 
   Widget _folderListView() {
-    // return _currentFolders.when(
     return _folders.when(
       data: (folders) {
         return _commonListView(
@@ -282,8 +321,8 @@ class _SelectNucleusOneFolderScreenState
         });
       }),
       titleIcon: (projectType == _N1ProjectType.projects)
-          ? const _ProjectIcon()
-          : const _DepartmentIcon(),
+          ? const Icon(FlutterIconCustomIcons.project)
+          : const Icon(FlutterIconCustomIcons.department),
       title: Text(projectType.str),
     );
   }
@@ -297,8 +336,8 @@ class _SelectNucleusOneFolderScreenState
         });
       }),
       titleIcon: (_selectedProjectType == _N1ProjectType.projects)
-          ? const _ProjectIcon()
-          : const _DepartmentIcon(),
+          ? const Icon(FlutterIconCustomIcons.project)
+          : const Icon(FlutterIconCustomIcons.department),
       title: Text(project.name),
     );
   }
@@ -311,8 +350,10 @@ class _SelectNucleusOneFolderScreenState
           final index = _folderLevel! - 1;
           if (_selectedFolderIds.length > index) {
             _selectedFolderIds.insert(index, documentFolder.id);
+            _selectedFolderNames.insert(index, documentFolder.name);
           } else {
             _selectedFolderIds.add(documentFolder.id);
+            _selectedFolderNames.add(documentFolder.name);
           }
         });
       }),
@@ -332,11 +373,13 @@ class _SelectNucleusOneFolderScreenState
           const VisualDensity(vertical: VisualDensity.minimumDensity),
       horizontalTitleGap: Insets.compXSmall,
       leading: leading,
-      title: Row(children: [
-        titleIcon,
-        const SizedBox(width: Insets.compXSmall),
-        title,
-      ]),
+      title: Row(
+        children: [
+          titleIcon,
+          const SizedBox(width: Insets.compXSmall),
+          title,
+        ],
+      ),
     );
   }
 
@@ -350,7 +393,7 @@ class _SelectNucleusOneFolderScreenState
         child: Row(
           children: [
             ElevatedButton(
-              onPressed: () {},
+              onPressed: (_n1LevelType != _N1LevelType.folders) ? null : () {},
               child: const Text('OK'),
             ),
           ],
@@ -369,34 +412,7 @@ class _NavToFolderButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return IconButton(
       icon: const Icon(Icons.keyboard_arrow_right),
-      // style: IconButton.styleFrom(
-      //   foregroundColor: Theme.of(context).colorScheme.primary,
-      // ),
       onPressed: onPressed,
-    );
-  }
-}
-
-class _ProjectIcon extends StatelessWidget {
-  const _ProjectIcon();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.only(top: 4),
-      child: Icon(FlutterIconCustomIcons.projects),
-    );
-  }
-}
-
-class _DepartmentIcon extends StatelessWidget {
-  const _DepartmentIcon();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.only(top: 2),
-      child: Icon(FlutterIconCustomIcons.departments),
     );
   }
 }
