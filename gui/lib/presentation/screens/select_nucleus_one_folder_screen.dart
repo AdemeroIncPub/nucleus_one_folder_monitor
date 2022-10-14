@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nucleus_one_dart_sdk/nucleus_one_dart_sdk.dart' as n1;
 
+import '../../application/enums.dart';
 import '../../application/providers.dart';
 import '../util/flutter_icon_custom_icons_icons.dart';
 import '../util/style.dart';
@@ -25,14 +26,22 @@ class _SelectNucleusOneFolderScreenState
   final _selectedFolderIds = <String>[];
   final _selectedFolderNames = <String>[];
 
+  var _folders = const AsyncValue<List<n1.DocumentFolder>>.loading();
   int _level = 0;
   var _orgsAsync = const AsyncValue<List<n1.UserOrganization>>.loading();
   var _projectsAsync = const AsyncValue<List<n1.OrganizationProject>>.loading();
-  var _folders = const AsyncValue<List<n1.DocumentFolder>>.loading();
 
   n1.UserOrganization? _selectedOrg;
   n1.OrganizationProject? _selectedProject;
-  _N1ProjectType? _selectedProjectType;
+  N1ProjectType? _selectedProjectType;
+
+  @override
+  void dispose() {
+    // todo(apn): this doesn't work yet, but dispose of family is in Riverpod
+    // source, but not yet released (soon).
+    ref.invalidate(n1DocumentFoldersProvider);
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -54,13 +63,29 @@ class _SelectNucleusOneFolderScreenState
   }
 
   @override
-  void dispose() {
-    ref.invalidate(n1DocumentFoldersProvider);
-    super.dispose();
+  Widget build(BuildContext context) {
+    _watchProviders();
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Select Nucleus One Destination'),
+      ),
+      body: _mainContent(context),
+      bottomNavigationBar: _bottomAppBar(),
+    );
   }
 
-  @override
-  Widget build(BuildContext context) {
+  int? get _folderLevel {
+    final folderLevel = _level - _N1LevelType.folders.index;
+    if (folderLevel > -1) {
+      return folderLevel;
+    }
+    return null;
+  }
+
+  _N1LevelType get _n1LevelType => _N1LevelType.getLevel(_level);
+
+  void _watchProviders() {
     // get orgs
     _orgsAsync = ref.watch(n1UserOrganizationsProvider);
 
@@ -86,48 +111,30 @@ class _SelectNucleusOneFolderScreenState
 
       _folders = ref.watch(n1DocumentFoldersProvider(args));
     }
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Select Nucleus One Destination'),
-      ),
-      body: _mainContent(),
-      bottomNavigationBar: _bottomAppBar(),
-    );
   }
 
-  int? get _folderLevel {
-    final folderLevel = _level - _N1LevelType.folders.index;
-    if (folderLevel > -1) {
-      return folderLevel;
-    }
-    return null;
-  }
-
-  _N1LevelType get _n1LevelType => _N1LevelType.getLevel(_level);
-
-  Widget _mainContent() {
+  Widget _mainContent(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _folderPathBar(),
+        _folderPathBar(context),
         Expanded(child: _listView()),
       ],
     );
   }
 
-  Widget _folderPathBar() {
+  Widget _folderPathBar(BuildContext context) {
     return Row(
       children: [
         const SizedBox(width: Insets.compSmall),
-        _upButton(),
+        _upButton(context),
         const SizedBox(width: Insets.compMedium),
         ..._folderPath(),
       ],
     );
   }
 
-  Widget _upButton() {
+  Widget _upButton(BuildContext context) {
     return TextButton(
       style: TextButton.styleFrom(
         foregroundColor: Theme.of(context).iconTheme.color,
@@ -181,7 +188,7 @@ class _SelectNucleusOneFolderScreenState
       ]);
     }
     if (_selectedProjectType != null) {
-      if (_selectedProjectType == _N1ProjectType.projects) {
+      if (_selectedProjectType == N1ProjectType.projects) {
         parts.add(Text(slash));
         parts.add(const Icon(FlutterIconCustomIcons.project));
         parts.add(const SizedBox(width: 2));
@@ -238,9 +245,9 @@ class _SelectNucleusOneFolderScreenState
       itemCount: 2,
       itemBuilder: (context, index) {
         if (index == 0) {
-          return _projectTypeListTile(projectType: _N1ProjectType.projects);
+          return _projectTypeListTile(projectType: N1ProjectType.projects);
         } else {
-          return _projectTypeListTile(projectType: _N1ProjectType.departments);
+          return _projectTypeListTile(projectType: N1ProjectType.departments);
         }
       },
     );
@@ -312,15 +319,18 @@ class _SelectNucleusOneFolderScreenState
     );
   }
 
-  Widget _projectTypeListTile({required _N1ProjectType projectType}) {
+  Widget _projectTypeListTile({required N1ProjectType projectType}) {
     return _listTile(
       leading: _NavToFolderButton(onPressed: () {
         setState(() {
           _level++;
           _selectedProjectType = projectType;
+          ref
+              .read(n1OrganizationProjects_ProjectTypeFilterProvider.notifier)
+              .state = projectType;
         });
       }),
-      titleIcon: (projectType == _N1ProjectType.projects)
+      titleIcon: (projectType == N1ProjectType.projects)
           ? const Icon(FlutterIconCustomIcons.project)
           : const Icon(FlutterIconCustomIcons.department),
       title: Text(projectType.str),
@@ -335,7 +345,7 @@ class _SelectNucleusOneFolderScreenState
           _selectedProject = project;
         });
       }),
-      titleIcon: (_selectedProjectType == _N1ProjectType.projects)
+      titleIcon: (_selectedProjectType == N1ProjectType.projects)
           ? const Icon(FlutterIconCustomIcons.project)
           : const Icon(FlutterIconCustomIcons.department),
       title: Text(project.name),
@@ -429,12 +439,4 @@ enum _N1LevelType {
     if (level == 2) return _N1LevelType.projectNames;
     return _N1LevelType.folders;
   }
-}
-
-enum _N1ProjectType {
-  projects('Projects'),
-  departments('Departments');
-
-  const _N1ProjectType(this.str);
-  final String str;
 }

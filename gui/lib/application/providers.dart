@@ -7,6 +7,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:nucleus_one_dart_sdk/nucleus_one_dart_sdk.dart' as n1;
 import 'package:quiver/strings.dart' as quiver;
 
+import 'enums.dart';
 import 'monitored_folder.dart';
 import 'nucleus_one_sdk_service.dart';
 import 'providers_initialized.dart';
@@ -78,10 +79,20 @@ final n1UserOrganizationsProvider =
   return n1Sdk.getUserOrganizations();
 });
 
+// ignore: non_constant_identifier_names
+final n1OrganizationProjects_ProjectTypeFilterProvider =
+    StateProvider.autoDispose<N1ProjectType?>((ref) {
+  return null;
+});
+
 final n1OrganizationProjectsProvider = FutureProvider.autoDispose
     .family<List<n1.OrganizationProject>, String>((ref, orgId) async {
   final n1Sdk = ref.watch(n1SdkServiceProvider);
-  final projects = await n1Sdk.getOrganizationProjects(organizationId: orgId);
+  final projectTypeFilter =
+      ref.watch(n1OrganizationProjects_ProjectTypeFilterProvider);
+
+  final projects = await n1Sdk.getOrganizationProjects(
+      organizationId: orgId, projectAccessType: projectTypeFilter?.accessType);
   return projects..sort((a, b) => a.name.compareTo(b.name));
 });
 

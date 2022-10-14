@@ -15,11 +15,14 @@ class NucleusOneSdkService {
 
   Future<List<n1.OrganizationProject>> getOrganizationProjects({
     required String organizationId,
+    String? projectAccessType,
   }) async {
     final _GetQueryResultByCursorFn getQrFn = ((cursor) {
-      return n1App
-          .organization(organizationId)
-          .getProjects(organizationId: organizationId, cursor: cursor);
+      return n1App.organization(organizationId).getProjects(
+            organizationId: organizationId,
+            projectAccessType: projectAccessType,
+            cursor: cursor,
+          );
     });
     return _getAllByPaging(getQrFn);
   }
