@@ -38,6 +38,7 @@ environment:
 # versions available, run `flutter pub outdated`.
 dependencies:
   collection: any
+  file_picker: any
   flutter:
     sdk: flutter
   flutter_riverpod: any

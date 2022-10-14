@@ -1,3 +1,4 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quiver/strings.dart' as quiver;
@@ -30,6 +31,8 @@ class _MonitoredFolderDetailsScreenState
       (isNew) ? MonitoredFolder.defaultValue() : widget.mfToEdit!;
 
   late var _mf = _originalMf.copyWith();
+
+  final _localFolderTextFieldController = TextEditingController();
 
   late FileDisposition? _fileDisposition = _mf.fileDisposition;
 
@@ -144,17 +147,18 @@ class _MonitoredFolderDetailsScreenState
     return Row(
       children: [
         IconButton(
-          onPressed: () async {
-            await showDialog<void>(
-              context: context,
-              builder: (context) {
-                return const AlertDialog(
-                  content: Text('OK'),
-                );
-              },
-            );
-          },
           icon: const Icon(Icons.edit),
+          onPressed: () async {
+            final localFolder = await FilePicker.platform.getDirectoryPath(
+              dialogTitle: 'Select folder to monitor',
+              initialDirectory: _localFolderTextFieldController.text,
+              lockParentWindow: true,
+            );
+            if (localFolder != null) {
+              _localFolderTextFieldController.text = localFolder;
+              setState(() {});
+            }
+          },
         ),
         const SizedBox(width: Insets.compXSmall),
         Expanded(
@@ -163,6 +167,7 @@ class _MonitoredFolderDetailsScreenState
               labelText: 'Folder to monitor',
               hintText: 'Use the edit button to select the folder to monitor',
             ),
+            controller: _localFolderTextFieldController,
             readOnly: true,
           ),
         ),
