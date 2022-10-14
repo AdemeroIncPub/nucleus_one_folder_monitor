@@ -307,88 +307,100 @@ class _SelectNucleusOneFolderScreenState
   }
 
   Widget _orgListTile({required n1.UserOrganization org}) {
+    void navToFolder() {
+      setState(() {
+        _level++;
+        _selectedOrg = org;
+      });
+    }
+
     return _listTile(
-      leading: _NavToFolderButton(onPressed: () {
-        setState(() {
-          _level++;
-          _selectedOrg = org;
-        });
-      }),
       titleIcon: const Icon(Icons.business),
       title: Text(org.organizationName),
+      navToFolder: navToFolder,
     );
   }
 
   Widget _projectTypeListTile({required N1ProjectType projectType}) {
+    void navToFolder() {
+      ref
+          .read(n1OrganizationProjects_ProjectTypeFilterProvider.notifier)
+          .state = projectType;
+      setState(() {
+        _level++;
+        _selectedProjectType = projectType;
+      });
+    }
+
     return _listTile(
-      leading: _NavToFolderButton(onPressed: () {
-        setState(() {
-          _level++;
-          _selectedProjectType = projectType;
-          ref
-              .read(n1OrganizationProjects_ProjectTypeFilterProvider.notifier)
-              .state = projectType;
-        });
-      }),
       titleIcon: (projectType == N1ProjectType.projects)
           ? const Icon(FlutterIconCustomIcons.project)
           : const Icon(FlutterIconCustomIcons.department),
       title: Text(projectType.str),
+      navToFolder: navToFolder,
     );
   }
 
   Widget _projectListTile({required n1.OrganizationProject project}) {
+    void navToFolder() {
+      setState(() {
+        _level++;
+        _selectedProject = project;
+      });
+    }
+
     return _listTile(
-      leading: _NavToFolderButton(onPressed: () {
-        setState(() {
-          _level++;
-          _selectedProject = project;
-        });
-      }),
       titleIcon: (_selectedProjectType == N1ProjectType.projects)
           ? const Icon(FlutterIconCustomIcons.project)
           : const Icon(FlutterIconCustomIcons.department),
       title: Text(project.name),
+      navToFolder: navToFolder,
     );
   }
 
   Widget _folderListTile({required n1.DocumentFolder documentFolder}) {
+    void navToFolder() {
+      setState(() {
+        _level++;
+        final index = _folderLevel! - 1;
+        if (_selectedFolderIds.length > index) {
+          _selectedFolderIds.insert(index, documentFolder.id);
+          _selectedFolderNames.insert(index, documentFolder.name);
+        } else {
+          _selectedFolderIds.add(documentFolder.id);
+          _selectedFolderNames.add(documentFolder.name);
+        }
+      });
+    }
+
     return _listTile(
-      leading: _NavToFolderButton(onPressed: () {
-        setState(() {
-          _level++;
-          final index = _folderLevel! - 1;
-          if (_selectedFolderIds.length > index) {
-            _selectedFolderIds.insert(index, documentFolder.id);
-            _selectedFolderNames.insert(index, documentFolder.name);
-          } else {
-            _selectedFolderIds.add(documentFolder.id);
-            _selectedFolderNames.add(documentFolder.name);
-          }
-        });
-      }),
       titleIcon: const Icon(Icons.folder),
       title: Text(documentFolder.name),
+      navToFolder: navToFolder,
     );
   }
 
   Widget _listTile({
-    required Widget leading,
     required Widget titleIcon,
     required Widget title,
+    required VoidCallback navToFolder,
   }) {
     return ListTile(
       contentPadding: EdgeInsets.zero,
       visualDensity:
           const VisualDensity(vertical: VisualDensity.minimumDensity),
       horizontalTitleGap: Insets.compXSmall,
-      leading: leading,
-      title: Row(
-        children: [
-          titleIcon,
-          const SizedBox(width: Insets.compXSmall),
-          title,
-        ],
+      leading: _NavToFolderButton(onPressed: navToFolder),
+      title: GestureDetector(
+        onDoubleTap: navToFolder,
+        behavior: HitTestBehavior.opaque,
+        child: Row(
+          children: [
+            titleIcon,
+            const SizedBox(width: Insets.compXSmall),
+            title,
+          ],
+        ),
       ),
     );
   }
