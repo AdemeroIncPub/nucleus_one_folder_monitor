@@ -1,14 +1,28 @@
-import 'dart:io' as io;
-
+import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:nucleus_one_dart_sdk/nucleus_one_dart_sdk.dart' as n1;
 
 import '../../application/enums.dart';
 import '../../application/providers.dart';
 import '../util/flutter_icon_custom_icons_icons.dart';
 import '../util/style.dart';
+import '../widgets/nucleus_one_path.dart';
 import '../widgets/quarter_size_circular_progress_indicator.dart';
+
+part 'select_nucleus_one_folder_screen.freezed.dart';
+
+@freezed
+class SelectNucleusOneFolderScreenResult
+    with _$SelectNucleusOneFolderScreenResult {
+  const factory SelectNucleusOneFolderScreenResult({
+    required n1.UserOrganization org,
+    required n1.OrganizationProject project,
+    required List<n1.DocumentFolder> folders,
+  }) = _SelectNucleusOneFolderScreenResult;
+}
 
 class SelectNucleusOneFolderScreen extends ConsumerStatefulWidget {
   const SelectNucleusOneFolderScreen({super.key});
@@ -23,17 +37,18 @@ class SelectNucleusOneFolderScreen extends ConsumerStatefulWidget {
 
 class _SelectNucleusOneFolderScreenState
     extends ConsumerState<SelectNucleusOneFolderScreen> {
-  final _selectedFolderIds = <String>[];
-  final _selectedFolderNames = <String>[];
+  final _navigatedFolders = <n1.DocumentFolder>[];
 
   var _folders = const AsyncValue<List<n1.DocumentFolder>>.loading();
   int _level = 0;
   var _orgsAsync = const AsyncValue<List<n1.UserOrganization>>.loading();
   var _projectsAsync = const AsyncValue<List<n1.OrganizationProject>>.loading();
 
-  n1.UserOrganization? _selectedOrg;
+  n1.UserOrganization? _navigatedOrg;
+  n1.OrganizationProject? _navigatedProject;
+  N1ProjectType? _navigatedProjectType;
+  n1.DocumentFolder? _selectedFolder;
   n1.OrganizationProject? _selectedProject;
-  N1ProjectType? _selectedProjectType;
 
   @override
   void dispose() {
@@ -71,7 +86,7 @@ class _SelectNucleusOneFolderScreenState
         title: const Text('Select Nucleus One Destination'),
       ),
       body: _mainContent(context),
-      bottomNavigationBar: _bottomAppBar(),
+      bottomNavigationBar: _bottomAppBar(context),
     );
   }
 
@@ -90,26 +105,20 @@ class _SelectNucleusOneFolderScreenState
     _orgsAsync = ref.watch(n1UserOrganizationsProvider);
 
     // get projects
-    if (_selectedOrg != null) {
+    if (_navigatedOrg != null) {
       _projectsAsync = ref
-          .watch(n1OrganizationProjectsProvider(_selectedOrg!.organizationID));
-    }
+          .watch(n1OrganizationProjectsProvider(_navigatedOrg!.organizationID));
 
-    // get folders by current level
-    if (_folderLevel != null) {
-      final folderLevel = _folderLevel!;
-      final parentId =
-          (folderLevel > 0 && _selectedFolderIds.length > folderLevel - 1)
-              ? _selectedFolderIds[folderLevel - 1]
-              : null;
+      // get folders by current level
+      if (_folderLevel != null) {
+        final args = GetProjectDocumentFoldersArgs(
+          orgId: _navigatedOrg!.organizationID,
+          projectId: _navigatedProject!.id,
+          parentId: _navigatedFolders.lastOrNull?.id,
+        );
 
-      final args = GetProjectDocumentFoldersArgs(
-        orgId: _selectedOrg!.organizationID,
-        projectId: _selectedProject!.id,
-        parentId: parentId,
-      );
-
-      _folders = ref.watch(n1DocumentFoldersProvider(args));
+        _folders = ref.watch(n1DocumentFoldersProvider(args));
+      }
     }
   }
 
@@ -129,7 +138,12 @@ class _SelectNucleusOneFolderScreenState
         const SizedBox(width: Insets.compSmall),
         _upButton(context),
         const SizedBox(width: Insets.compMedium),
-        ..._folderPath(),
+        NucleusOnePath(
+          organizationName: _navigatedOrg?.organizationName,
+          projectType: _navigatedProjectType,
+          projectName: _navigatedProject?.name,
+          folderNames: _navigatedFolders.map((e) => e.name).toList(),
+        ),
       ],
     );
   }
@@ -147,18 +161,21 @@ class _SelectNucleusOneFolderScreenState
                   _level--;
                   switch (_n1LevelType) {
                     case _N1LevelType.organizations:
-                      _selectedOrg = null;
+                      _navigatedOrg = null;
                       break;
                     case _N1LevelType.projectTypes:
-                      _selectedProjectType = null;
+                      _navigatedProjectType = null;
+                      _selectedProject = null;
+                      _selectedFolder = null;
                       break;
                     case _N1LevelType.projectNames:
-                      _selectedProject = null;
+                      _navigatedProject = null;
+                      _selectedFolder = null;
                       break;
                     case _N1LevelType.folders:
-                      if (_selectedFolderIds.isNotEmpty) {
-                        _selectedFolderIds.removeLast();
-                        _selectedFolderNames.removeLast();
+                      if (_navigatedFolders.isNotEmpty) {
+                        final removed = _navigatedFolders.removeLast();
+                        _selectedFolder = removed;
                       }
                       break;
                   }
@@ -175,39 +192,6 @@ class _SelectNucleusOneFolderScreenState
         ],
       ),
     );
-  }
-
-  List<Widget> _folderPath() {
-    final parts = <Widget>[];
-    final slash = io.Platform.pathSeparator;
-    if (_selectedOrg != null) {
-      parts.addAll([
-        const Icon(Icons.business),
-        const SizedBox(width: 4),
-        Text(_selectedOrg!.organizationName),
-      ]);
-    }
-    if (_selectedProjectType != null) {
-      if (_selectedProjectType == N1ProjectType.projects) {
-        parts.add(Text(slash));
-        parts.add(const Icon(FlutterIconCustomIcons.project));
-        parts.add(const SizedBox(width: 2));
-      } else {
-        parts.add(Text(slash));
-        parts.add(const SizedBox(width: 2));
-        parts.add(const Icon(FlutterIconCustomIcons.department));
-        parts.add(const SizedBox(width: 4));
-      }
-    }
-    if (_selectedProject != null) {
-      parts.add(Text(_selectedProject!.name));
-    }
-    final folderPath = _selectedFolderNames.fold('', (acc, name) {
-      return '$acc$slash$name';
-    });
-    parts.add(Text(folderPath));
-
-    return parts;
   }
 
   Widget _listView() {
@@ -229,7 +213,10 @@ class _SelectNucleusOneFolderScreenState
         return _commonListView(
           itemCount: orgs.length,
           itemBuilder: (context, index) {
-            return _orgListTile(org: orgs[index]);
+            return _orgListTile(
+              context: context,
+              org: orgs[index],
+            );
           },
         );
       },
@@ -245,9 +232,15 @@ class _SelectNucleusOneFolderScreenState
       itemCount: 2,
       itemBuilder: (context, index) {
         if (index == 0) {
-          return _projectTypeListTile(projectType: N1ProjectType.projects);
+          return _projectTypeListTile(
+            context: context,
+            projectType: N1ProjectType.projects,
+          );
         } else {
-          return _projectTypeListTile(projectType: N1ProjectType.departments);
+          return _projectTypeListTile(
+            context: context,
+            projectType: N1ProjectType.departments,
+          );
         }
       },
     );
@@ -259,7 +252,10 @@ class _SelectNucleusOneFolderScreenState
         return _commonListView(
           itemCount: projects.length,
           itemBuilder: (context, index) {
-            return _projectListTile(project: projects[index]);
+            return _projectListTile(
+              context: context,
+              project: projects[index],
+            );
           },
         );
       },
@@ -276,7 +272,10 @@ class _SelectNucleusOneFolderScreenState
         return _commonListView(
           itemCount: folders.length,
           itemBuilder: (context, index) {
-            return _folderListTile(documentFolder: folders[index]);
+            return _folderListTile(
+              context: context,
+              documentFolder: folders[index],
+            );
           },
         );
       },
@@ -300,91 +299,123 @@ class _SelectNucleusOneFolderScreenState
         itemCount: itemCount,
         itemBuilder: itemBuilder,
         separatorBuilder: (context, index) {
-          return const Divider();
+          return const Divider(
+            thickness: 1,
+            height: 2,
+          );
         },
       ),
     );
   }
 
-  Widget _orgListTile({required n1.UserOrganization org}) {
+  Widget _orgListTile({
+    required BuildContext context,
+    required n1.UserOrganization org,
+  }) {
     void navToFolder() {
       setState(() {
         _level++;
-        _selectedOrg = org;
+        _navigatedOrg = org;
       });
     }
 
-    return _listTile(
+    return _commonListTile(
+      context: context,
       titleIcon: const Icon(Icons.business),
       title: Text(org.organizationName),
       navToFolder: navToFolder,
+      isSelected: false,
     );
   }
 
-  Widget _projectTypeListTile({required N1ProjectType projectType}) {
+  Widget _projectTypeListTile({
+    required BuildContext context,
+    required N1ProjectType projectType,
+  }) {
     void navToFolder() {
       ref
           .read(n1OrganizationProjects_ProjectTypeFilterProvider.notifier)
           .state = projectType;
       setState(() {
         _level++;
-        _selectedProjectType = projectType;
+        _navigatedProjectType = projectType;
       });
     }
 
-    return _listTile(
+    return _commonListTile(
+      context: context,
       titleIcon: (projectType == N1ProjectType.projects)
           ? const Icon(FlutterIconCustomIcons.project)
           : const Icon(FlutterIconCustomIcons.department),
       title: Text(projectType.str),
       navToFolder: navToFolder,
+      isSelected: false,
     );
   }
 
-  Widget _projectListTile({required n1.OrganizationProject project}) {
+  Widget _projectListTile({
+    required BuildContext context,
+    required n1.OrganizationProject project,
+  }) {
     void navToFolder() {
       setState(() {
         _level++;
+        _navigatedProject = project;
         _selectedProject = project;
       });
     }
 
-    return _listTile(
-      titleIcon: (_selectedProjectType == N1ProjectType.projects)
+    return _commonListTile(
+      context: context,
+      titleIcon: (_navigatedProjectType == N1ProjectType.projects)
           ? const Icon(FlutterIconCustomIcons.project)
           : const Icon(FlutterIconCustomIcons.department),
       title: Text(project.name),
       navToFolder: navToFolder,
+      isSelected: _selectedProject?.id == project.id,
+      selectFolder: () {
+        setState(() {
+          _selectedProject = project;
+        });
+      },
     );
   }
 
-  Widget _folderListTile({required n1.DocumentFolder documentFolder}) {
+  Widget _folderListTile({
+    required BuildContext context,
+    required n1.DocumentFolder documentFolder,
+  }) {
     void navToFolder() {
       setState(() {
         _level++;
-        final index = _folderLevel! - 1;
-        if (_selectedFolderIds.length > index) {
-          _selectedFolderIds.insert(index, documentFolder.id);
-          _selectedFolderNames.insert(index, documentFolder.name);
-        } else {
-          _selectedFolderIds.add(documentFolder.id);
-          _selectedFolderNames.add(documentFolder.name);
-        }
+        _selectedFolder = documentFolder;
+        _navigatedFolders.add(documentFolder);
       });
     }
 
-    return _listTile(
+    return _commonListTile(
+      context: context,
       titleIcon: const Icon(Icons.folder),
       title: Text(documentFolder.name),
       navToFolder: navToFolder,
+      isSelected: _selectedFolder?.id == documentFolder.id,
+      selectFolder: () {
+        setState(() {
+          _selectedFolder = documentFolder;
+        });
+      },
     );
   }
 
-  Widget _listTile({
+  Widget _commonListTile({
+    required BuildContext context,
     required Widget titleIcon,
     required Widget title,
     required VoidCallback navToFolder,
+    required bool isSelected,
+    VoidCallback? selectFolder,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
     return ListTile(
       contentPadding: EdgeInsets.zero,
       visualDensity:
@@ -402,10 +433,45 @@ class _SelectNucleusOneFolderScreenState
           ],
         ),
       ),
+      selected: isSelected,
+      selectedTileColor: colorScheme.surfaceVariant.withOpacity(0.33),
+      onTap: selectFolder,
     );
   }
 
-  BottomAppBar _bottomAppBar() {
+  BottomAppBar _bottomAppBar(BuildContext context) {
+    Row selectedForDisplay() {
+      if (_selectedProject == null) {
+        return Row();
+      }
+      if (_selectedFolder == null) {
+        if (_navigatedProjectType == N1ProjectType.projects) {
+          return Row(
+            children: [
+              const Icon(FlutterIconCustomIcons.project),
+              const SizedBox(width: 2),
+              Text(_selectedProject!.name),
+            ],
+          );
+        } else {
+          return Row(
+            children: [
+              const Icon(FlutterIconCustomIcons.department),
+              const SizedBox(width: 2),
+              Text(_selectedProject!.name),
+            ],
+          );
+        }
+      }
+      return Row(
+        children: [
+          const SizedBox(width: 2),
+          Text('${_selectedFolder?.name}'),
+        ],
+      );
+    }
+
+    final theme = Theme.of(context);
     return BottomAppBar(
       child: Container(
         constraints: const BoxConstraints(
@@ -415,9 +481,30 @@ class _SelectNucleusOneFolderScreenState
         child: Row(
           children: [
             ElevatedButton(
-              onPressed: (_n1LevelType != _N1LevelType.folders) ? null : () {},
+              onPressed: (_selectedProject == null)
+                  ? null
+                  : () {
+                      final folders = _navigatedFolders.toList();
+                      if (_selectedFolder != folders.lastOrNull) {
+                        folders.add(_selectedFolder!);
+                      }
+                      Navigator.pop(
+                        context,
+                        SelectNucleusOneFolderScreenResult(
+                          org: _navigatedOrg!,
+                          project: _selectedProject!,
+                          folders: folders,
+                        ),
+                      );
+                    },
               child: const Text('OK'),
             ),
+            const SizedBox(width: Insets.compLarge),
+            Text(
+              'Selected: ',
+              style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
+            ),
+            SelectionArea(child: selectedForDisplay()),
           ],
         ),
       ),

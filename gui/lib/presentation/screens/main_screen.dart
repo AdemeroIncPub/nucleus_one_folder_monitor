@@ -90,11 +90,12 @@ class _MainScreenState extends ConsumerState<MainScreen> {
           } else if (states.contains(MaterialState.hovered)) {
             return null; // Use the default value if hovered.
           }
-          if (index.isEven) {
-            return colorScheme.surfaceVariant.withOpacity(0.33);
-          } else {
-            return colorScheme.surface.withOpacity(0.1);
-          }
+          return null;
+          // if (index.isEven) {
+          //   return colorScheme.surfaceVariant.withOpacity(0.33);
+          // } else {
+          //   return colorScheme.surface.withOpacity(0.1);
+          // }
         }),
         selected: _selectedRow == index,
         onSelectChanged: (bool? value) {

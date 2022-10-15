@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quiver/strings.dart' as quiver;
 
+import '../../application/enums.dart';
 import '../../application/monitored_folder.dart';
 import '../../application/providers.dart';
 import '../util/style.dart';
+import '../widgets/nucleus_one_path.dart';
 import 'select_nucleus_one_folder_screen.dart';
 
 const Widget _fieldEditButtonWidthSpacer = SizedBox(width: 48);
@@ -16,7 +18,7 @@ class MonitoredFolderDetailsScreen extends ConsumerStatefulWidget {
 
   static const routeName = '/MonitoredFolderDetailsScreen';
 
-  /// If null then anew [MonitoredFolder] will be created.
+  /// If null then a new [MonitoredFolder] will be created.
   final MonitoredFolder? mfToEdit;
 
   @override
@@ -27,14 +29,32 @@ class MonitoredFolderDetailsScreen extends ConsumerStatefulWidget {
 class _MonitoredFolderDetailsScreenState
     extends ConsumerState<MonitoredFolderDetailsScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _localFolderTextFieldController = TextEditingController();
+  final _n1DestinationFormFieldFocusNode = FocusNode();
+  final _n1DestinationFormFieldKey =
+      GlobalKey<FormFieldState<SelectNucleusOneFolderScreenResult>>();
+
   late final _originalMf =
       (isNew) ? MonitoredFolder.defaultValue() : widget.mfToEdit!;
 
+  bool _isHovering = false;
   late var _mf = _originalMf.copyWith();
 
-  final _localFolderTextFieldController = TextEditingController();
-
   late FileDisposition? _fileDisposition = _mf.fileDisposition;
+
+  @override
+  void dispose() {
+    _n1DestinationFormFieldFocusNode.removeListener(_handleFocusChanged);
+    _n1DestinationFormFieldFocusNode.dispose();
+    _localFolderTextFieldController.dispose();
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _n1DestinationFormFieldFocusNode.addListener(_handleFocusChanged);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -75,7 +95,6 @@ class _MonitoredFolderDetailsScreenState
             key: _formKey,
             onWillPop: () async => true, //todo(apn): warn if there are changes
             child: Column(
-              // mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 _nameFormRow(context),
                 _formRowSpacer,
@@ -180,7 +199,8 @@ class _MonitoredFolderDetailsScreenState
       children: [
         IconButton(
           onPressed: () async {
-            return Navigator.push<void>(
+            final result =
+                await Navigator.push<SelectNucleusOneFolderScreenResult>(
               context,
               MaterialPageRoute(
                 builder: (context) => const SelectNucleusOneFolderScreen(),
@@ -189,18 +209,51 @@ class _MonitoredFolderDetailsScreenState
                 ),
               ),
             );
+            if (result != null) {
+              _n1DestinationFormFieldKey.currentState?.didChange(result);
+            }
           },
           icon: const Icon(Icons.edit),
         ),
         const SizedBox(width: Insets.compXSmall),
         Expanded(
-          child: TextFormField(
-            decoration: const InputDecoration(
-              labelText: 'Nucleus One destination',
-              hintText:
-                  'Use the edit button to select the Nucleus One destination',
+          child: GestureDetector(
+            onTap: () => _n1DestinationFormFieldFocusNode.requestFocus(),
+            child: MouseRegion(
+              cursor: MaterialStateMouseCursor.textable,
+              onEnter: (event) => _handleHover(true),
+              onExit: (event) => _handleHover(false),
+              child: Focus(
+                focusNode: _n1DestinationFormFieldFocusNode,
+                child: FormField<SelectNucleusOneFolderScreenResult>(
+                  key: _n1DestinationFormFieldKey,
+                  initialValue: null,
+                  builder: (FormFieldState<SelectNucleusOneFolderScreenResult>
+                      field) {
+                    return InputDecorator(
+                      decoration: const InputDecoration(
+                        labelText: 'Nucleus One destination',
+                        hintText:
+                            'Use the edit button to select the Nucleus One destination',
+                      ),
+                      isEmpty: field.value == null,
+                      isFocused: _n1DestinationFormFieldFocusNode.hasFocus,
+                      isHovering: _isHovering,
+                      child: NucleusOnePath(
+                        organizationName: field.value?.org.organizationName,
+                        projectType: N1ProjectType.fromAccessType(
+                            field.value?.project.accessType),
+                        projectName: field.value?.project.name,
+                        folderNames:
+                            field.value?.folders.map((e) => e.name).toList() ??
+                                [],
+                        textStyle: Theme.of(context).textTheme.subtitle1,
+                      ),
+                    );
+                  },
+                ),
+              ),
             ),
-            readOnly: true,
           ),
         ),
       ],
@@ -361,4 +414,14 @@ class _MonitoredFolderDetailsScreenState
       child: const Text('SAVE'),
     );
   }
+
+  void _handleHover(bool hovering) {
+    if (hovering != _isHovering) {
+      setState(() {
+        _isHovering = hovering;
+      });
+    }
+  }
+
+  void _handleFocusChanged() => setState(() {});
 }
