@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quiver/strings.dart' as quiver;
 
-import '../../application/enums.dart';
 import '../../application/monitored_folder.dart';
 import '../../application/providers.dart';
 import '../util/style.dart';
@@ -38,7 +37,7 @@ class _MonitoredFolderDetailsScreenState
   final _moveToFolderTextFieldController = TextEditingController();
   final _n1DestinationFormFieldFocusNode = FocusNode();
   final _n1DestinationFormFieldKey =
-      GlobalKey<FormFieldState<SelectNucleusOneFolderScreenResult>>();
+      GlobalKey<FormFieldState<NucleusOneFolder>>();
 
   late final _originalMf =
       (isNew) ? MonitoredFolder.defaultValue() : widget.mfToEdit!;
@@ -212,8 +211,7 @@ class _MonitoredFolderDetailsScreenState
       children: [
         IconButton(
           onPressed: () async {
-            final result =
-                await Navigator.push<SelectNucleusOneFolderScreenResult>(
+            final result = await Navigator.push<NucleusOneFolder>(
               context,
               MaterialPageRoute(
                 builder: (context) => const SelectNucleusOneFolderScreen(),
@@ -238,11 +236,10 @@ class _MonitoredFolderDetailsScreenState
               onExit: (event) => _handleHover(false),
               child: Focus(
                 focusNode: _n1DestinationFormFieldFocusNode,
-                child: FormField<SelectNucleusOneFolderScreenResult>(
+                child: FormField<NucleusOneFolder>(
                   key: _n1DestinationFormFieldKey,
                   initialValue: null,
-                  builder: (FormFieldState<SelectNucleusOneFolderScreenResult>
-                      field) {
+                  builder: (FormFieldState<NucleusOneFolder> field) {
                     return InputDecorator(
                       decoration: const InputDecoration(
                         labelText: 'Nucleus One destination',
@@ -253,13 +250,10 @@ class _MonitoredFolderDetailsScreenState
                       isFocused: _n1DestinationFormFieldFocusNode.hasFocus,
                       isHovering: _isHovering,
                       child: NucleusOnePath(
-                        organizationName: field.value?.org.organizationName,
-                        projectType: N1ProjectType.fromAccessType(
-                            field.value?.project.accessType),
-                        projectName: field.value?.project.name,
-                        folderNames:
-                            field.value?.folders.map((e) => e.name).toList() ??
-                                [],
+                        organizationName: field.value?.organizationName,
+                        projectType: field.value?.projectType,
+                        projectName: field.value?.projectName,
+                        folderNames: field.value?.folderNames ?? [],
                         textStyle: Theme.of(context).textTheme.subtitle1,
                       ),
                     );

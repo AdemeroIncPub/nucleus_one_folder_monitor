@@ -1,29 +1,16 @@
 import 'package:collection/collection.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:nucleus_one_dart_sdk/nucleus_one_dart_sdk.dart' as n1;
 
 import '../../application/enums.dart';
+import '../../application/monitored_folder.dart';
 import '../../application/providers.dart';
 import '../util/flutter_icon_custom_icons_icons.dart';
 import '../util/style.dart';
 import '../widgets/nucleus_one_path.dart';
 import '../widgets/quarter_size_circular_progress_indicator.dart';
-
-part 'select_nucleus_one_folder_screen.freezed.dart';
-
-@freezed
-class SelectNucleusOneFolderScreenResult
-    with _$SelectNucleusOneFolderScreenResult {
-  const factory SelectNucleusOneFolderScreenResult({
-    required n1.UserOrganization org,
-    required n1.OrganizationProject project,
-    required List<n1.DocumentFolder> folders,
-  }) = _SelectNucleusOneFolderScreenResult;
-}
 
 class SelectNucleusOneFolderScreen extends ConsumerStatefulWidget {
   const SelectNucleusOneFolderScreen({super.key});
@@ -506,10 +493,15 @@ class _SelectNucleusOneFolderScreenState
                       }
                       Navigator.pop(
                         context,
-                        SelectNucleusOneFolderScreenResult(
-                          org: _navigatedOrg!,
-                          project: _selectedProject!,
-                          folders: folders,
+                        NucleusOneFolder(
+                          organizationId: _navigatedOrg!.organizationID,
+                          organizationName: _navigatedOrg!.organizationName,
+                          projectId: _selectedProject!.id,
+                          projectName: _selectedProject!.name,
+                          projectType: N1ProjectType.fromAccessType(
+                              _selectedProject!.accessType)!,
+                          folderIds: folders.map((e) => e.id).toList(),
+                          folderNames: folders.map((e) => e.name).toList(),
                         ),
                       );
                     },

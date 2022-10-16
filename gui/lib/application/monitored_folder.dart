@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:uuid/uuid.dart';
 
+import 'enums.dart';
+
 part 'monitored_folder.freezed.dart';
 part 'monitored_folder.g.dart';
 
@@ -14,9 +16,7 @@ class MonitoredFolder with _$MonitoredFolder {
     @Default('') String name,
     @Default('') String description,
     @Default('') String monitoredFolder,
-    // probably not sufficient, may end up using freezed union
-    // currently unsure of difference between Projects and Departments
-    @Default('') String n1FolderId,
+    @Default(NucleusOneFolder.defaultValue) NucleusOneFolder n1Folder,
     @Default(FileDisposition.delete()) FileDisposition fileDisposition,
   }) = _MonitoredFolder;
 
@@ -24,7 +24,36 @@ class MonitoredFolder with _$MonitoredFolder {
       _$MonitoredFolderFromJson(json);
 
   // ignore: prefer_constructors_over_static_methods
-  static MonitoredFolder defaultValue() => MonitoredFolder(id: _uuid.v1());
+  static MonitoredFolder defaultValue() => MonitoredFolder(
+        id: _uuid.v1(),
+        n1Folder: NucleusOneFolder.defaultValue,
+      );
+}
+
+@freezed
+class NucleusOneFolder with _$NucleusOneFolder {
+  const factory NucleusOneFolder({
+    required String organizationId,
+    required String organizationName,
+    required String projectId,
+    required String projectName,
+    required N1ProjectType projectType,
+    required final List<String> folderIds,
+    required final List<String> folderNames,
+  }) = _NucleusOneFolder;
+
+  factory NucleusOneFolder.fromJson(Map<String, dynamic> json) =>
+      _$NucleusOneFolderFromJson(json);
+
+  static const NucleusOneFolder defaultValue = NucleusOneFolder(
+    organizationId: '',
+    organizationName: '',
+    projectId: '',
+    projectName: '',
+    projectType: N1ProjectType.projects,
+    folderIds: [],
+    folderNames: [],
+  );
 }
 
 @freezed

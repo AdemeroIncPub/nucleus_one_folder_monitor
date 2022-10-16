@@ -23,10 +23,8 @@ mixin _$MonitoredFolder {
   String get id => throw _privateConstructorUsedError;
   String get name => throw _privateConstructorUsedError;
   String get description => throw _privateConstructorUsedError;
-  String get monitoredFolder =>
-      throw _privateConstructorUsedError; // probably not sufficient, may end up using freezed union
-// currently unsure of difference between Projects and Departments
-  String get n1FolderId => throw _privateConstructorUsedError;
+  String get monitoredFolder => throw _privateConstructorUsedError;
+  NucleusOneFolder get n1Folder => throw _privateConstructorUsedError;
   FileDisposition get fileDisposition => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -46,9 +44,10 @@ abstract class $MonitoredFolderCopyWith<$Res> {
       String name,
       String description,
       String monitoredFolder,
-      String n1FolderId,
+      NucleusOneFolder n1Folder,
       FileDisposition fileDisposition});
 
+  $NucleusOneFolderCopyWith<$Res> get n1Folder;
   $FileDispositionCopyWith<$Res> get fileDisposition;
 }
 
@@ -69,7 +68,7 @@ class _$MonitoredFolderCopyWithImpl<$Res, $Val extends MonitoredFolder>
     Object? name = null,
     Object? description = null,
     Object? monitoredFolder = null,
-    Object? n1FolderId = null,
+    Object? n1Folder = null,
     Object? fileDisposition = null,
   }) {
     return _then(_value.copyWith(
@@ -89,15 +88,23 @@ class _$MonitoredFolderCopyWithImpl<$Res, $Val extends MonitoredFolder>
           ? _value.monitoredFolder
           : monitoredFolder // ignore: cast_nullable_to_non_nullable
               as String,
-      n1FolderId: null == n1FolderId
-          ? _value.n1FolderId
-          : n1FolderId // ignore: cast_nullable_to_non_nullable
-              as String,
+      n1Folder: null == n1Folder
+          ? _value.n1Folder
+          : n1Folder // ignore: cast_nullable_to_non_nullable
+              as NucleusOneFolder,
       fileDisposition: null == fileDisposition
           ? _value.fileDisposition
           : fileDisposition // ignore: cast_nullable_to_non_nullable
               as FileDisposition,
     ) as $Val);
+  }
+
+  @override
+  @pragma('vm:prefer-inline')
+  $NucleusOneFolderCopyWith<$Res> get n1Folder {
+    return $NucleusOneFolderCopyWith<$Res>(_value.n1Folder, (value) {
+      return _then(_value.copyWith(n1Folder: value) as $Val);
+    });
   }
 
   @override
@@ -122,9 +129,11 @@ abstract class _$$_MonitoredFolderCopyWith<$Res>
       String name,
       String description,
       String monitoredFolder,
-      String n1FolderId,
+      NucleusOneFolder n1Folder,
       FileDisposition fileDisposition});
 
+  @override
+  $NucleusOneFolderCopyWith<$Res> get n1Folder;
   @override
   $FileDispositionCopyWith<$Res> get fileDisposition;
 }
@@ -144,7 +153,7 @@ class __$$_MonitoredFolderCopyWithImpl<$Res>
     Object? name = null,
     Object? description = null,
     Object? monitoredFolder = null,
-    Object? n1FolderId = null,
+    Object? n1Folder = null,
     Object? fileDisposition = null,
   }) {
     return _then(_$_MonitoredFolder(
@@ -164,10 +173,10 @@ class __$$_MonitoredFolderCopyWithImpl<$Res>
           ? _value.monitoredFolder
           : monitoredFolder // ignore: cast_nullable_to_non_nullable
               as String,
-      n1FolderId: null == n1FolderId
-          ? _value.n1FolderId
-          : n1FolderId // ignore: cast_nullable_to_non_nullable
-              as String,
+      n1Folder: null == n1Folder
+          ? _value.n1Folder
+          : n1Folder // ignore: cast_nullable_to_non_nullable
+              as NucleusOneFolder,
       fileDisposition: null == fileDisposition
           ? _value.fileDisposition
           : fileDisposition // ignore: cast_nullable_to_non_nullable
@@ -186,7 +195,7 @@ class _$_MonitoredFolder
       this.name = '',
       this.description = '',
       this.monitoredFolder = '',
-      this.n1FolderId = '',
+      this.n1Folder = NucleusOneFolder.defaultValue,
       this.fileDisposition = const FileDisposition.delete()});
 
   factory _$_MonitoredFolder.fromJson(Map<String, dynamic> json) =>
@@ -203,18 +212,16 @@ class _$_MonitoredFolder
   @override
   @JsonKey()
   final String monitoredFolder;
-// probably not sufficient, may end up using freezed union
-// currently unsure of difference between Projects and Departments
   @override
   @JsonKey()
-  final String n1FolderId;
+  final NucleusOneFolder n1Folder;
   @override
   @JsonKey()
   final FileDisposition fileDisposition;
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'MonitoredFolder(id: $id, name: $name, description: $description, monitoredFolder: $monitoredFolder, n1FolderId: $n1FolderId, fileDisposition: $fileDisposition)';
+    return 'MonitoredFolder(id: $id, name: $name, description: $description, monitoredFolder: $monitoredFolder, n1Folder: $n1Folder, fileDisposition: $fileDisposition)';
   }
 
   @override
@@ -226,7 +233,7 @@ class _$_MonitoredFolder
       ..add(DiagnosticsProperty('name', name))
       ..add(DiagnosticsProperty('description', description))
       ..add(DiagnosticsProperty('monitoredFolder', monitoredFolder))
-      ..add(DiagnosticsProperty('n1FolderId', n1FolderId))
+      ..add(DiagnosticsProperty('n1Folder', n1Folder))
       ..add(DiagnosticsProperty('fileDisposition', fileDisposition));
   }
 
@@ -241,8 +248,8 @@ class _$_MonitoredFolder
                 other.description == description) &&
             (identical(other.monitoredFolder, monitoredFolder) ||
                 other.monitoredFolder == monitoredFolder) &&
-            (identical(other.n1FolderId, n1FolderId) ||
-                other.n1FolderId == n1FolderId) &&
+            (identical(other.n1Folder, n1Folder) ||
+                other.n1Folder == n1Folder) &&
             (identical(other.fileDisposition, fileDisposition) ||
                 other.fileDisposition == fileDisposition));
   }
@@ -250,7 +257,7 @@ class _$_MonitoredFolder
   @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hash(runtimeType, id, name, description,
-      monitoredFolder, n1FolderId, fileDisposition);
+      monitoredFolder, n1Folder, fileDisposition);
 
   @JsonKey(ignore: true)
   @override
@@ -272,7 +279,7 @@ abstract class _MonitoredFolder implements MonitoredFolder {
       final String name,
       final String description,
       final String monitoredFolder,
-      final String n1FolderId,
+      final NucleusOneFolder n1Folder,
       final FileDisposition fileDisposition}) = _$_MonitoredFolder;
 
   factory _MonitoredFolder.fromJson(Map<String, dynamic> json) =
@@ -286,14 +293,315 @@ abstract class _MonitoredFolder implements MonitoredFolder {
   String get description;
   @override
   String get monitoredFolder;
-  @override // probably not sufficient, may end up using freezed union
-// currently unsure of difference between Projects and Departments
-  String get n1FolderId;
+  @override
+  NucleusOneFolder get n1Folder;
   @override
   FileDisposition get fileDisposition;
   @override
   @JsonKey(ignore: true)
   _$$_MonitoredFolderCopyWith<_$_MonitoredFolder> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+NucleusOneFolder _$NucleusOneFolderFromJson(Map<String, dynamic> json) {
+  return _NucleusOneFolder.fromJson(json);
+}
+
+/// @nodoc
+mixin _$NucleusOneFolder {
+  String get organizationId => throw _privateConstructorUsedError;
+  String get organizationName => throw _privateConstructorUsedError;
+  String get projectId => throw _privateConstructorUsedError;
+  String get projectName => throw _privateConstructorUsedError;
+  N1ProjectType get projectType => throw _privateConstructorUsedError;
+  List<String> get folderIds => throw _privateConstructorUsedError;
+  List<String> get folderNames => throw _privateConstructorUsedError;
+
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+  @JsonKey(ignore: true)
+  $NucleusOneFolderCopyWith<NucleusOneFolder> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $NucleusOneFolderCopyWith<$Res> {
+  factory $NucleusOneFolderCopyWith(
+          NucleusOneFolder value, $Res Function(NucleusOneFolder) then) =
+      _$NucleusOneFolderCopyWithImpl<$Res, NucleusOneFolder>;
+  @useResult
+  $Res call(
+      {String organizationId,
+      String organizationName,
+      String projectId,
+      String projectName,
+      N1ProjectType projectType,
+      List<String> folderIds,
+      List<String> folderNames});
+}
+
+/// @nodoc
+class _$NucleusOneFolderCopyWithImpl<$Res, $Val extends NucleusOneFolder>
+    implements $NucleusOneFolderCopyWith<$Res> {
+  _$NucleusOneFolderCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? organizationId = null,
+    Object? organizationName = null,
+    Object? projectId = null,
+    Object? projectName = null,
+    Object? projectType = null,
+    Object? folderIds = null,
+    Object? folderNames = null,
+  }) {
+    return _then(_value.copyWith(
+      organizationId: null == organizationId
+          ? _value.organizationId
+          : organizationId // ignore: cast_nullable_to_non_nullable
+              as String,
+      organizationName: null == organizationName
+          ? _value.organizationName
+          : organizationName // ignore: cast_nullable_to_non_nullable
+              as String,
+      projectId: null == projectId
+          ? _value.projectId
+          : projectId // ignore: cast_nullable_to_non_nullable
+              as String,
+      projectName: null == projectName
+          ? _value.projectName
+          : projectName // ignore: cast_nullable_to_non_nullable
+              as String,
+      projectType: null == projectType
+          ? _value.projectType
+          : projectType // ignore: cast_nullable_to_non_nullable
+              as N1ProjectType,
+      folderIds: null == folderIds
+          ? _value.folderIds
+          : folderIds // ignore: cast_nullable_to_non_nullable
+              as List<String>,
+      folderNames: null == folderNames
+          ? _value.folderNames
+          : folderNames // ignore: cast_nullable_to_non_nullable
+              as List<String>,
+    ) as $Val);
+  }
+}
+
+/// @nodoc
+abstract class _$$_NucleusOneFolderCopyWith<$Res>
+    implements $NucleusOneFolderCopyWith<$Res> {
+  factory _$$_NucleusOneFolderCopyWith(
+          _$_NucleusOneFolder value, $Res Function(_$_NucleusOneFolder) then) =
+      __$$_NucleusOneFolderCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call(
+      {String organizationId,
+      String organizationName,
+      String projectId,
+      String projectName,
+      N1ProjectType projectType,
+      List<String> folderIds,
+      List<String> folderNames});
+}
+
+/// @nodoc
+class __$$_NucleusOneFolderCopyWithImpl<$Res>
+    extends _$NucleusOneFolderCopyWithImpl<$Res, _$_NucleusOneFolder>
+    implements _$$_NucleusOneFolderCopyWith<$Res> {
+  __$$_NucleusOneFolderCopyWithImpl(
+      _$_NucleusOneFolder _value, $Res Function(_$_NucleusOneFolder) _then)
+      : super(_value, _then);
+
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? organizationId = null,
+    Object? organizationName = null,
+    Object? projectId = null,
+    Object? projectName = null,
+    Object? projectType = null,
+    Object? folderIds = null,
+    Object? folderNames = null,
+  }) {
+    return _then(_$_NucleusOneFolder(
+      organizationId: null == organizationId
+          ? _value.organizationId
+          : organizationId // ignore: cast_nullable_to_non_nullable
+              as String,
+      organizationName: null == organizationName
+          ? _value.organizationName
+          : organizationName // ignore: cast_nullable_to_non_nullable
+              as String,
+      projectId: null == projectId
+          ? _value.projectId
+          : projectId // ignore: cast_nullable_to_non_nullable
+              as String,
+      projectName: null == projectName
+          ? _value.projectName
+          : projectName // ignore: cast_nullable_to_non_nullable
+              as String,
+      projectType: null == projectType
+          ? _value.projectType
+          : projectType // ignore: cast_nullable_to_non_nullable
+              as N1ProjectType,
+      folderIds: null == folderIds
+          ? _value._folderIds
+          : folderIds // ignore: cast_nullable_to_non_nullable
+              as List<String>,
+      folderNames: null == folderNames
+          ? _value._folderNames
+          : folderNames // ignore: cast_nullable_to_non_nullable
+              as List<String>,
+    ));
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$_NucleusOneFolder
+    with DiagnosticableTreeMixin
+    implements _NucleusOneFolder {
+  const _$_NucleusOneFolder(
+      {required this.organizationId,
+      required this.organizationName,
+      required this.projectId,
+      required this.projectName,
+      required this.projectType,
+      required final List<String> folderIds,
+      required final List<String> folderNames})
+      : _folderIds = folderIds,
+        _folderNames = folderNames;
+
+  factory _$_NucleusOneFolder.fromJson(Map<String, dynamic> json) =>
+      _$$_NucleusOneFolderFromJson(json);
+
+  @override
+  final String organizationId;
+  @override
+  final String organizationName;
+  @override
+  final String projectId;
+  @override
+  final String projectName;
+  @override
+  final N1ProjectType projectType;
+  final List<String> _folderIds;
+  @override
+  List<String> get folderIds {
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_folderIds);
+  }
+
+  final List<String> _folderNames;
+  @override
+  List<String> get folderNames {
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_folderNames);
+  }
+
+  @override
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
+    return 'NucleusOneFolder(organizationId: $organizationId, organizationName: $organizationName, projectId: $projectId, projectName: $projectName, projectType: $projectType, folderIds: $folderIds, folderNames: $folderNames)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'NucleusOneFolder'))
+      ..add(DiagnosticsProperty('organizationId', organizationId))
+      ..add(DiagnosticsProperty('organizationName', organizationName))
+      ..add(DiagnosticsProperty('projectId', projectId))
+      ..add(DiagnosticsProperty('projectName', projectName))
+      ..add(DiagnosticsProperty('projectType', projectType))
+      ..add(DiagnosticsProperty('folderIds', folderIds))
+      ..add(DiagnosticsProperty('folderNames', folderNames));
+  }
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$_NucleusOneFolder &&
+            (identical(other.organizationId, organizationId) ||
+                other.organizationId == organizationId) &&
+            (identical(other.organizationName, organizationName) ||
+                other.organizationName == organizationName) &&
+            (identical(other.projectId, projectId) ||
+                other.projectId == projectId) &&
+            (identical(other.projectName, projectName) ||
+                other.projectName == projectName) &&
+            (identical(other.projectType, projectType) ||
+                other.projectType == projectType) &&
+            const DeepCollectionEquality()
+                .equals(other._folderIds, _folderIds) &&
+            const DeepCollectionEquality()
+                .equals(other._folderNames, _folderNames));
+  }
+
+  @JsonKey(ignore: true)
+  @override
+  int get hashCode => Object.hash(
+      runtimeType,
+      organizationId,
+      organizationName,
+      projectId,
+      projectName,
+      projectType,
+      const DeepCollectionEquality().hash(_folderIds),
+      const DeepCollectionEquality().hash(_folderNames));
+
+  @JsonKey(ignore: true)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$_NucleusOneFolderCopyWith<_$_NucleusOneFolder> get copyWith =>
+      __$$_NucleusOneFolderCopyWithImpl<_$_NucleusOneFolder>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$_NucleusOneFolderToJson(
+      this,
+    );
+  }
+}
+
+abstract class _NucleusOneFolder implements NucleusOneFolder {
+  const factory _NucleusOneFolder(
+      {required final String organizationId,
+      required final String organizationName,
+      required final String projectId,
+      required final String projectName,
+      required final N1ProjectType projectType,
+      required final List<String> folderIds,
+      required final List<String> folderNames}) = _$_NucleusOneFolder;
+
+  factory _NucleusOneFolder.fromJson(Map<String, dynamic> json) =
+      _$_NucleusOneFolder.fromJson;
+
+  @override
+  String get organizationId;
+  @override
+  String get organizationName;
+  @override
+  String get projectId;
+  @override
+  String get projectName;
+  @override
+  N1ProjectType get projectType;
+  @override
+  List<String> get folderIds;
+  @override
+  List<String> get folderNames;
+  @override
+  @JsonKey(ignore: true)
+  _$$_NucleusOneFolderCopyWith<_$_NucleusOneFolder> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
