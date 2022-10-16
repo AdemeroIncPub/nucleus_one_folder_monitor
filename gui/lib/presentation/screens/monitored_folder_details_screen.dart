@@ -10,6 +10,11 @@ import '../util/style.dart';
 import '../widgets/nucleus_one_path.dart';
 import 'select_nucleus_one_folder_screen.dart';
 
+enum FileDispositionType {
+  delete,
+  move,
+}
+
 const Widget _fieldEditButtonWidthSpacer = SizedBox(width: 48);
 const Widget _formRowSpacer = SizedBox(height: Insets.compSmall);
 
@@ -29,7 +34,8 @@ class MonitoredFolderDetailsScreen extends ConsumerStatefulWidget {
 class _MonitoredFolderDetailsScreenState
     extends ConsumerState<MonitoredFolderDetailsScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _localFolderTextFieldController = TextEditingController();
+  final _monitoredFolderTextFieldController = TextEditingController();
+  final _moveToFolderTextFieldController = TextEditingController();
   final _n1DestinationFormFieldFocusNode = FocusNode();
   final _n1DestinationFormFieldKey =
       GlobalKey<FormFieldState<SelectNucleusOneFolderScreenResult>>();
@@ -40,13 +46,20 @@ class _MonitoredFolderDetailsScreenState
   bool _isHovering = false;
   late var _mf = _originalMf.copyWith();
 
-  late FileDisposition? _fileDisposition = _mf.fileDisposition;
+  FileDispositionType? _fileDispositionType;
+
+  // if editing then need to set value...
+  // late FileDispositionType? _fileDispositionType = _mf.fileDisposition.map(
+  //   delete: (_) => FileDispositionType.delete,
+  //   move: (_) => FileDispositionType.move,
+  // );
 
   @override
   void dispose() {
     _n1DestinationFormFieldFocusNode.removeListener(_handleFocusChanged);
     _n1DestinationFormFieldFocusNode.dispose();
-    _localFolderTextFieldController.dispose();
+    _monitoredFolderTextFieldController.dispose();
+    _moveToFolderTextFieldController.dispose();
     super.dispose();
   }
 
@@ -100,14 +113,14 @@ class _MonitoredFolderDetailsScreenState
                 _formRowSpacer,
                 _descriptionFormRow(context),
                 _formRowSpacer,
-                _localFolderFormRow(context),
+                _monitoredFolderFormRow(context),
                 _formRowSpacer,
                 _n1DestinationFormRow(context),
                 _formRowSpacer,
                 _fileDispositionFormRow(context),
-                if (_fileDisposition == FileDisposition.move) ...[
+                if (_fileDispositionType == FileDispositionType.move) ...[
                   _formRowSpacer,
-                  _moveFileDestinationFormRow(context),
+                  _moveToFolderFormRow(context),
                 ],
               ],
             ),
@@ -136,7 +149,7 @@ class _MonitoredFolderDetailsScreenState
                 return null;
               },
               autovalidateMode: AutovalidateMode.onUserInteraction,
-              onSaved: (newValue) => _mf = _mf.copyWith(name: newValue ?? ''),
+              // onSaved: (newValue) => _mf = _mf.copyWith(name: newValue ?? ''),
             ),
           ),
         ),
@@ -154,27 +167,27 @@ class _MonitoredFolderDetailsScreenState
               labelText: 'Description',
             ),
             initialValue: _mf.description,
-            onSaved: (newValue) =>
-                _mf = _mf.copyWith(description: newValue ?? ''),
+            // onSaved: (newValue) =>
+            //     _mf = _mf.copyWith(description: newValue ?? ''),
           ),
         ),
       ],
     );
   }
 
-  Widget _localFolderFormRow(BuildContext context) {
+  Widget _monitoredFolderFormRow(BuildContext context) {
     return Row(
       children: [
         IconButton(
           icon: const Icon(Icons.edit),
           onPressed: () async {
-            final localFolder = await FilePicker.platform.getDirectoryPath(
+            final selectedPath = await FilePicker.platform.getDirectoryPath(
               dialogTitle: 'Select folder to monitor',
-              initialDirectory: _localFolderTextFieldController.text,
+              initialDirectory: _monitoredFolderTextFieldController.text,
               lockParentWindow: true,
             );
-            if (localFolder != null) {
-              _localFolderTextFieldController.text = localFolder;
+            if (selectedPath != null) {
+              _monitoredFolderTextFieldController.text = selectedPath;
               setState(() {});
             }
           },
@@ -186,7 +199,7 @@ class _MonitoredFolderDetailsScreenState
               labelText: 'Folder to monitor',
               hintText: 'Use the edit button to select the folder to monitor',
             ),
-            controller: _localFolderTextFieldController,
+            controller: _monitoredFolderTextFieldController,
             readOnly: true,
           ),
         ),
@@ -267,29 +280,29 @@ class _MonitoredFolderDetailsScreenState
         Container(
           constraints: const BoxConstraints(minWidth: 200),
           child: IntrinsicWidth(
-            child: DropdownButtonFormField(
+            child: DropdownButtonFormField<FileDispositionType>(
               decoration: const InputDecoration(
                 labelText: 'File disposition',
                 // label: Text('File disposition', softWrap: false),
               ),
-              value: _fileDisposition,
+              value: _fileDispositionType,
               items: const [
                 DropdownMenuItem(
-                  value: FileDisposition.delete,
+                  value: FileDispositionType.delete,
                   child: Text('Delete'),
                 ),
                 DropdownMenuItem(
-                  value: FileDisposition.move,
+                  value: FileDispositionType.move,
                   child: Text('Move'),
                 ),
               ],
               onChanged: (value) {
                 setState(() {
-                  _fileDisposition = value;
+                  _fileDispositionType = value;
                 });
               },
-              onSaved: (newValue) =>
-                  _mf = _mf.copyWith(fileDisposition: newValue),
+              // onSaved: (newValue) =>
+              //     _mf = _mf.copyWith(fileDisposition: newValue),
             ),
           ),
         ),
@@ -323,19 +336,20 @@ class _MonitoredFolderDetailsScreenState
     );
   }
 
-  Widget _moveFileDestinationFormRow(BuildContext context) {
+  Widget _moveToFolderFormRow(BuildContext context) {
     return Row(
       children: [
         IconButton(
           onPressed: () async {
-            await showDialog<void>(
-              context: context,
-              builder: (context) {
-                return const AlertDialog(
-                  content: Text('OK'),
-                );
-              },
+            final selectedPath = await FilePicker.platform.getDirectoryPath(
+              dialogTitle: 'Select destination folder',
+              initialDirectory: _moveToFolderTextFieldController.text,
+              lockParentWindow: true,
             );
+            if (selectedPath != null) {
+              _moveToFolderTextFieldController.text = selectedPath;
+              setState(() {});
+            }
           },
           icon: const Icon(Icons.edit),
         ),
@@ -344,7 +358,9 @@ class _MonitoredFolderDetailsScreenState
           child: TextFormField(
             decoration: const InputDecoration(
               labelText: 'Move to folder',
+              hintText: 'Use the edit button to select the destination folder',
             ),
+            controller: _moveToFolderTextFieldController,
             readOnly: true,
           ),
         ),

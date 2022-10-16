@@ -30,39 +30,44 @@ abstract class $GetProjectDocumentFoldersArgsCopyWith<$Res> {
   factory $GetProjectDocumentFoldersArgsCopyWith(
           GetProjectDocumentFoldersArgs value,
           $Res Function(GetProjectDocumentFoldersArgs) then) =
-      _$GetProjectDocumentFoldersArgsCopyWithImpl<$Res>;
+      _$GetProjectDocumentFoldersArgsCopyWithImpl<$Res,
+          GetProjectDocumentFoldersArgs>;
+  @useResult
   $Res call({String orgId, String projectId, String? parentId});
 }
 
 /// @nodoc
-class _$GetProjectDocumentFoldersArgsCopyWithImpl<$Res>
+class _$GetProjectDocumentFoldersArgsCopyWithImpl<$Res,
+        $Val extends GetProjectDocumentFoldersArgs>
     implements $GetProjectDocumentFoldersArgsCopyWith<$Res> {
   _$GetProjectDocumentFoldersArgsCopyWithImpl(this._value, this._then);
 
-  final GetProjectDocumentFoldersArgs _value;
   // ignore: unused_field
-  final $Res Function(GetProjectDocumentFoldersArgs) _then;
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
 
+  @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? orgId = freezed,
-    Object? projectId = freezed,
+    Object? orgId = null,
+    Object? projectId = null,
     Object? parentId = freezed,
   }) {
     return _then(_value.copyWith(
-      orgId: orgId == freezed
+      orgId: null == orgId
           ? _value.orgId
           : orgId // ignore: cast_nullable_to_non_nullable
               as String,
-      projectId: projectId == freezed
+      projectId: null == projectId
           ? _value.projectId
           : projectId // ignore: cast_nullable_to_non_nullable
               as String,
-      parentId: parentId == freezed
+      parentId: freezed == parentId
           ? _value.parentId
           : parentId // ignore: cast_nullable_to_non_nullable
               as String?,
-    ));
+    ) as $Val);
   }
 }
 
@@ -74,38 +79,37 @@ abstract class _$$_GetProjectDocumentFoldersArgsCopyWith<$Res>
           $Res Function(_$_GetProjectDocumentFoldersArgs) then) =
       __$$_GetProjectDocumentFoldersArgsCopyWithImpl<$Res>;
   @override
+  @useResult
   $Res call({String orgId, String projectId, String? parentId});
 }
 
 /// @nodoc
 class __$$_GetProjectDocumentFoldersArgsCopyWithImpl<$Res>
-    extends _$GetProjectDocumentFoldersArgsCopyWithImpl<$Res>
+    extends _$GetProjectDocumentFoldersArgsCopyWithImpl<$Res,
+        _$_GetProjectDocumentFoldersArgs>
     implements _$$_GetProjectDocumentFoldersArgsCopyWith<$Res> {
   __$$_GetProjectDocumentFoldersArgsCopyWithImpl(
       _$_GetProjectDocumentFoldersArgs _value,
       $Res Function(_$_GetProjectDocumentFoldersArgs) _then)
-      : super(_value, (v) => _then(v as _$_GetProjectDocumentFoldersArgs));
+      : super(_value, _then);
 
-  @override
-  _$_GetProjectDocumentFoldersArgs get _value =>
-      super._value as _$_GetProjectDocumentFoldersArgs;
-
+  @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? orgId = freezed,
-    Object? projectId = freezed,
+    Object? orgId = null,
+    Object? projectId = null,
     Object? parentId = freezed,
   }) {
     return _then(_$_GetProjectDocumentFoldersArgs(
-      orgId: orgId == freezed
+      orgId: null == orgId
           ? _value.orgId
           : orgId // ignore: cast_nullable_to_non_nullable
               as String,
-      projectId: projectId == freezed
+      projectId: null == projectId
           ? _value.projectId
           : projectId // ignore: cast_nullable_to_non_nullable
               as String,
-      parentId: parentId == freezed
+      parentId: freezed == parentId
           ? _value.parentId
           : parentId // ignore: cast_nullable_to_non_nullable
               as String?,
@@ -148,20 +152,19 @@ class _$_GetProjectDocumentFoldersArgs
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$_GetProjectDocumentFoldersArgs &&
-            const DeepCollectionEquality().equals(other.orgId, orgId) &&
-            const DeepCollectionEquality().equals(other.projectId, projectId) &&
-            const DeepCollectionEquality().equals(other.parentId, parentId));
+            (identical(other.orgId, orgId) || other.orgId == orgId) &&
+            (identical(other.projectId, projectId) ||
+                other.projectId == projectId) &&
+            (identical(other.parentId, parentId) ||
+                other.parentId == parentId));
   }
 
   @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      const DeepCollectionEquality().hash(orgId),
-      const DeepCollectionEquality().hash(projectId),
-      const DeepCollectionEquality().hash(parentId));
+  int get hashCode => Object.hash(runtimeType, orgId, projectId, parentId);
 
   @JsonKey(ignore: true)
   @override
+  @pragma('vm:prefer-inline')
   _$$_GetProjectDocumentFoldersArgsCopyWith<_$_GetProjectDocumentFoldersArgs>
       get copyWith => __$$_GetProjectDocumentFoldersArgsCopyWithImpl<
           _$_GetProjectDocumentFoldersArgs>(this, _$identity);

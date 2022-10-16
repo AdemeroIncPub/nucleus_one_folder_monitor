@@ -13,11 +13,12 @@ _$_MonitoredFolder _$$_MonitoredFolderFromJson(Map<String, dynamic> json) =>
       id: json['id'] as String,
       name: json['name'] as String? ?? '',
       description: json['description'] as String? ?? '',
-      localPath: json['localPath'] as String? ?? '',
+      monitoredFolder: json['monitoredFolder'] as String? ?? '',
       n1FolderId: json['n1FolderId'] as String? ?? '',
-      fileDisposition: $enumDecodeNullable(
-          _$FileDispositionEnumMap, json['fileDisposition']),
-      fileDispositionMoveToPath: json['fileDispositionMoveToPath'] as String?,
+      fileDisposition: json['fileDisposition'] == null
+          ? const FileDisposition.delete()
+          : FileDisposition.fromJson(
+              json['fileDisposition'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$$_MonitoredFolderToJson(_$_MonitoredFolder instance) =>
@@ -25,13 +26,33 @@ Map<String, dynamic> _$$_MonitoredFolderToJson(_$_MonitoredFolder instance) =>
       'id': instance.id,
       'name': instance.name,
       'description': instance.description,
-      'localPath': instance.localPath,
+      'monitoredFolder': instance.monitoredFolder,
       'n1FolderId': instance.n1FolderId,
-      'fileDisposition': _$FileDispositionEnumMap[instance.fileDisposition],
-      'fileDispositionMoveToPath': instance.fileDispositionMoveToPath,
+      'fileDisposition': instance.fileDisposition,
     };
 
-const _$FileDispositionEnumMap = {
-  FileDisposition.delete: 'delete',
-  FileDisposition.move: 'move',
-};
+_$DeleteFileDisposition _$$DeleteFileDispositionFromJson(
+        Map<String, dynamic> json) =>
+    _$DeleteFileDisposition(
+      $type: json['runtimeType'] as String?,
+    );
+
+Map<String, dynamic> _$$DeleteFileDispositionToJson(
+        _$DeleteFileDisposition instance) =>
+    <String, dynamic>{
+      'runtimeType': instance.$type,
+    };
+
+_$MoveFileDisposition _$$MoveFileDispositionFromJson(
+        Map<String, dynamic> json) =>
+    _$MoveFileDisposition(
+      folderPath: json['folderPath'] as String,
+      $type: json['runtimeType'] as String?,
+    );
+
+Map<String, dynamic> _$$MoveFileDispositionToJson(
+        _$MoveFileDisposition instance) =>
+    <String, dynamic>{
+      'folderPath': instance.folderPath,
+      'runtimeType': instance.$type,
+    };

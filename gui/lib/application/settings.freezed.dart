@@ -33,33 +33,37 @@ mixin _$Settings {
 /// @nodoc
 abstract class $SettingsCopyWith<$Res> {
   factory $SettingsCopyWith(Settings value, $Res Function(Settings) then) =
-      _$SettingsCopyWithImpl<$Res>;
+      _$SettingsCopyWithImpl<$Res, Settings>;
+  @useResult
   $Res call({String apiKey, List<MonitoredFolder> monitoredFolders});
 }
 
 /// @nodoc
-class _$SettingsCopyWithImpl<$Res> implements $SettingsCopyWith<$Res> {
+class _$SettingsCopyWithImpl<$Res, $Val extends Settings>
+    implements $SettingsCopyWith<$Res> {
   _$SettingsCopyWithImpl(this._value, this._then);
 
-  final Settings _value;
   // ignore: unused_field
-  final $Res Function(Settings) _then;
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
 
+  @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? apiKey = freezed,
-    Object? monitoredFolders = freezed,
+    Object? apiKey = null,
+    Object? monitoredFolders = null,
   }) {
     return _then(_value.copyWith(
-      apiKey: apiKey == freezed
+      apiKey: null == apiKey
           ? _value.apiKey
           : apiKey // ignore: cast_nullable_to_non_nullable
               as String,
-      monitoredFolders: monitoredFolders == freezed
+      monitoredFolders: null == monitoredFolders
           ? _value.monitoredFolders
           : monitoredFolders // ignore: cast_nullable_to_non_nullable
               as List<MonitoredFolder>,
-    ));
+    ) as $Val);
   }
 }
 
@@ -69,30 +73,30 @@ abstract class _$$_SettingsCopyWith<$Res> implements $SettingsCopyWith<$Res> {
           _$_Settings value, $Res Function(_$_Settings) then) =
       __$$_SettingsCopyWithImpl<$Res>;
   @override
+  @useResult
   $Res call({String apiKey, List<MonitoredFolder> monitoredFolders});
 }
 
 /// @nodoc
-class __$$_SettingsCopyWithImpl<$Res> extends _$SettingsCopyWithImpl<$Res>
+class __$$_SettingsCopyWithImpl<$Res>
+    extends _$SettingsCopyWithImpl<$Res, _$_Settings>
     implements _$$_SettingsCopyWith<$Res> {
   __$$_SettingsCopyWithImpl(
       _$_Settings _value, $Res Function(_$_Settings) _then)
-      : super(_value, (v) => _then(v as _$_Settings));
+      : super(_value, _then);
 
-  @override
-  _$_Settings get _value => super._value as _$_Settings;
-
+  @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? apiKey = freezed,
-    Object? monitoredFolders = freezed,
+    Object? apiKey = null,
+    Object? monitoredFolders = null,
   }) {
     return _then(_$_Settings(
-      apiKey: apiKey == freezed
+      apiKey: null == apiKey
           ? _value.apiKey
           : apiKey // ignore: cast_nullable_to_non_nullable
               as String,
-      monitoredFolders: monitoredFolders == freezed
+      monitoredFolders: null == monitoredFolders
           ? _value._monitoredFolders
           : monitoredFolders // ignore: cast_nullable_to_non_nullable
               as List<MonitoredFolder>,
@@ -139,20 +143,19 @@ class _$_Settings with DiagnosticableTreeMixin implements _Settings {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$_Settings &&
-            const DeepCollectionEquality().equals(other.apiKey, apiKey) &&
+            (identical(other.apiKey, apiKey) || other.apiKey == apiKey) &&
             const DeepCollectionEquality()
                 .equals(other._monitoredFolders, _monitoredFolders));
   }
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      const DeepCollectionEquality().hash(apiKey),
+  int get hashCode => Object.hash(runtimeType, apiKey,
       const DeepCollectionEquality().hash(_monitoredFolders));
 
   @JsonKey(ignore: true)
   @override
+  @pragma('vm:prefer-inline')
   _$$_SettingsCopyWith<_$_Settings> get copyWith =>
       __$$_SettingsCopyWithImpl<_$_Settings>(this, _$identity);
 

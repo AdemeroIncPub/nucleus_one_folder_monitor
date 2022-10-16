@@ -7,23 +7,17 @@ part 'monitored_folder.g.dart';
 
 const _uuid = Uuid();
 
-enum FileDisposition {
-  delete,
-  move,
-}
-
 @freezed
 class MonitoredFolder with _$MonitoredFolder {
   const factory MonitoredFolder({
     required String id,
     @Default('') String name,
     @Default('') String description,
-    @Default('') String localPath,
+    @Default('') String monitoredFolder,
     // probably not sufficient, may end up using freezed union
     // currently unsure of difference between Projects and Departments
     @Default('') String n1FolderId,
-    FileDisposition? fileDisposition, // union?
-    String? fileDispositionMoveToPath, // union?
+    @Default(FileDisposition.delete()) FileDisposition fileDisposition,
   }) = _MonitoredFolder;
 
   factory MonitoredFolder.fromJson(Map<String, dynamic> json) =>
@@ -31,4 +25,15 @@ class MonitoredFolder with _$MonitoredFolder {
 
   // ignore: prefer_constructors_over_static_methods
   static MonitoredFolder defaultValue() => MonitoredFolder(id: _uuid.v1());
+}
+
+@freezed
+class FileDisposition with _$FileDisposition {
+  const factory FileDisposition.delete() = DeleteFileDisposition;
+  const factory FileDisposition.move({
+    required String folderPath,
+  }) = MoveFileDisposition;
+
+  factory FileDisposition.fromJson(Map<String, dynamic> json) =>
+      _$FileDispositionFromJson(json);
 }

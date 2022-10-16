@@ -31,7 +31,9 @@ abstract class $SelectNucleusOneFolderScreenResultCopyWith<$Res> {
   factory $SelectNucleusOneFolderScreenResultCopyWith(
           SelectNucleusOneFolderScreenResult value,
           $Res Function(SelectNucleusOneFolderScreenResult) then) =
-      _$SelectNucleusOneFolderScreenResultCopyWithImpl<$Res>;
+      _$SelectNucleusOneFolderScreenResultCopyWithImpl<$Res,
+          SelectNucleusOneFolderScreenResult>;
+  @useResult
   $Res call(
       {n1.UserOrganization org,
       n1.OrganizationProject project,
@@ -39,34 +41,37 @@ abstract class $SelectNucleusOneFolderScreenResultCopyWith<$Res> {
 }
 
 /// @nodoc
-class _$SelectNucleusOneFolderScreenResultCopyWithImpl<$Res>
+class _$SelectNucleusOneFolderScreenResultCopyWithImpl<$Res,
+        $Val extends SelectNucleusOneFolderScreenResult>
     implements $SelectNucleusOneFolderScreenResultCopyWith<$Res> {
   _$SelectNucleusOneFolderScreenResultCopyWithImpl(this._value, this._then);
 
-  final SelectNucleusOneFolderScreenResult _value;
   // ignore: unused_field
-  final $Res Function(SelectNucleusOneFolderScreenResult) _then;
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
 
+  @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? org = freezed,
-    Object? project = freezed,
-    Object? folders = freezed,
+    Object? org = null,
+    Object? project = null,
+    Object? folders = null,
   }) {
     return _then(_value.copyWith(
-      org: org == freezed
+      org: null == org
           ? _value.org
           : org // ignore: cast_nullable_to_non_nullable
               as n1.UserOrganization,
-      project: project == freezed
+      project: null == project
           ? _value.project
           : project // ignore: cast_nullable_to_non_nullable
               as n1.OrganizationProject,
-      folders: folders == freezed
+      folders: null == folders
           ? _value.folders
           : folders // ignore: cast_nullable_to_non_nullable
               as List<n1.DocumentFolder>,
-    ));
+    ) as $Val);
   }
 }
 
@@ -78,6 +83,7 @@ abstract class _$$_SelectNucleusOneFolderScreenResultCopyWith<$Res>
           $Res Function(_$_SelectNucleusOneFolderScreenResult) then) =
       __$$_SelectNucleusOneFolderScreenResultCopyWithImpl<$Res>;
   @override
+  @useResult
   $Res call(
       {n1.UserOrganization org,
       n1.OrganizationProject project,
@@ -86,33 +92,31 @@ abstract class _$$_SelectNucleusOneFolderScreenResultCopyWith<$Res>
 
 /// @nodoc
 class __$$_SelectNucleusOneFolderScreenResultCopyWithImpl<$Res>
-    extends _$SelectNucleusOneFolderScreenResultCopyWithImpl<$Res>
+    extends _$SelectNucleusOneFolderScreenResultCopyWithImpl<$Res,
+        _$_SelectNucleusOneFolderScreenResult>
     implements _$$_SelectNucleusOneFolderScreenResultCopyWith<$Res> {
   __$$_SelectNucleusOneFolderScreenResultCopyWithImpl(
       _$_SelectNucleusOneFolderScreenResult _value,
       $Res Function(_$_SelectNucleusOneFolderScreenResult) _then)
-      : super(_value, (v) => _then(v as _$_SelectNucleusOneFolderScreenResult));
+      : super(_value, _then);
 
-  @override
-  _$_SelectNucleusOneFolderScreenResult get _value =>
-      super._value as _$_SelectNucleusOneFolderScreenResult;
-
+  @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? org = freezed,
-    Object? project = freezed,
-    Object? folders = freezed,
+    Object? org = null,
+    Object? project = null,
+    Object? folders = null,
   }) {
     return _then(_$_SelectNucleusOneFolderScreenResult(
-      org: org == freezed
+      org: null == org
           ? _value.org
           : org // ignore: cast_nullable_to_non_nullable
               as n1.UserOrganization,
-      project: project == freezed
+      project: null == project
           ? _value.project
           : project // ignore: cast_nullable_to_non_nullable
               as n1.OrganizationProject,
-      folders: folders == freezed
+      folders: null == folders
           ? _value._folders
           : folders // ignore: cast_nullable_to_non_nullable
               as List<n1.DocumentFolder>,
@@ -162,20 +166,18 @@ class _$_SelectNucleusOneFolderScreenResult
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$_SelectNucleusOneFolderScreenResult &&
-            const DeepCollectionEquality().equals(other.org, org) &&
-            const DeepCollectionEquality().equals(other.project, project) &&
+            (identical(other.org, org) || other.org == org) &&
+            (identical(other.project, project) || other.project == project) &&
             const DeepCollectionEquality().equals(other._folders, _folders));
   }
 
   @override
   int get hashCode => Object.hash(
-      runtimeType,
-      const DeepCollectionEquality().hash(org),
-      const DeepCollectionEquality().hash(project),
-      const DeepCollectionEquality().hash(_folders));
+      runtimeType, org, project, const DeepCollectionEquality().hash(_folders));
 
   @JsonKey(ignore: true)
   @override
+  @pragma('vm:prefer-inline')
   _$$_SelectNucleusOneFolderScreenResultCopyWith<
           _$_SelectNucleusOneFolderScreenResult>
       get copyWith => __$$_SelectNucleusOneFolderScreenResultCopyWithImpl<
