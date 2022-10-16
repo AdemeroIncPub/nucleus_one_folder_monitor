@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -416,14 +417,30 @@ class _SelectNucleusOneFolderScreenState
     VoidCallback? selectFolder,
   }) {
     final colorScheme = Theme.of(context).colorScheme;
+
     return ListTile(
       contentPadding: EdgeInsets.zero,
       visualDensity:
           const VisualDensity(vertical: VisualDensity.minimumDensity),
       horizontalTitleGap: Insets.compXSmall,
       leading: _NavToFolderButton(onPressed: navToFolder),
-      title: GestureDetector(
-        onDoubleTap: navToFolder,
+      title: RawGestureDetector(
+        gestures: {
+          SerialTapGestureRecognizer:
+              GestureRecognizerFactoryWithHandlers<SerialTapGestureRecognizer>(
+            () => SerialTapGestureRecognizer(),
+            (SerialTapGestureRecognizer serialRecognizer) {
+              serialRecognizer.onSerialTapUp = (details) {
+                if (details.count == 1 && selectFolder != null) {
+                  selectFolder();
+                }
+                if (details.count == 2) {
+                  navToFolder();
+                }
+              };
+            },
+          )
+        },
         behavior: HitTestBehavior.opaque,
         child: Row(
           children: [
@@ -435,7 +452,6 @@ class _SelectNucleusOneFolderScreenState
       ),
       selected: isSelected,
       selectedTileColor: colorScheme.surfaceVariant.withOpacity(0.33),
-      onTap: selectFolder,
     );
   }
 
