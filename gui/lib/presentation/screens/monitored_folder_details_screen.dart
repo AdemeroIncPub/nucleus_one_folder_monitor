@@ -457,9 +457,9 @@ class _MonitoredFolderDetailsScreenState
   Widget _saveButton(BuildContext context) {
     return ElevatedButton(
       onPressed: () async {
-        if (_formKey.currentState?.validate() ?? true) {
+        if (_formKey.currentState?.validate() ?? false) {
           FileDisposition fileDisposition;
-          if (_fileDispositionType == _FileDispositionType.move) {
+          if (_fileDispositionType == _FileDispositionType.delete) {
             fileDisposition = const FileDisposition.delete();
           } else {
             fileDisposition = FileDisposition.move(
@@ -482,7 +482,7 @@ class _MonitoredFolderDetailsScreenState
             SnackBar(
               backgroundColor: colorScheme.surfaceVariant,
               content: Text(
-                'Please correct any issues and try again',
+                'Please correct marked issues and try again',
                 style: TextStyle(color: colorScheme.onSurfaceVariant),
               ),
               action: SnackBarAction(
