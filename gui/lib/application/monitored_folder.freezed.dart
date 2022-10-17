@@ -192,11 +192,11 @@ class _$_MonitoredFolder
     implements _MonitoredFolder {
   const _$_MonitoredFolder(
       {required this.id,
-      this.name = '',
-      this.description = '',
-      this.monitoredFolder = '',
-      this.n1Folder = NucleusOneFolder.defaultValue,
-      this.fileDisposition = const FileDisposition.delete()});
+      required this.name,
+      required this.description,
+      required this.monitoredFolder,
+      required this.n1Folder,
+      required this.fileDisposition});
 
   factory _$_MonitoredFolder.fromJson(Map<String, dynamic> json) =>
       _$$_MonitoredFolderFromJson(json);
@@ -204,19 +204,14 @@ class _$_MonitoredFolder
   @override
   final String id;
   @override
-  @JsonKey()
   final String name;
   @override
-  @JsonKey()
   final String description;
   @override
-  @JsonKey()
   final String monitoredFolder;
   @override
-  @JsonKey()
   final NucleusOneFolder n1Folder;
   @override
-  @JsonKey()
   final FileDisposition fileDisposition;
 
   @override
@@ -276,11 +271,11 @@ class _$_MonitoredFolder
 abstract class _MonitoredFolder implements MonitoredFolder {
   const factory _MonitoredFolder(
       {required final String id,
-      final String name,
-      final String description,
-      final String monitoredFolder,
-      final NucleusOneFolder n1Folder,
-      final FileDisposition fileDisposition}) = _$_MonitoredFolder;
+      required final String name,
+      required final String description,
+      required final String monitoredFolder,
+      required final NucleusOneFolder n1Folder,
+      required final FileDisposition fileDisposition}) = _$_MonitoredFolder;
 
   factory _MonitoredFolder.fromJson(Map<String, dynamic> json) =
       _$_MonitoredFolder.fromJson;

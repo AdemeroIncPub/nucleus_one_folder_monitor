@@ -11,16 +11,13 @@ part of 'monitored_folder.dart';
 _$_MonitoredFolder _$$_MonitoredFolderFromJson(Map<String, dynamic> json) =>
     _$_MonitoredFolder(
       id: json['id'] as String,
-      name: json['name'] as String? ?? '',
-      description: json['description'] as String? ?? '',
-      monitoredFolder: json['monitoredFolder'] as String? ?? '',
-      n1Folder: json['n1Folder'] == null
-          ? NucleusOneFolder.defaultValue
-          : NucleusOneFolder.fromJson(json['n1Folder'] as Map<String, dynamic>),
-      fileDisposition: json['fileDisposition'] == null
-          ? const FileDisposition.delete()
-          : FileDisposition.fromJson(
-              json['fileDisposition'] as Map<String, dynamic>),
+      name: json['name'] as String,
+      description: json['description'] as String,
+      monitoredFolder: json['monitoredFolder'] as String,
+      n1Folder:
+          NucleusOneFolder.fromJson(json['n1Folder'] as Map<String, dynamic>),
+      fileDisposition: FileDisposition.fromJson(
+          json['fileDisposition'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$$_MonitoredFolderToJson(_$_MonitoredFolder instance) =>

@@ -13,21 +13,33 @@ const _uuid = Uuid();
 class MonitoredFolder with _$MonitoredFolder {
   const factory MonitoredFolder({
     required String id,
-    @Default('') String name,
-    @Default('') String description,
-    @Default('') String monitoredFolder,
-    @Default(NucleusOneFolder.defaultValue) NucleusOneFolder n1Folder,
-    @Default(FileDisposition.delete()) FileDisposition fileDisposition,
+    required String name,
+    required String description,
+    required String monitoredFolder,
+    required NucleusOneFolder n1Folder,
+    required FileDisposition fileDisposition,
   }) = _MonitoredFolder;
 
   factory MonitoredFolder.fromJson(Map<String, dynamic> json) =>
       _$MonitoredFolderFromJson(json);
 
   // ignore: prefer_constructors_over_static_methods
-  static MonitoredFolder defaultValue() => MonitoredFolder(
-        id: _uuid.v1(),
-        n1Folder: NucleusOneFolder.defaultValue,
-      );
+  static MonitoredFolder defaultId({
+    required String name,
+    required String description,
+    required String monitoredFolder,
+    required NucleusOneFolder n1Folder,
+    required FileDisposition fileDisposition,
+  }) {
+    return MonitoredFolder(
+      id: _uuid.v1(),
+      name: name,
+      description: description,
+      monitoredFolder: monitoredFolder,
+      n1Folder: n1Folder,
+      fileDisposition: fileDisposition,
+    );
+  }
 }
 
 @freezed
@@ -44,16 +56,6 @@ class NucleusOneFolder with _$NucleusOneFolder {
 
   factory NucleusOneFolder.fromJson(Map<String, dynamic> json) =>
       _$NucleusOneFolderFromJson(json);
-
-  static const NucleusOneFolder defaultValue = NucleusOneFolder(
-    organizationId: '',
-    organizationName: '',
-    projectId: '',
-    projectName: '',
-    projectType: N1ProjectType.project,
-    folderIds: [],
-    folderNames: [],
-  );
 }
 
 @freezed

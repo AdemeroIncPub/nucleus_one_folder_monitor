@@ -41,8 +41,6 @@ class _MonitoredFolderDetailsScreenState
       GlobalKey<FormFieldState<NucleusOneFolder>>();
 
   final _nameTextFieldController = TextEditingController();
-  late final _originalMf =
-      (_editing) ? widget.mfToEdit! : MonitoredFolder.defaultValue();
 
   bool _isHovering = false;
 
@@ -263,7 +261,7 @@ class _MonitoredFolderDetailsScreenState
                 focusNode: _n1DestinationFormFieldFocusNode,
                 child: FormField<NucleusOneFolder>(
                   key: _n1DestinationFormFieldKey,
-                  initialValue: (_editing) ? _originalMf.n1Folder : null,
+                  initialValue: widget.mfToEdit?.n1Folder,
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                   validator: (value) {
                     // A project is the minimum required for a valid n1Folder
@@ -434,12 +432,12 @@ class _MonitoredFolderDetailsScreenState
       ),
       onPressed: () {
         setState(() {
-          _nameTextFieldController.text = _originalMf.name;
-          _descriptionFieldController.text = _originalMf.description;
-          _monitoredFolderTextFieldController.text =
-              _originalMf.monitoredFolder;
+          final mf = widget.mfToEdit;
+          _nameTextFieldController.text = mf?.name ?? '';
+          _descriptionFieldController.text = mf?.description ?? '';
+          _monitoredFolderTextFieldController.text = mf?.monitoredFolder ?? '';
           _n1DestinationFormFieldKey.currentState?.reset();
-          _fileDispositionType = _originalMf.fileDisposition.map(
+          _fileDispositionType = mf?.fileDisposition.map(
             delete: (_) {
               _moveToFolderTextFieldController.text = '';
               return _FileDispositionType.delete;
@@ -466,13 +464,24 @@ class _MonitoredFolderDetailsScreenState
                 folderPath: _moveToFolderTextFieldController.text);
           }
 
-          final mfToSave = _originalMf.copyWith(
-            name: _nameTextFieldController.text,
-            description: _descriptionFieldController.text,
-            monitoredFolder: _monitoredFolderTextFieldController.text,
-            n1Folder: _n1DestinationFormFieldKey.currentState!.value!,
-            fileDisposition: fileDisposition,
-          );
+          final MonitoredFolder mfToSave;
+          if (_editing) {
+            mfToSave = widget.mfToEdit!.copyWith(
+              name: _nameTextFieldController.text,
+              description: _descriptionFieldController.text,
+              monitoredFolder: _monitoredFolderTextFieldController.text,
+              n1Folder: _n1DestinationFormFieldKey.currentState!.value!,
+              fileDisposition: fileDisposition,
+            );
+          } else {
+            mfToSave = MonitoredFolder.defaultId(
+              name: _nameTextFieldController.text,
+              description: _descriptionFieldController.text,
+              monitoredFolder: _monitoredFolderTextFieldController.text,
+              n1Folder: _n1DestinationFormFieldKey.currentState!.value!,
+              fileDisposition: fileDisposition,
+            );
+          }
 
           ref.read(settingsProvider.notifier).saveMonitoredFolder(mfToSave);
           Navigator.pop(context);

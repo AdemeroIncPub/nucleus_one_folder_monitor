@@ -2,15 +2,54 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart'
     hide DataTable, DataColumn, DataRow, DataCell;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:quiver/strings.dart' as quiver;
 
+import '../../application/monitored_folder.dart';
 import '../../application/providers.dart';
 import '../../application/settings.dart';
 import '../util/dialog_helper.dart';
 import '../util/style.dart';
 import '../widgets/data_table.dart';
 import 'monitored_folder_details_screen.dart';
+
+part 'main_screen.freezed.dart';
+
+final sortedMonitoredFoldersProvider = StateProvider.family
+    .autoDispose<List<MonitoredFolder>, SortArgs>((ref, args) {
+  final monitoredFolders =
+      ref.watch(settingsProvider.select((x) => x.monitoredFolders));
+
+  if (args.columnIndex != null) {
+    return monitoredFolders.sorted((a, b) {
+      String a2;
+      String b2;
+      if (args.columnIndex == 1) {
+        a2 = a.description.toLowerCase();
+        b2 = b.description.toLowerCase();
+      } else {
+        a2 = a.name.toLowerCase();
+        b2 = b.name.toLowerCase();
+      }
+      if (args.ascending) {
+        return a2.compareTo(b2);
+      } else {
+        return b2.compareTo(a2);
+      }
+    });
+  } else {
+    return monitoredFolders;
+  }
+});
+
+@freezed
+class SortArgs with _$SortArgs {
+  factory SortArgs({
+    int? columnIndex,
+    @Default(true) bool ascending,
+  }) = _SortArgs;
+}
 
 class MainScreen extends ConsumerStatefulWidget {
   const MainScreen({super.key});
@@ -22,7 +61,7 @@ class MainScreen extends ConsumerStatefulWidget {
 class _MainScreenState extends ConsumerState<MainScreen> {
   bool _sortAscending = true;
 
-  int? _selectedRow;
+  String? _selectedId;
   int? _sortColumn;
 
   @override
@@ -37,7 +76,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
           primary: true,
           child: Container(
             margin: const EdgeInsets.symmetric(horizontal: screenPadding),
-            child: _mainContent(context, settings),
+            child: _mainContent(context),
           ),
         ),
       ),
@@ -56,7 +95,9 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     );
   }
 
-  Widget _mainContent(BuildContext context, Settings settings) {
+  Widget _mainContent(BuildContext context) {
+    final sortedMonitoredFolders = ref.watch(sortedMonitoredFoldersProvider(
+        SortArgs(columnIndex: _sortColumn, ascending: _sortAscending)));
     final colorScheme = Theme.of(context).colorScheme;
 
     final columns = [
@@ -80,7 +121,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
       ),
     ];
 
-    final rows = settings.monitoredFolders.mapIndexed((index, mf) {
+    final rows = sortedMonitoredFolders.mapIndexed((index, mf) {
       return DataRow(
         key: ObjectKey(mf),
         color: MaterialStateProperty.resolveWith<Color?>(
@@ -97,13 +138,13 @@ class _MainScreenState extends ConsumerState<MainScreen> {
           //   return colorScheme.surface.withOpacity(0.1);
           // }
         }),
-        selected: _selectedRow == index,
+        selected: mf.id == _selectedId,
         onSelectChanged: (bool? value) {
           setState(() {
             if (value ?? true) {
-              _selectedRow = index;
+              _selectedId = mf.id;
             } else {
-              _selectedRow = null;
+              _selectedId = null;
             }
           });
         },
@@ -117,17 +158,6 @@ class _MainScreenState extends ConsumerState<MainScreen> {
         ],
       );
     }).toList();
-
-    final rowsSorted = () {
-      if (_sortColumn != null) {
-        if (_sortAscending) {
-          return rows;
-        } else {
-          return rows.reversed.toList();
-        }
-      }
-      return rows;
-    }();
 
     return SizedBox(
       width: double.infinity,
@@ -146,7 +176,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
           },
         ),
         columns: columns,
-        rows: rowsSorted,
+        rows: rows,
       ),
     );
   }
@@ -222,7 +252,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
               child: _addButton(context, settings),
             ),
             const SizedBox(width: Insets.compXSmall),
-            _editButton(context, settings),
+            _editButton(context),
             const SizedBox(width: Insets.compXSmall),
             _deleteButton(context),
           ],
@@ -231,16 +261,20 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     );
   }
 
-  Widget _editButton(BuildContext context, Settings settings) {
+  Widget _editButton(BuildContext context) {
+    final sortedMonitoredFolders = ref.watch(sortedMonitoredFoldersProvider(
+        SortArgs(columnIndex: _sortColumn, ascending: _sortAscending)));
+
     return TextButton(
-      onPressed: (_selectedRow == null)
+      onPressed: (_selectedId == null)
           ? null
           : () async {
               await Navigator.push(
                 context,
                 MaterialPageRoute<void>(
                   builder: (context) => MonitoredFolderDetailsScreen(
-                    mfToEdit: settings.monitoredFolders[_selectedRow!],
+                    mfToEdit: sortedMonitoredFolders
+                        .singleWhere((x) => x.id == _selectedId),
                   ),
                   settings: const RouteSettings(
                     name: MonitoredFolderDetailsScreen.routeName,
@@ -257,7 +291,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
       style: TextButton.styleFrom(
         foregroundColor: Theme.of(context).colorScheme.error,
       ),
-      onPressed: (_selectedRow == null) ? null : () {},
+      onPressed: (_selectedId == null) ? null : () {},
       child: const Text('DELETE'),
     );
   }
