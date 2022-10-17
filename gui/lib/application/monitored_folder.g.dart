@@ -59,8 +59,8 @@ Map<String, dynamic> _$$_NucleusOneFolderToJson(_$_NucleusOneFolder instance) =>
     };
 
 const _$N1ProjectTypeEnumMap = {
-  N1ProjectType.projects: 'projects',
-  N1ProjectType.departments: 'departments',
+  N1ProjectType.project: 'project',
+  N1ProjectType.department: 'department',
 };
 
 _$DeleteFileDisposition _$$DeleteFileDispositionFromJson(

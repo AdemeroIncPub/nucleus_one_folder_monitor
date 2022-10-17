@@ -1,33 +1,29 @@
 enum N1ProjectType {
-  projects(
-    str: 'Projects',
-    accessType: projectsAccessType,
+  project(
+    accessType: projectAccessType,
   ),
-  departments(
-    str: 'Departments',
-    accessType: departmentsAccessType,
+  department(
+    accessType: departmentAccessType,
   );
 
   const N1ProjectType({
-    required this.str,
     required this.accessType,
   });
-  final String str;
   final String accessType;
 
-  static const String projectsAccessType =
+  static const String projectAccessType =
       'GlobalAssignments_MemberContentByDefault';
-  static const String departmentsAccessType =
+  static const String departmentAccessType =
       'MembersOnlyAssignments_MemberContentByAssignment';
 
   static N1ProjectType? fromAccessType(String? accessType) {
     switch (accessType) {
       case null:
         return null;
-      case projectsAccessType:
-        return N1ProjectType.projects;
-      case departmentsAccessType:
-        return N1ProjectType.departments;
+      case projectAccessType:
+        return N1ProjectType.project;
+      case departmentAccessType:
+        return N1ProjectType.department;
     }
     throw ArgumentError.value(
         accessType, 'accessType', 'Unrecognized access type.');

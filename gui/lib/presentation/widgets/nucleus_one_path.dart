@@ -32,7 +32,7 @@ class NucleusOnePath extends StatelessWidget {
       ]);
     }
     if (projectType != null) {
-      if (projectType == N1ProjectType.projects) {
+      if (projectType == N1ProjectType.project) {
         parts.add(Text(slash));
         parts.add(const Icon(FlutterIconCustomIcons.project));
         parts.add(const SizedBox(width: 2));

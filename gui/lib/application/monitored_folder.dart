@@ -50,7 +50,7 @@ class NucleusOneFolder with _$NucleusOneFolder {
     organizationName: '',
     projectId: '',
     projectName: '',
-    projectType: N1ProjectType.projects,
+    projectType: N1ProjectType.project,
     folderIds: [],
     folderNames: [],
   );

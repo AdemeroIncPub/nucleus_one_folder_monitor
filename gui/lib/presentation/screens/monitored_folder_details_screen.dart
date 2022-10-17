@@ -9,7 +9,7 @@ import '../util/style.dart';
 import '../widgets/nucleus_one_path.dart';
 import 'select_nucleus_one_folder_screen.dart';
 
-enum FileDispositionType {
+enum _FileDispositionType {
   delete,
   move,
 }
@@ -32,6 +32,7 @@ class MonitoredFolderDetailsScreen extends ConsumerStatefulWidget {
 
 class _MonitoredFolderDetailsScreenState
     extends ConsumerState<MonitoredFolderDetailsScreen> {
+  final _descriptionFieldController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   final _monitoredFolderTextFieldController = TextEditingController();
   final _moveToFolderTextFieldController = TextEditingController();
@@ -39,25 +40,21 @@ class _MonitoredFolderDetailsScreenState
   final _n1DestinationFormFieldKey =
       GlobalKey<FormFieldState<NucleusOneFolder>>();
 
+  final _nameTextFieldController = TextEditingController();
   late final _originalMf =
-      (isNew) ? MonitoredFolder.defaultValue() : widget.mfToEdit!;
+      (_editing) ? widget.mfToEdit! : MonitoredFolder.defaultValue();
 
   bool _isHovering = false;
-  late var _mf = _originalMf.copyWith();
 
-  FileDispositionType? _fileDispositionType;
-
-  // if editing then need to set value...
-  // late FileDispositionType? _fileDispositionType = _mf.fileDisposition.map(
-  //   delete: (_) => FileDispositionType.delete,
-  //   move: (_) => FileDispositionType.move,
-  // );
+  _FileDispositionType? _fileDispositionType;
 
   @override
   void dispose() {
     _n1DestinationFormFieldFocusNode.removeListener(_handleFocusChanged);
-    _n1DestinationFormFieldFocusNode.dispose();
+    _nameTextFieldController.dispose();
+    _descriptionFieldController.dispose();
     _monitoredFolderTextFieldController.dispose();
+    _n1DestinationFormFieldFocusNode.dispose();
     _moveToFolderTextFieldController.dispose();
     super.dispose();
   }
@@ -66,15 +63,30 @@ class _MonitoredFolderDetailsScreenState
   void initState() {
     super.initState();
     _n1DestinationFormFieldFocusNode.addListener(_handleFocusChanged);
+
+    if (_editing) {
+      final toEdit = widget.mfToEdit!;
+      _nameTextFieldController.text = toEdit.name;
+      _descriptionFieldController.text = toEdit.description;
+      _monitoredFolderTextFieldController.text = toEdit.monitoredFolder;
+
+      _fileDispositionType = toEdit.fileDisposition.map(
+        delete: (_) => _FileDispositionType.delete,
+        move: (md) {
+          _moveToFolderTextFieldController.text = md.folderPath;
+          return _FileDispositionType.move;
+        },
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: (isNew)
-            ? const Text('New Monitored Folder')
-            : const Text('Edit Monitored Folder'),
+        title: (_editing)
+            ? const Text('Edit Monitored Folder')
+            : const Text('New Monitored Folder'),
         actions: [
           _resetButton(context),
           const SizedBox(width: Insets.compXSmall),
@@ -94,7 +106,7 @@ class _MonitoredFolderDetailsScreenState
     );
   }
 
-  bool get isNew => widget.mfToEdit == null;
+  bool get _editing => widget.mfToEdit != null;
 
   Widget _mainContent(BuildContext context) {
     // This Align pushes the scrollbar all the way to the right.
@@ -117,7 +129,7 @@ class _MonitoredFolderDetailsScreenState
                 _n1DestinationFormRow(context),
                 _formRowSpacer,
                 _fileDispositionFormRow(context),
-                if (_fileDispositionType == FileDispositionType.move) ...[
+                if (_fileDispositionType == _FileDispositionType.move) ...[
                   _formRowSpacer,
                   _moveToFolderFormRow(context),
                 ],
@@ -140,15 +152,17 @@ class _MonitoredFolderDetailsScreenState
               decoration: const InputDecoration(
                 labelText: 'Name',
               ),
-              initialValue: _mf.name,
+              controller: _nameTextFieldController,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
               validator: (value) {
                 if (quiver.isBlank(value)) {
                   return 'This field is required';
                 }
                 return null;
               },
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              // onSaved: (newValue) => _mf = _mf.copyWith(name: newValue ?? ''),
+              onChanged: (value) {
+                setState(() {});
+              },
             ),
           ),
         ),
@@ -165,9 +179,10 @@ class _MonitoredFolderDetailsScreenState
             decoration: const InputDecoration(
               labelText: 'Description',
             ),
-            initialValue: _mf.description,
-            // onSaved: (newValue) =>
-            //     _mf = _mf.copyWith(description: newValue ?? ''),
+            controller: _descriptionFieldController,
+            onChanged: (value) {
+              setState(() {});
+            },
           ),
         ),
       ],
@@ -186,8 +201,9 @@ class _MonitoredFolderDetailsScreenState
               lockParentWindow: true,
             );
             if (selectedPath != null) {
-              _monitoredFolderTextFieldController.text = selectedPath;
-              setState(() {});
+              setState(() {
+                _monitoredFolderTextFieldController.text = selectedPath;
+              });
             }
           },
         ),
@@ -200,6 +216,13 @@ class _MonitoredFolderDetailsScreenState
             ),
             controller: _monitoredFolderTextFieldController,
             readOnly: true,
+            autovalidateMode: AutovalidateMode.onUserInteraction,
+            validator: (value) {
+              if (quiver.isBlank(value)) {
+                return 'This field is required';
+              }
+              return null;
+            },
           ),
         ),
       ],
@@ -221,7 +244,9 @@ class _MonitoredFolderDetailsScreenState
               ),
             );
             if (result != null) {
-              _n1DestinationFormFieldKey.currentState?.didChange(result);
+              setState(() {
+                _n1DestinationFormFieldKey.currentState?.didChange(result);
+              });
             }
           },
           icon: const Icon(Icons.edit),
@@ -238,13 +263,22 @@ class _MonitoredFolderDetailsScreenState
                 focusNode: _n1DestinationFormFieldFocusNode,
                 child: FormField<NucleusOneFolder>(
                   key: _n1DestinationFormFieldKey,
-                  initialValue: null,
+                  initialValue: (_editing) ? _originalMf.n1Folder : null,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  validator: (value) {
+                    // A project is the minimum required for a valid n1Folder
+                    if (quiver.isBlank(value?.projectId)) {
+                      return 'This field is required';
+                    }
+                    return null;
+                  },
                   builder: (FormFieldState<NucleusOneFolder> field) {
                     return InputDecorator(
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: 'Nucleus One destination',
                         hintText:
                             'Use the edit button to select the Nucleus One destination',
+                        errorText: field.errorText,
                       ),
                       isEmpty: field.value == null,
                       isFocused: _n1DestinationFormFieldFocusNode.hasFocus,
@@ -274,29 +308,33 @@ class _MonitoredFolderDetailsScreenState
         Container(
           constraints: const BoxConstraints(minWidth: 200),
           child: IntrinsicWidth(
-            child: DropdownButtonFormField<FileDispositionType>(
+            child: DropdownButtonFormField<_FileDispositionType>(
               decoration: const InputDecoration(
                 labelText: 'File disposition',
-                // label: Text('File disposition', softWrap: false),
               ),
               value: _fileDispositionType,
               items: const [
                 DropdownMenuItem(
-                  value: FileDispositionType.delete,
+                  value: _FileDispositionType.delete,
                   child: Text('Delete'),
                 ),
                 DropdownMenuItem(
-                  value: FileDispositionType.move,
+                  value: _FileDispositionType.move,
                   child: Text('Move'),
                 ),
               ],
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              validator: (value) {
+                if (value == null) {
+                  return 'This field is required';
+                }
+                return null;
+              },
               onChanged: (value) {
                 setState(() {
                   _fileDispositionType = value;
                 });
               },
-              // onSaved: (newValue) =>
-              //     _mf = _mf.copyWith(fileDisposition: newValue),
             ),
           ),
         ),
@@ -341,8 +379,9 @@ class _MonitoredFolderDetailsScreenState
               lockParentWindow: true,
             );
             if (selectedPath != null) {
-              _moveToFolderTextFieldController.text = selectedPath;
-              setState(() {});
+              setState(() {
+                _moveToFolderTextFieldController.text = selectedPath;
+              });
             }
           },
           icon: const Icon(Icons.edit),
@@ -356,6 +395,14 @@ class _MonitoredFolderDetailsScreenState
             ),
             controller: _moveToFolderTextFieldController,
             readOnly: true,
+            autovalidateMode: AutovalidateMode.onUserInteraction,
+            validator: (value) {
+              if (_fileDispositionType == _FileDispositionType.move &&
+                  quiver.isBlank(value)) {
+                return 'This field is required';
+              }
+              return null;
+            },
           ),
         ),
       ],
@@ -387,7 +434,21 @@ class _MonitoredFolderDetailsScreenState
       ),
       onPressed: () {
         setState(() {
-          _formKey.currentState?.reset();
+          _nameTextFieldController.text = _originalMf.name;
+          _descriptionFieldController.text = _originalMf.description;
+          _monitoredFolderTextFieldController.text =
+              _originalMf.monitoredFolder;
+          _n1DestinationFormFieldKey.currentState?.reset();
+          _fileDispositionType = _originalMf.fileDisposition.map(
+            delete: (_) {
+              _moveToFolderTextFieldController.text = '';
+              return _FileDispositionType.delete;
+            },
+            move: (value) {
+              _moveToFolderTextFieldController.text = value.folderPath;
+              return _FileDispositionType.move;
+            },
+          );
         });
       },
     );
@@ -397,9 +458,24 @@ class _MonitoredFolderDetailsScreenState
     return ElevatedButton(
       onPressed: () async {
         if (_formKey.currentState?.validate() ?? true) {
-          _formKey.currentState?.save();
-          ref.read(settingsProvider.notifier).saveMonitoredFolder(_mf);
-          if (mounted) Navigator.pop(context);
+          FileDisposition fileDisposition;
+          if (_fileDispositionType == _FileDispositionType.move) {
+            fileDisposition = const FileDisposition.delete();
+          } else {
+            fileDisposition = FileDisposition.move(
+                folderPath: _moveToFolderTextFieldController.text);
+          }
+
+          final mfToSave = _originalMf.copyWith(
+            name: _nameTextFieldController.text,
+            description: _descriptionFieldController.text,
+            monitoredFolder: _monitoredFolderTextFieldController.text,
+            n1Folder: _n1DestinationFormFieldKey.currentState!.value!,
+            fileDisposition: fileDisposition,
+          );
+
+          ref.read(settingsProvider.notifier).saveMonitoredFolder(mfToSave);
+          Navigator.pop(context);
         } else {
           final colorScheme = Theme.of(context).colorScheme;
           ScaffoldMessenger.of(context).showSnackBar(

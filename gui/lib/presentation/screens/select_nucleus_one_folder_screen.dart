@@ -222,12 +222,12 @@ class _SelectNucleusOneFolderScreenState
         if (index == 0) {
           return _projectTypeListTile(
             context: context,
-            projectType: N1ProjectType.projects,
+            projectType: N1ProjectType.project,
           );
         } else {
           return _projectTypeListTile(
             context: context,
-            projectType: N1ProjectType.departments,
+            projectType: N1ProjectType.department,
           );
         }
       },
@@ -330,12 +330,14 @@ class _SelectNucleusOneFolderScreenState
       });
     }
 
+    final projectTypeText =
+        (projectType == N1ProjectType.project) ? 'Projects' : 'Departments';
     return _commonListTile(
       context: context,
-      titleIcon: (projectType == N1ProjectType.projects)
+      titleIcon: (projectType == N1ProjectType.project)
           ? const Icon(FlutterIconCustomIcons.project)
           : const Icon(FlutterIconCustomIcons.department),
-      title: Text(projectType.str),
+      title: Text(projectTypeText),
       navToFolder: navToFolder,
       isSelected: false,
     );
@@ -355,7 +357,7 @@ class _SelectNucleusOneFolderScreenState
 
     return _commonListTile(
       context: context,
-      titleIcon: (_navigatedProjectType == N1ProjectType.projects)
+      titleIcon: (_navigatedProjectType == N1ProjectType.project)
           ? const Icon(FlutterIconCustomIcons.project)
           : const Icon(FlutterIconCustomIcons.department),
       title: Text(project.name),
@@ -448,7 +450,7 @@ class _SelectNucleusOneFolderScreenState
         return Row();
       }
       if (_selectedFolder == null) {
-        if (_navigatedProjectType == N1ProjectType.projects) {
+        if (_navigatedProjectType == N1ProjectType.project) {
           return Row(
             children: [
               const Icon(FlutterIconCustomIcons.project),
