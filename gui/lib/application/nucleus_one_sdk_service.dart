@@ -10,7 +10,12 @@ class NucleusOneSdkService {
   n1.NucleusOneApp n1App;
 
   Future<List<n1.UserOrganization>> getUserOrganizations() async {
-    return (await n1App.users().getOrganizations()).items;
+    final orgs = (await n1App.users().getOrganizations()).items;
+
+    // This app only needs orgs where user is a member
+    return orgs.where((org) {
+      return org.assignmentTypes.contains('OrganizationMember');
+    }).toList();
   }
 
   Future<List<n1.OrganizationProject>> getOrganizationProjects({
