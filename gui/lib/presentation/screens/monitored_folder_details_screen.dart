@@ -484,7 +484,7 @@ class _MonitoredFolderDetailsScreenState
           }
 
           ref.read(settingsProvider.notifier).saveMonitoredFolder(mfToSave);
-          Navigator.pop(context);
+          Navigator.pop(context, mfToSave.id);
         } else {
           final colorScheme = Theme.of(context).colorScheme;
           ScaffoldMessenger.of(context).showSnackBar(

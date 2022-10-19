@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 Future<String?> showTextInputDialog(
   BuildContext context, {
   BoxConstraints? contentConstraints,
-  String? text,
   Widget? title,
+  String? initialText,
   String? labelText,
   String? helperText,
   String? hintText,
 }) async {
   final textFieldController = TextEditingController();
-  textFieldController.text = text ?? '';
+  textFieldController.text = initialText ?? '';
 
   void submitHandler(BuildContext context, String text) {
     Navigator.pop(context, textFieldController.text);
@@ -44,6 +44,47 @@ Future<String?> showTextInputDialog(
             onPressed: () => submitHandler(context, textFieldController.text),
             child: const Text('OK'),
           ),
+        ],
+      );
+    },
+  );
+}
+
+Future<bool?> showConfirmationDialog(
+  BuildContext context, {
+  Widget? title,
+  String? contentText,
+  Widget? contentWidget,
+  String falseText = 'CANCEL',
+  String trueText = 'OK',
+  bool dangerous = false,
+}) {
+  assert([contentText, contentWidget].where((x) => x != null).length == 1);
+
+  return showDialog<bool>(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: title,
+        content: contentWidget ?? Text(contentText!),
+        actionsAlignment: MainAxisAlignment.start,
+        actions: <Widget>[
+          TextButton(
+            child: Text(falseText),
+            onPressed: () => Navigator.pop(context, false),
+          ),
+          if (dangerous)
+            TextButton(
+              style: TextButton.styleFrom(
+                  foregroundColor: Theme.of(context).colorScheme.error),
+              onPressed: () => Navigator.pop(context, true),
+              child: Text(trueText),
+            )
+          else
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: Text(trueText),
+            ),
         ],
       );
     },

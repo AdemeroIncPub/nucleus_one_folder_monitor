@@ -206,10 +206,10 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   }
 
   FloatingActionButton _addButton(BuildContext context, Settings settings) {
-    Future<void> pushRoute(BuildContext context) async {
-      await Navigator.push(
+    Future<String?> pushRoute(BuildContext context) async {
+      return Navigator.push(
         context,
-        MaterialPageRoute<void>(
+        MaterialPageRoute<String>(
           builder: (context) => const MonitoredFolderDetailsScreen(),
           settings: const RouteSettings(
             name: MonitoredFolderDetailsScreen.routeName,
@@ -226,12 +226,12 @@ class _MainScreenState extends ConsumerState<MainScreen> {
       hoverElevation: 0,
       onPressed: () async {
         if (quiver.isNotBlank(settings.apiKey)) {
-          await pushRoute(context);
+          _selectedId = await pushRoute(context);
         } else {
           await _showSettings(context, settings);
           final apiKey = ref.read(settingsProvider).apiKey;
           if (quiver.isNotBlank(apiKey) && mounted) {
-            await pushRoute(context);
+            _selectedId = await pushRoute(context);
           }
         }
       },
@@ -291,7 +291,26 @@ class _MainScreenState extends ConsumerState<MainScreen> {
       style: TextButton.styleFrom(
         foregroundColor: Theme.of(context).colorScheme.error,
       ),
-      onPressed: (_selectedId == null) ? null : () {},
+      onPressed: (_selectedId == null)
+          ? null
+          : () async {
+              final result = await showConfirmationDialog(
+                context,
+                title: const Text('Confirm Delete'),
+                contentText:
+                    'Permanently delete the selected monitored folder?',
+                falseText: 'CANCEL',
+                trueText: 'DELETE',
+                dangerous: true,
+              );
+
+              if (result ?? false) {
+                ref
+                    .read(settingsProvider.notifier)
+                    .deleteMonitoredFolder(monitoredFolderId: _selectedId!);
+                _selectedId = null;
+              }
+            },
       child: const Text('DELETE'),
     );
   }
@@ -301,7 +320,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
       context,
       contentConstraints: const BoxConstraints(minWidth: 500),
       title: const Text('Set API key'),
-      text: settings.apiKey,
+      initialText: settings.apiKey,
       helperText:
           'Generate API keys in your profile in the Nucleus One web app',
       hintText: 'Your API key',

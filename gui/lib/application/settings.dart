@@ -48,4 +48,11 @@ class SettingsNotifier extends StateNotifier<Settings> {
     }
     _writeSettingsFunc(state);
   }
+
+  void deleteMonitoredFolder({required String monitoredFolderId}) {
+    final newMfs =
+        state.monitoredFolders.where((x) => x.id != monitoredFolderId).toList();
+    state = state.copyWith(monitoredFolders: newMfs);
+    _writeSettingsFunc(state);
+  }
 }
