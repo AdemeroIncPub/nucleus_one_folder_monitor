@@ -21,7 +21,7 @@ Settings _$SettingsFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$Settings {
   String get apiKey => throw _privateConstructorUsedError;
-  List<MonitoredFolder> get monitoredFolders =>
+  IMap<String, IList<MonitoredFolder>> get monitoredFoldersByApiKey =>
       throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -35,7 +35,9 @@ abstract class $SettingsCopyWith<$Res> {
   factory $SettingsCopyWith(Settings value, $Res Function(Settings) then) =
       _$SettingsCopyWithImpl<$Res, Settings>;
   @useResult
-  $Res call({String apiKey, List<MonitoredFolder> monitoredFolders});
+  $Res call(
+      {String apiKey,
+      IMap<String, IList<MonitoredFolder>> monitoredFoldersByApiKey});
 }
 
 /// @nodoc
@@ -52,17 +54,17 @@ class _$SettingsCopyWithImpl<$Res, $Val extends Settings>
   @override
   $Res call({
     Object? apiKey = null,
-    Object? monitoredFolders = null,
+    Object? monitoredFoldersByApiKey = null,
   }) {
     return _then(_value.copyWith(
       apiKey: null == apiKey
           ? _value.apiKey
           : apiKey // ignore: cast_nullable_to_non_nullable
               as String,
-      monitoredFolders: null == monitoredFolders
-          ? _value.monitoredFolders
-          : monitoredFolders // ignore: cast_nullable_to_non_nullable
-              as List<MonitoredFolder>,
+      monitoredFoldersByApiKey: null == monitoredFoldersByApiKey
+          ? _value.monitoredFoldersByApiKey
+          : monitoredFoldersByApiKey // ignore: cast_nullable_to_non_nullable
+              as IMap<String, IList<MonitoredFolder>>,
     ) as $Val);
   }
 }
@@ -74,7 +76,9 @@ abstract class _$$_SettingsCopyWith<$Res> implements $SettingsCopyWith<$Res> {
       __$$_SettingsCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({String apiKey, List<MonitoredFolder> monitoredFolders});
+  $Res call(
+      {String apiKey,
+      IMap<String, IList<MonitoredFolder>> monitoredFoldersByApiKey});
 }
 
 /// @nodoc
@@ -89,17 +93,17 @@ class __$$_SettingsCopyWithImpl<$Res>
   @override
   $Res call({
     Object? apiKey = null,
-    Object? monitoredFolders = null,
+    Object? monitoredFoldersByApiKey = null,
   }) {
     return _then(_$_Settings(
       apiKey: null == apiKey
           ? _value.apiKey
           : apiKey // ignore: cast_nullable_to_non_nullable
               as String,
-      monitoredFolders: null == monitoredFolders
-          ? _value._monitoredFolders
-          : monitoredFolders // ignore: cast_nullable_to_non_nullable
-              as List<MonitoredFolder>,
+      monitoredFoldersByApiKey: null == monitoredFoldersByApiKey
+          ? _value.monitoredFoldersByApiKey
+          : monitoredFoldersByApiKey // ignore: cast_nullable_to_non_nullable
+              as IMap<String, IList<MonitoredFolder>>,
     ));
   }
 }
@@ -108,25 +112,19 @@ class __$$_SettingsCopyWithImpl<$Res>
 @JsonSerializable()
 class _$_Settings with DiagnosticableTreeMixin implements _Settings {
   const _$_Settings(
-      {required this.apiKey,
-      required final List<MonitoredFolder> monitoredFolders})
-      : _monitoredFolders = monitoredFolders;
+      {required this.apiKey, required this.monitoredFoldersByApiKey});
 
   factory _$_Settings.fromJson(Map<String, dynamic> json) =>
       _$$_SettingsFromJson(json);
 
   @override
   final String apiKey;
-  final List<MonitoredFolder> _monitoredFolders;
   @override
-  List<MonitoredFolder> get monitoredFolders {
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_monitoredFolders);
-  }
+  final IMap<String, IList<MonitoredFolder>> monitoredFoldersByApiKey;
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'Settings(apiKey: $apiKey, monitoredFolders: $monitoredFolders)';
+    return 'Settings(apiKey: $apiKey, monitoredFoldersByApiKey: $monitoredFoldersByApiKey)';
   }
 
   @override
@@ -135,7 +133,8 @@ class _$_Settings with DiagnosticableTreeMixin implements _Settings {
     properties
       ..add(DiagnosticsProperty('type', 'Settings'))
       ..add(DiagnosticsProperty('apiKey', apiKey))
-      ..add(DiagnosticsProperty('monitoredFolders', monitoredFolders));
+      ..add(DiagnosticsProperty(
+          'monitoredFoldersByApiKey', monitoredFoldersByApiKey));
   }
 
   @override
@@ -144,14 +143,15 @@ class _$_Settings with DiagnosticableTreeMixin implements _Settings {
         (other.runtimeType == runtimeType &&
             other is _$_Settings &&
             (identical(other.apiKey, apiKey) || other.apiKey == apiKey) &&
-            const DeepCollectionEquality()
-                .equals(other._monitoredFolders, _monitoredFolders));
+            (identical(
+                    other.monitoredFoldersByApiKey, monitoredFoldersByApiKey) ||
+                other.monitoredFoldersByApiKey == monitoredFoldersByApiKey));
   }
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode => Object.hash(runtimeType, apiKey,
-      const DeepCollectionEquality().hash(_monitoredFolders));
+  int get hashCode =>
+      Object.hash(runtimeType, apiKey, monitoredFoldersByApiKey);
 
   @JsonKey(ignore: true)
   @override
@@ -170,14 +170,15 @@ class _$_Settings with DiagnosticableTreeMixin implements _Settings {
 abstract class _Settings implements Settings {
   const factory _Settings(
       {required final String apiKey,
-      required final List<MonitoredFolder> monitoredFolders}) = _$_Settings;
+      required final IMap<String, IList<MonitoredFolder>>
+          monitoredFoldersByApiKey}) = _$_Settings;
 
   factory _Settings.fromJson(Map<String, dynamic> json) = _$_Settings.fromJson;
 
   @override
   String get apiKey;
   @override
-  List<MonitoredFolder> get monitoredFolders;
+  IMap<String, IList<MonitoredFolder>> get monitoredFoldersByApiKey;
   @override
   @JsonKey(ignore: true)
   _$$_SettingsCopyWith<_$_Settings> get copyWith =>

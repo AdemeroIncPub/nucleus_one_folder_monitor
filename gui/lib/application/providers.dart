@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -14,8 +15,6 @@ import 'providers_initialized.dart';
 import 'settings.dart';
 
 part 'providers.freezed.dart';
-
-typedef WriteSettingsFn = void Function(Settings settings);
 
 final _settingsJsonReaderProvider = Provider((ref) {
   final path = ref.watch(settingsPathProvider);
@@ -54,11 +53,11 @@ final settingsProvider =
   return SettingsNotifier(settings, writeSettings);
 });
 
-final monitoredFoldersProvider = Provider<List<MonitoredFolder>>((ref) {
+final monitoredFoldersProvider = Provider<IList<MonitoredFolder>>((ref) {
   final monitoredFolders = ref.watch(
-    settingsProvider.select((value) => value.monitoredFolders),
+    settingsProvider.select((x) => x.monitoredFoldersByApiKey.get(x.apiKey)),
   );
-  return monitoredFolders;
+  return monitoredFolders ?? <MonitoredFolder>[].lock;
 });
 
 final _nucleusOneAppProvider = Provider((ref) {

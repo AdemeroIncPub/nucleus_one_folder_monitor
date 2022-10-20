@@ -1,9 +1,9 @@
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'monitored_folder.dart';
-import 'providers.dart';
 
 part 'settings.freezed.dart';
 part 'settings.g.dart';
@@ -12,7 +12,7 @@ part 'settings.g.dart';
 class Settings with _$Settings {
   const factory Settings({
     required String apiKey,
-    required List<MonitoredFolder> monitoredFolders,
+    required IMap<String, IList<MonitoredFolder>> monitoredFoldersByApiKey,
   }) = _Settings;
 
   factory Settings.fromJson(Map<String, Object?> json) =>
@@ -20,39 +20,45 @@ class Settings with _$Settings {
 
   // ignore: prefer_constructors_over_static_methods
   static Settings defaultValue() =>
-      const Settings(apiKey: '', monitoredFolders: []);
+      const Settings(apiKey: '', monitoredFoldersByApiKey: IMapConst({}));
 }
 
 class SettingsNotifier extends StateNotifier<Settings> {
   SettingsNotifier(
     super.state,
-    WriteSettingsFn writeSettingsFunc,
-  ) : _writeSettingsFunc = writeSettingsFunc;
+    this._writeSettingsFn,
+  );
 
-  final WriteSettingsFn _writeSettingsFunc;
+  final void Function(Settings settings) _writeSettingsFn;
 
   void setApiKey(String apiKey) {
     state = state.copyWith(apiKey: apiKey);
-    _writeSettingsFunc(state);
+    _writeSettingsFn(state);
   }
 
   /// Will add or update depending if the [id] matches an existing item.
   void saveMonitoredFolder(MonitoredFolder monitoredFolder) {
-    final mfs = state.monitoredFolders;
-    final index = mfs.indexWhere((x) => x.id == monitoredFolder.id);
-    if (index == -1) {
-      state = state.copyWith(monitoredFolders: [...mfs, monitoredFolder]);
-    } else {
-      final newMfs = mfs.toList()..[index] = monitoredFolder;
-      state = state.copyWith(monitoredFolders: newMfs);
-    }
-    _writeSettingsFunc(state);
+    assert(state.apiKey.isNotEmpty);
+
+    final newMfs = state.monitoredFoldersByApiKey.update(
+      state.apiKey,
+      (x) => x.updateById([monitoredFolder], (x) => x.id),
+      ifAbsent: () => [monitoredFolder].lock,
+    );
+
+    state = state.copyWith(monitoredFoldersByApiKey: newMfs);
+    _writeSettingsFn(state);
   }
 
   void deleteMonitoredFolder({required String monitoredFolderId}) {
-    final newMfs =
-        state.monitoredFolders.where((x) => x.id != monitoredFolderId).toList();
-    state = state.copyWith(monitoredFolders: newMfs);
-    _writeSettingsFunc(state);
+    assert(state.apiKey.isNotEmpty);
+
+    final newMfs = state.monitoredFoldersByApiKey.update(
+      state.apiKey,
+      (mfs) => mfs.removeWhere((x) => x.id == monitoredFolderId),
+    );
+
+    state = state.copyWith(monitoredFoldersByApiKey: newMfs);
+    _writeSettingsFn(state);
   }
 }

@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart'
     hide DataTable, DataColumn, DataRow, DataCell;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -17,9 +18,8 @@ import 'monitored_folder_details_screen.dart';
 part 'main_screen.freezed.dart';
 
 final sortedMonitoredFoldersProvider = StateProvider.family
-    .autoDispose<List<MonitoredFolder>, SortArgs>((ref, args) {
-  final monitoredFolders =
-      ref.watch(settingsProvider.select((x) => x.monitoredFolders));
+    .autoDispose<IList<MonitoredFolder>, SortArgs>((ref, args) {
+  final monitoredFolders = ref.watch(monitoredFoldersProvider);
 
   if (args.columnIndex != null) {
     return monitoredFolders.sorted((a, b) {
@@ -37,7 +37,7 @@ final sortedMonitoredFoldersProvider = StateProvider.family
       } else {
         return b2.compareTo(a2);
       }
-    });
+    }).lock;
   } else {
     return monitoredFolders;
   }
