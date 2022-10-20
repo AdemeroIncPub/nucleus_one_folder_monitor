@@ -1,4 +1,4 @@
-## Nucleus One Monitor Tool
+## Nucleus One Folder Monitor Tool
 
 This tool monitors configured folders for documents and uploads them to Nucleus
 One. A common use case is documents created by copier machines, but any device

@@ -1,16 +1,33 @@
-# nucleus_one_folder_monitor
+## Nucleus One Folder Monitor GUI
 
-A new Flutter project.
+Use this GUI to configure monitored folders. Only Windows is currently
+supported.
 
-## Getting Started
+For more information see [../README.md](../README.md).
 
-This project is a starting point for a Flutter application.
+## Usage
+- Generate an api key in your user profile in the Nucleus One web app.
+- Ensure the Flutter SDK is installed on your machine.
+- Clone this repository to your machine.
+- Open a terminal window to your cloned repository (to the same folder as this
+  README.md).
+- Get required dependencies:
+  ```
+  flutter pub get
+  ```
+- Run the app:
+  ```
+  flutter run -d windows
+  ```
+- Use the app to configure folders to monitor.
 
-A few resources to get you started if this is your first Flutter project:
+## Development
+Ensure the Flutter SDK is installed on your machine.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+For more information see [../README.md](../README.md).
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### Testing
+
+```
+flutter test
+```
