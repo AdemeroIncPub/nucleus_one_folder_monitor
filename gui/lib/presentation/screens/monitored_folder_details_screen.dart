@@ -1,6 +1,7 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:path/path.dart' as path_;
 import 'package:quiver/strings.dart' as quiver;
 
 import '../../application/monitored_folder.dart';
@@ -34,7 +35,7 @@ class _MonitoredFolderDetailsScreenState
     extends ConsumerState<MonitoredFolderDetailsScreen> {
   final _descriptionFieldController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  final _monitoredFolderTextFieldController = TextEditingController();
+  final _inputFolderTextFieldController = TextEditingController();
   final _moveToFolderTextFieldController = TextEditingController();
   final _n1DestinationFormFieldFocusNode = FocusNode();
   final _n1DestinationFormFieldKey =
@@ -51,7 +52,7 @@ class _MonitoredFolderDetailsScreenState
     _n1DestinationFormFieldFocusNode.removeListener(_handleFocusChanged);
     _nameTextFieldController.dispose();
     _descriptionFieldController.dispose();
-    _monitoredFolderTextFieldController.dispose();
+    _inputFolderTextFieldController.dispose();
     _n1DestinationFormFieldFocusNode.dispose();
     _moveToFolderTextFieldController.dispose();
     super.dispose();
@@ -66,7 +67,7 @@ class _MonitoredFolderDetailsScreenState
       final toEdit = widget.mfToEdit!;
       _nameTextFieldController.text = toEdit.name;
       _descriptionFieldController.text = toEdit.description;
-      _monitoredFolderTextFieldController.text = toEdit.monitoredFolder;
+      _inputFolderTextFieldController.text = toEdit.inputFolder;
 
       _fileDispositionType = toEdit.fileDisposition.map(
         delete: (_) => _FileDispositionType.delete,
@@ -122,7 +123,7 @@ class _MonitoredFolderDetailsScreenState
                 _formRowSpacer,
                 _descriptionFormRow(context),
                 _formRowSpacer,
-                _monitoredFolderFormRow(context),
+                _inputFolderFormRow(context),
                 _formRowSpacer,
                 _n1DestinationFormRow(context),
                 _formRowSpacer,
@@ -187,20 +188,20 @@ class _MonitoredFolderDetailsScreenState
     );
   }
 
-  Widget _monitoredFolderFormRow(BuildContext context) {
+  Widget _inputFolderFormRow(BuildContext context) {
     return Row(
       children: [
         IconButton(
           icon: const Icon(Icons.edit),
           onPressed: () async {
             final selectedPath = await FilePicker.platform.getDirectoryPath(
-              dialogTitle: 'Select folder to monitor',
-              initialDirectory: _monitoredFolderTextFieldController.text,
+              dialogTitle: 'Select input folder',
+              initialDirectory: _inputFolderTextFieldController.text,
               lockParentWindow: true,
             );
             if (selectedPath != null) {
               setState(() {
-                _monitoredFolderTextFieldController.text = selectedPath;
+                _inputFolderTextFieldController.text = selectedPath;
               });
             }
           },
@@ -209,17 +210,47 @@ class _MonitoredFolderDetailsScreenState
         Expanded(
           child: TextFormField(
             decoration: const InputDecoration(
-              labelText: 'Folder to monitor',
-              hintText: 'Use the edit button to select the folder to monitor',
+              labelText: 'Input folder',
+              hintText: 'Use the edit button to select the input folder',
+              errorMaxLines: 3,
             ),
-            controller: _monitoredFolderTextFieldController,
+            controller: _inputFolderTextFieldController,
             readOnly: true,
             autovalidateMode: AutovalidateMode.onUserInteraction,
             validator: (value) {
+              String inputFolder;
               if (quiver.isBlank(value)) {
                 return 'This field is required';
+              } else {
+                inputFolder = value!;
               }
-              return null;
+
+              // Ensure input folder is not any saved move to folder
+              final savedMfs = ref.read(monitoredFoldersProvider);
+              final savedMfsValidation = savedMfs.map((mf) {
+                // If editing, do not check against this saved move to folder.
+                // The move to formfield's validator will check against this
+                // input folder
+                if (widget.mfToEdit?.id == mf.id) {
+                  return null;
+                }
+
+                return mf.fileDisposition.whenOrNull(
+                  move: (moveToFolder) {
+                    if (path_.equals(inputFolder, moveToFolder)) {
+                      final nameDesc = [mf.name, mf.description].join(': ');
+                      return 'Cannot be the same as the move to folder of '
+                          'another monitored folder, but matches the move to '
+                          'folder for $nameDesc';
+                    }
+                    return null;
+                  },
+                );
+              }).firstWhere(
+                (msg) => msg != null,
+                orElse: () => null,
+              );
+              return savedMfsValidation;
             },
           ),
         ),
@@ -388,18 +419,51 @@ class _MonitoredFolderDetailsScreenState
         Expanded(
           child: TextFormField(
             decoration: const InputDecoration(
-              labelText: 'Move to folder',
-              hintText: 'Use the edit button to select the destination folder',
-            ),
+                labelText: 'Move to folder',
+                hintText:
+                    'Use the edit button to select the destination folder',
+                errorMaxLines: 3),
             controller: _moveToFolderTextFieldController,
             readOnly: true,
             autovalidateMode: AutovalidateMode.onUserInteraction,
             validator: (value) {
-              if (_fileDispositionType == _FileDispositionType.move &&
-                  quiver.isBlank(value)) {
-                return 'This field is required';
+              if (_fileDispositionType == _FileDispositionType.move) {
+                String moveToFolder;
+                if (quiver.isBlank(value)) {
+                  return 'This field is required';
+                } else {
+                  moveToFolder = value!;
+                }
+
+                // Ensure move to folder is not the input folder
+                final inputFolder = _inputFolderTextFieldController.text;
+                if (path_.equals(moveToFolder, inputFolder)) {
+                  return 'Cannot be the same as the input folder';
+                }
+
+                // Ensure move to folder is not any saved input folder
+                final savedMfs = ref.read(monitoredFoldersProvider);
+                final savedMfsValidation = savedMfs.map((mf) {
+                  // If editing, do not check against this saved input folder.
+                  // Already checked against this proposed input folder above.
+                  if (widget.mfToEdit?.id == mf.id) {
+                    return null;
+                  }
+
+                  if (path_.equals(moveToFolder, mf.inputFolder)) {
+                    final nameDesc = [mf.name, mf.description].join(': ');
+                    return 'Cannot be the same as the input folder of another '
+                        'monitored folder, but matches the input folder for '
+                        '$nameDesc';
+                  }
+                }).firstWhere(
+                  (msg) => msg != null,
+                  orElse: () => null,
+                );
+                return savedMfsValidation;
+              } else {
+                return null;
               }
-              return null;
             },
           ),
         ),
@@ -435,7 +499,7 @@ class _MonitoredFolderDetailsScreenState
           final mf = widget.mfToEdit;
           _nameTextFieldController.text = mf?.name ?? '';
           _descriptionFieldController.text = mf?.description ?? '';
-          _monitoredFolderTextFieldController.text = mf?.monitoredFolder ?? '';
+          _inputFolderTextFieldController.text = mf?.inputFolder ?? '';
           _n1DestinationFormFieldKey.currentState?.reset();
           _fileDispositionType = mf?.fileDisposition.map(
             delete: (_) {
@@ -469,7 +533,7 @@ class _MonitoredFolderDetailsScreenState
             mfToSave = widget.mfToEdit!.copyWith(
               name: _nameTextFieldController.text,
               description: _descriptionFieldController.text,
-              monitoredFolder: _monitoredFolderTextFieldController.text,
+              inputFolder: _inputFolderTextFieldController.text,
               n1Folder: _n1DestinationFormFieldKey.currentState!.value!,
               fileDisposition: fileDisposition,
             );
@@ -477,7 +541,7 @@ class _MonitoredFolderDetailsScreenState
             mfToSave = MonitoredFolder.defaultId(
               name: _nameTextFieldController.text,
               description: _descriptionFieldController.text,
-              monitoredFolder: _monitoredFolderTextFieldController.text,
+              inputFolder: _inputFolderTextFieldController.text,
               n1Folder: _n1DestinationFormFieldKey.currentState!.value!,
               fileDisposition: fileDisposition,
             );

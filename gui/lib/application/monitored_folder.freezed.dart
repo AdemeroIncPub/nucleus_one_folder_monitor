@@ -23,7 +23,7 @@ mixin _$MonitoredFolder {
   String get id => throw _privateConstructorUsedError;
   String get name => throw _privateConstructorUsedError;
   String get description => throw _privateConstructorUsedError;
-  String get monitoredFolder => throw _privateConstructorUsedError;
+  String get inputFolder => throw _privateConstructorUsedError;
   NucleusOneFolder get n1Folder => throw _privateConstructorUsedError;
   FileDisposition get fileDisposition => throw _privateConstructorUsedError;
 
@@ -43,7 +43,7 @@ abstract class $MonitoredFolderCopyWith<$Res> {
       {String id,
       String name,
       String description,
-      String monitoredFolder,
+      String inputFolder,
       NucleusOneFolder n1Folder,
       FileDisposition fileDisposition});
 
@@ -67,7 +67,7 @@ class _$MonitoredFolderCopyWithImpl<$Res, $Val extends MonitoredFolder>
     Object? id = null,
     Object? name = null,
     Object? description = null,
-    Object? monitoredFolder = null,
+    Object? inputFolder = null,
     Object? n1Folder = null,
     Object? fileDisposition = null,
   }) {
@@ -84,9 +84,9 @@ class _$MonitoredFolderCopyWithImpl<$Res, $Val extends MonitoredFolder>
           ? _value.description
           : description // ignore: cast_nullable_to_non_nullable
               as String,
-      monitoredFolder: null == monitoredFolder
-          ? _value.monitoredFolder
-          : monitoredFolder // ignore: cast_nullable_to_non_nullable
+      inputFolder: null == inputFolder
+          ? _value.inputFolder
+          : inputFolder // ignore: cast_nullable_to_non_nullable
               as String,
       n1Folder: null == n1Folder
           ? _value.n1Folder
@@ -128,7 +128,7 @@ abstract class _$$_MonitoredFolderCopyWith<$Res>
       {String id,
       String name,
       String description,
-      String monitoredFolder,
+      String inputFolder,
       NucleusOneFolder n1Folder,
       FileDisposition fileDisposition});
 
@@ -152,7 +152,7 @@ class __$$_MonitoredFolderCopyWithImpl<$Res>
     Object? id = null,
     Object? name = null,
     Object? description = null,
-    Object? monitoredFolder = null,
+    Object? inputFolder = null,
     Object? n1Folder = null,
     Object? fileDisposition = null,
   }) {
@@ -169,9 +169,9 @@ class __$$_MonitoredFolderCopyWithImpl<$Res>
           ? _value.description
           : description // ignore: cast_nullable_to_non_nullable
               as String,
-      monitoredFolder: null == monitoredFolder
-          ? _value.monitoredFolder
-          : monitoredFolder // ignore: cast_nullable_to_non_nullable
+      inputFolder: null == inputFolder
+          ? _value.inputFolder
+          : inputFolder // ignore: cast_nullable_to_non_nullable
               as String,
       n1Folder: null == n1Folder
           ? _value.n1Folder
@@ -194,7 +194,7 @@ class _$_MonitoredFolder
       {required this.id,
       required this.name,
       required this.description,
-      required this.monitoredFolder,
+      required this.inputFolder,
       required this.n1Folder,
       required this.fileDisposition});
 
@@ -208,7 +208,7 @@ class _$_MonitoredFolder
   @override
   final String description;
   @override
-  final String monitoredFolder;
+  final String inputFolder;
   @override
   final NucleusOneFolder n1Folder;
   @override
@@ -216,7 +216,7 @@ class _$_MonitoredFolder
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'MonitoredFolder(id: $id, name: $name, description: $description, monitoredFolder: $monitoredFolder, n1Folder: $n1Folder, fileDisposition: $fileDisposition)';
+    return 'MonitoredFolder(id: $id, name: $name, description: $description, inputFolder: $inputFolder, n1Folder: $n1Folder, fileDisposition: $fileDisposition)';
   }
 
   @override
@@ -227,7 +227,7 @@ class _$_MonitoredFolder
       ..add(DiagnosticsProperty('id', id))
       ..add(DiagnosticsProperty('name', name))
       ..add(DiagnosticsProperty('description', description))
-      ..add(DiagnosticsProperty('monitoredFolder', monitoredFolder))
+      ..add(DiagnosticsProperty('inputFolder', inputFolder))
       ..add(DiagnosticsProperty('n1Folder', n1Folder))
       ..add(DiagnosticsProperty('fileDisposition', fileDisposition));
   }
@@ -241,8 +241,8 @@ class _$_MonitoredFolder
             (identical(other.name, name) || other.name == name) &&
             (identical(other.description, description) ||
                 other.description == description) &&
-            (identical(other.monitoredFolder, monitoredFolder) ||
-                other.monitoredFolder == monitoredFolder) &&
+            (identical(other.inputFolder, inputFolder) ||
+                other.inputFolder == inputFolder) &&
             (identical(other.n1Folder, n1Folder) ||
                 other.n1Folder == n1Folder) &&
             (identical(other.fileDisposition, fileDisposition) ||
@@ -252,7 +252,7 @@ class _$_MonitoredFolder
   @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hash(runtimeType, id, name, description,
-      monitoredFolder, n1Folder, fileDisposition);
+      inputFolder, n1Folder, fileDisposition);
 
   @JsonKey(ignore: true)
   @override
@@ -273,7 +273,7 @@ abstract class _MonitoredFolder implements MonitoredFolder {
       {required final String id,
       required final String name,
       required final String description,
-      required final String monitoredFolder,
+      required final String inputFolder,
       required final NucleusOneFolder n1Folder,
       required final FileDisposition fileDisposition}) = _$_MonitoredFolder;
 
@@ -287,7 +287,7 @@ abstract class _MonitoredFolder implements MonitoredFolder {
   @override
   String get description;
   @override
-  String get monitoredFolder;
+  String get inputFolder;
   @override
   NucleusOneFolder get n1Folder;
   @override

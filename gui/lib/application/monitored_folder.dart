@@ -15,7 +15,7 @@ class MonitoredFolder with _$MonitoredFolder {
     required String id,
     required String name,
     required String description,
-    required String monitoredFolder,
+    required String inputFolder,
     required NucleusOneFolder n1Folder,
     required FileDisposition fileDisposition,
   }) = _MonitoredFolder;
@@ -27,7 +27,7 @@ class MonitoredFolder with _$MonitoredFolder {
   static MonitoredFolder defaultId({
     required String name,
     required String description,
-    required String monitoredFolder,
+    required String inputFolder,
     required NucleusOneFolder n1Folder,
     required FileDisposition fileDisposition,
   }) {
@@ -35,7 +35,7 @@ class MonitoredFolder with _$MonitoredFolder {
       id: _uuid.v1(),
       name: name,
       description: description,
-      monitoredFolder: monitoredFolder,
+      inputFolder: inputFolder,
       n1Folder: n1Folder,
       fileDisposition: fileDisposition,
     );

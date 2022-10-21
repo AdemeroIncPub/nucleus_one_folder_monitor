@@ -13,7 +13,7 @@ _$_MonitoredFolder _$$_MonitoredFolderFromJson(Map<String, dynamic> json) =>
       id: json['id'] as String,
       name: json['name'] as String,
       description: json['description'] as String,
-      monitoredFolder: json['monitoredFolder'] as String,
+      inputFolder: json['inputFolder'] as String,
       n1Folder:
           NucleusOneFolder.fromJson(json['n1Folder'] as Map<String, dynamic>),
       fileDisposition: FileDisposition.fromJson(
@@ -25,7 +25,7 @@ Map<String, dynamic> _$$_MonitoredFolderToJson(_$_MonitoredFolder instance) =>
       'id': instance.id,
       'name': instance.name,
       'description': instance.description,
-      'monitoredFolder': instance.monitoredFolder,
+      'inputFolder': instance.inputFolder,
       'n1Folder': instance.n1Folder,
       'fileDisposition': instance.fileDisposition,
     };
