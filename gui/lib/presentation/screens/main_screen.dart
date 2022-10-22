@@ -139,21 +139,16 @@ class _MainScreenState extends ConsumerState<MainScreen> {
           // }
         }),
         selected: mf.id == _selectedId,
-        onSelectChanged: (bool? value) {
-          setState(() {
-            if (value ?? true) {
-              _selectedId = mf.id;
-            } else {
-              _selectedId = null;
-            }
-          });
-        },
         cells: [
           DataCell(
             Text(mf.name),
+            onTap: () => _selectMonitoredFolder(monitoredFolderId: mf.id),
+            onDoubleTap: () async => _editMonitoredFolder(context, mf),
           ),
           DataCell(
             Text(mf.description),
+            onTap: () => _selectMonitoredFolder(monitoredFolderId: mf.id),
+            onDoubleTap: () async => _editMonitoredFolder(context, mf),
           ),
         ],
       );
@@ -177,6 +172,34 @@ class _MainScreenState extends ConsumerState<MainScreen> {
         ),
         columns: columns,
         rows: rows,
+      ),
+    );
+  }
+
+  void _selectMonitoredFolder({required String monitoredFolderId}) {
+    setState(() {
+      if (_selectedId == monitoredFolderId) {
+        _selectedId = null;
+      } else {
+        _selectedId = monitoredFolderId;
+      }
+    });
+  }
+
+  Future<void> _editMonitoredFolder(
+      BuildContext context, MonitoredFolder mfToEdit) {
+    setState(() {
+      _selectedId = mfToEdit.id;
+    });
+    return Navigator.push(
+      context,
+      MaterialPageRoute<void>(
+        builder: (context) => MonitoredFolderDetailsScreen(
+          mfToEdit: mfToEdit,
+        ),
+        settings: const RouteSettings(
+          name: MonitoredFolderDetailsScreen.routeName,
+        ),
       ),
     );
   }
@@ -262,25 +285,15 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   }
 
   Widget _editButton(BuildContext context) {
-    final sortedMonitoredFolders = ref.watch(sortedMonitoredFoldersProvider(
-        SortArgs(columnIndex: _sortColumn, ascending: _sortAscending)));
+    final monitoredFolders = ref.watch(monitoredFoldersProvider);
 
     return TextButton(
       onPressed: (_selectedId == null)
           ? null
           : () async {
-              await Navigator.push(
-                context,
-                MaterialPageRoute<void>(
-                  builder: (context) => MonitoredFolderDetailsScreen(
-                    mfToEdit: sortedMonitoredFolders
-                        .singleWhere((x) => x.id == _selectedId),
-                  ),
-                  settings: const RouteSettings(
-                    name: MonitoredFolderDetailsScreen.routeName,
-                  ),
-                ),
-              );
+              final mfToEdit =
+                  monitoredFolders.singleWhere((x) => x.id == _selectedId);
+              return _editMonitoredFolder(context, mfToEdit);
             },
       child: const Text('EDIT'),
     );
