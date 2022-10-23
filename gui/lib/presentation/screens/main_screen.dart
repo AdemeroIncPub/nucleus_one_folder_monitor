@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:collection/collection.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart'
@@ -5,6 +7,7 @@ import 'package:flutter/material.dart'
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:pool/pool.dart';
 import 'package:quiver/strings.dart' as quiver;
 
 import '../../application/monitored_folder.dart';
@@ -63,6 +66,12 @@ class _MainScreenState extends ConsumerState<MainScreen> {
 
   String? _selectedId;
   int? _sortColumn;
+
+  @override
+  void initState() {
+    super.initState();
+    unawaited(_updateMonitoredFoldersFromNucleusOne());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -341,5 +350,55 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     if (apiKey != null) {
       ref.read(settingsProvider.notifier).setApiKey(apiKey);
     }
+  }
+
+  Future<void> _updateMonitoredFoldersFromNucleusOne() async {
+    final settingsNotifier = ref.read(settingsProvider.notifier);
+    final mfs = ref.read(monitoredFoldersProvider);
+    final pool = Pool(4);
+
+    //todo(apn): handle org/project/folder not found
+    // test no longer exists as well as never did, I got 500 error by passing
+    // bogus folderId
+    for (final mf in mfs) {
+      final orgsF =
+          pool.withResource(() => ref.read(n1UserOrganizationsProvider.future));
+      final projectsF = pool.withResource(() => ref.read(
+          n1OrganizationProjectsProvider(mf.n1Folder.organizationId).future));
+      final docFoldersF = mf.n1Folder.folderIds.map((folderId) {
+        final args = GetDocumentFolderByIdArgs(
+          orgId: mf.n1Folder.organizationId,
+          projectId: mf.n1Folder.projectId,
+          folderId: folderId,
+        );
+        return pool.withResource(() {
+          return ref.read(n1DocumentFolderByIdProvider(args).future);
+        });
+      });
+
+      try {
+        final orgs = await orgsF;
+        final projects = await projectsF;
+        final docFolders = await Future.wait(docFoldersF);
+
+        final orgName = orgs
+            .firstWhere((x) => x.organizationID == mf.n1Folder.organizationId)
+            .organizationName;
+        final projectName =
+            projects.firstWhere((x) => x.id == mf.n1Folder.projectId).name;
+
+        final newMf = mf.copyWith.n1Folder(
+          organizationName: orgName,
+          projectName: projectName,
+          folderNames: docFolders.map((x) => x!.name).toList(),
+        );
+
+        settingsNotifier.saveMonitoredFolder(newMf);
+        // ignore: empty_catches, avoid_catches_without_on_clauses
+      } catch (e) {} // brute force ignore errors updating names
+    }
+
+    await pool.close();
+    return pool.done;
   }
 }

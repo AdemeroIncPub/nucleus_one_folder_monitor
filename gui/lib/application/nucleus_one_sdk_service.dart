@@ -55,6 +55,18 @@ class NucleusOneSdkService {
     return _getAllByPaging(getQrFn);
   }
 
+  Future<n1.DocumentFolder?> getDocumentFolderById({
+    required String organizationId,
+    required String projectId,
+    required String folderId,
+  }) async {
+    final asdf = await n1App
+        .organization(organizationId)
+        .project(projectId)
+        .getDocumentFolder(documentFolderId: folderId);
+    return asdf;
+  }
+
   Future<List<T>> _getAllByPaging<T>(_GetQueryResultByCursorFn getQrFn) async {
     final items = <T>[];
     String? cursor;

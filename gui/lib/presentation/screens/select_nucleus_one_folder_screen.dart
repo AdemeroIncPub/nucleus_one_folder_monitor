@@ -42,7 +42,7 @@ class _SelectNucleusOneFolderScreenState
   void dispose() {
     // todo(apn): this doesn't work yet, but dispose of family is in Riverpod
     // source, but not yet released (soon).
-    ref.invalidate(n1DocumentFoldersProvider);
+    ref.invalidate(n1DocumentFoldersCachedProvider);
     super.dispose();
   }
 
@@ -99,13 +99,13 @@ class _SelectNucleusOneFolderScreenState
 
       // get folders by current level
       if (_folderLevel != null) {
-        final args = GetProjectDocumentFoldersArgs(
+        final args = GetDocumentFoldersArgs(
           orgId: _navigatedOrg!.organizationID,
           projectId: _navigatedProject!.id,
           parentId: _navigatedFolders.lastOrNull?.id,
         );
 
-        _folders = ref.watch(n1DocumentFoldersProvider(args));
+        _folders = ref.watch(n1DocumentFoldersCachedProvider(args));
       }
     }
   }

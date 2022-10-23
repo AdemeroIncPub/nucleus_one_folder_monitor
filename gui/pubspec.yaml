@@ -55,6 +55,7 @@ dependencies:
   path: any
   path_provider: any
   path_provider_windows: any
+  pool: any
   quiver: any
   uuid: any
 

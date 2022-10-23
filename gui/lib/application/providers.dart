@@ -84,8 +84,8 @@ final n1OrganizationProjects_ProjectTypeFilterProvider =
   return null;
 });
 
-final n1OrganizationProjectsProvider = FutureProvider.autoDispose
-    .family<List<n1.OrganizationProject>, String>((ref, orgId) async {
+final n1OrganizationProjectsProvider = FutureProvider.family
+    .autoDispose<List<n1.OrganizationProject>, String>((ref, orgId) async {
   final n1Sdk = ref.watch(n1SdkServiceProvider);
   final projectTypeFilter =
       ref.watch(n1OrganizationProjects_ProjectTypeFilterProvider);
@@ -95,8 +95,11 @@ final n1OrganizationProjectsProvider = FutureProvider.autoDispose
   return projects..sort((a, b) => a.name.compareTo(b.name));
 });
 
-final n1DocumentFoldersProvider = FutureProvider.family<List<n1.DocumentFolder>,
-    GetProjectDocumentFoldersArgs>((ref, args) async {
+/// Not [autoDispose]'d because we want to cache folders during
+/// [SelectNucleusOneFolderScreen] lifetime. Dispose in screen's [dispose()].
+final n1DocumentFoldersCachedProvider =
+    FutureProvider.family<List<n1.DocumentFolder>, GetDocumentFoldersArgs>(
+        (ref, args) async {
   final n1Sdk = ref.watch(n1SdkServiceProvider);
   final folders = await n1Sdk.getDocumentFolders(
     organizationId: args.orgId,
@@ -106,11 +109,31 @@ final n1DocumentFoldersProvider = FutureProvider.family<List<n1.DocumentFolder>,
   return folders..sort((a, b) => a.name.compareTo(b.name));
 });
 
+final n1DocumentFolderByIdProvider =
+    FutureProvider.family<n1.DocumentFolder?, GetDocumentFolderByIdArgs>(
+        (ref, args) {
+  final n1Sdk = ref.watch(n1SdkServiceProvider);
+  return n1Sdk.getDocumentFolderById(
+    organizationId: args.orgId,
+    projectId: args.projectId,
+    folderId: args.folderId,
+  );
+});
+
 @freezed
-class GetProjectDocumentFoldersArgs with _$GetProjectDocumentFoldersArgs {
-  const factory GetProjectDocumentFoldersArgs({
+class GetDocumentFoldersArgs with _$GetDocumentFoldersArgs {
+  const factory GetDocumentFoldersArgs({
     required String orgId,
     required String projectId,
     String? parentId,
-  }) = _GetProjectDocumentFoldersArgs;
+  }) = _GetDocumentFoldersArgs;
+}
+
+@freezed
+class GetDocumentFolderByIdArgs with _$GetDocumentFolderByIdArgs {
+  const factory GetDocumentFolderByIdArgs({
+    required String orgId,
+    required String projectId,
+    required String folderId,
+  }) = _GetDocumentFolderByIdArgs;
 }

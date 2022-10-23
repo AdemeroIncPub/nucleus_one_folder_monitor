@@ -32,33 +32,43 @@ class SettingsNotifier extends StateNotifier<Settings> {
   final void Function(Settings settings) _writeSettingsFn;
 
   void setApiKey(String apiKey) {
+    final previousState = state;
     state = state.copyWith(apiKey: apiKey);
-    _writeSettingsFn(state);
+
+    if (previousState != state) {
+      _writeSettingsFn(state);
+    }
   }
 
   /// Will add or update depending if the [id] matches an existing item.
   void saveMonitoredFolder(MonitoredFolder monitoredFolder) {
     assert(state.apiKey.isNotEmpty);
 
+    final previousState = state;
     final newMfs = state.monitoredFoldersByApiKey.update(
       state.apiKey,
       (x) => x.updateById([monitoredFolder], (x) => x.id),
       ifAbsent: () => [monitoredFolder].lock,
     );
-
     state = state.copyWith(monitoredFoldersByApiKey: newMfs);
-    _writeSettingsFn(state);
+
+    if (previousState != state) {
+      _writeSettingsFn(state);
+    }
   }
 
   void deleteMonitoredFolder({required String monitoredFolderId}) {
     assert(state.apiKey.isNotEmpty);
 
+    final previousState = state;
     final newMfs = state.monitoredFoldersByApiKey.update(
       state.apiKey,
       (mfs) => mfs.removeWhere((x) => x.id == monitoredFolderId),
     );
-
     state = state.copyWith(monitoredFoldersByApiKey: newMfs);
-    _writeSettingsFn(state);
+
+    if (previousState != state) {
+      _writeSettingsFn(state);
+    }
   }
 }
