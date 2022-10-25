@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nucleus_one_dart_sdk/nucleus_one_dart_sdk.dart' as n1;
 
+import 'application/providers.dart';
 import 'application/providers_initialized.dart';
 import 'presentation/screens/main_screen.dart';
 import 'presentation/util/style.dart';
@@ -19,6 +20,14 @@ Future<void> main() async {
   ProviderContainer container;
   try {
     container = await _initialize();
+    // check we can read config
+    try {
+      container.read(settingsProvider);
+      // ignore: avoid_catches_without_on_clauses
+    } catch (ex, stackTrace) {
+      throw Exception('Error reading settings\n$ex\n$stackTrace');
+    }
+
     // ignore: avoid_catches_without_on_clauses
   } catch (ex, stackTrace) {
     runApp(ErrorApp(

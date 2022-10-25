@@ -43,6 +43,7 @@ class _MonitoredFolderDetailsScreenState
 
   final _nameTextFieldController = TextEditingController();
 
+  var _enabled = true;
   bool _isHovering = false;
 
   _FileDispositionType? _fileDispositionType;
@@ -76,6 +77,7 @@ class _MonitoredFolderDetailsScreenState
           return _FileDispositionType.move;
         },
       );
+      _enabled = toEdit.enabled;
     }
   }
 
@@ -96,7 +98,7 @@ class _MonitoredFolderDetailsScreenState
         child: SingleChildScrollView(
           primary: true,
           child: Container(
-            margin: const EdgeInsets.all(screenPadding).copyWith(top: 0),
+            margin: const EdgeInsets.all(screenPadding),
             child: _mainContent(context),
           ),
         ),
@@ -119,6 +121,8 @@ class _MonitoredFolderDetailsScreenState
             onWillPop: () async => true, //todo(apn): warn if there are changes
             child: Column(
               children: [
+                _enabledFormRow(context),
+                _formRowSpacer,
                 _nameFormRow(context),
                 _formRowSpacer,
                 _descriptionFormRow(context),
@@ -471,6 +475,22 @@ class _MonitoredFolderDetailsScreenState
     );
   }
 
+  Widget _enabledFormRow(BuildContext context) {
+    return CheckboxListTile(
+      title: const Text('Enabled'),
+      subtitle:
+          const Text('If unchecked, this monitored folder will not be active'),
+      controlAffinity: ListTileControlAffinity.leading,
+      contentPadding: EdgeInsets.zero,
+      value: _enabled,
+      onChanged: (value) {
+        setState(() {
+          _enabled = value!;
+        });
+      },
+    );
+  }
+
   BottomAppBar _bottomAppBar(BuildContext context) {
     return BottomAppBar(
       child: Container(
@@ -536,15 +556,16 @@ class _MonitoredFolderDetailsScreenState
               inputFolder: _inputFolderTextFieldController.text,
               n1Folder: _n1DestinationFormFieldKey.currentState!.value!,
               fileDisposition: fileDisposition,
+              enabled: _enabled,
             );
           } else {
             mfToSave = MonitoredFolder.defaultId(
-              name: _nameTextFieldController.text,
-              description: _descriptionFieldController.text,
-              inputFolder: _inputFolderTextFieldController.text,
-              n1Folder: _n1DestinationFormFieldKey.currentState!.value!,
-              fileDisposition: fileDisposition,
-            );
+                name: _nameTextFieldController.text,
+                description: _descriptionFieldController.text,
+                inputFolder: _inputFolderTextFieldController.text,
+                n1Folder: _n1DestinationFormFieldKey.currentState!.value!,
+                fileDisposition: fileDisposition,
+                enabled: _enabled);
           }
 
           ref.read(settingsProvider.notifier).saveMonitoredFolder(mfToSave);

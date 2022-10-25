@@ -18,6 +18,7 @@ class MonitoredFolder with _$MonitoredFolder {
     required String inputFolder,
     required NucleusOneFolder n1Folder,
     required FileDisposition fileDisposition,
+    required bool enabled,
   }) = _MonitoredFolder;
 
   factory MonitoredFolder.fromJson(Map<String, dynamic> json) =>
@@ -30,6 +31,7 @@ class MonitoredFolder with _$MonitoredFolder {
     required String inputFolder,
     required NucleusOneFolder n1Folder,
     required FileDisposition fileDisposition,
+    required bool enabled,
   }) {
     return MonitoredFolder(
       id: _uuid.v1(),
@@ -38,6 +40,7 @@ class MonitoredFolder with _$MonitoredFolder {
       inputFolder: inputFolder,
       n1Folder: n1Folder,
       fileDisposition: fileDisposition,
+      enabled: enabled,
     );
   }
 }

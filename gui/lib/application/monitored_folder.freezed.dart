@@ -26,6 +26,7 @@ mixin _$MonitoredFolder {
   String get inputFolder => throw _privateConstructorUsedError;
   NucleusOneFolder get n1Folder => throw _privateConstructorUsedError;
   FileDisposition get fileDisposition => throw _privateConstructorUsedError;
+  bool get enabled => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -45,7 +46,8 @@ abstract class $MonitoredFolderCopyWith<$Res> {
       String description,
       String inputFolder,
       NucleusOneFolder n1Folder,
-      FileDisposition fileDisposition});
+      FileDisposition fileDisposition,
+      bool enabled});
 
   $NucleusOneFolderCopyWith<$Res> get n1Folder;
   $FileDispositionCopyWith<$Res> get fileDisposition;
@@ -70,6 +72,7 @@ class _$MonitoredFolderCopyWithImpl<$Res, $Val extends MonitoredFolder>
     Object? inputFolder = null,
     Object? n1Folder = null,
     Object? fileDisposition = null,
+    Object? enabled = null,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -96,6 +99,10 @@ class _$MonitoredFolderCopyWithImpl<$Res, $Val extends MonitoredFolder>
           ? _value.fileDisposition
           : fileDisposition // ignore: cast_nullable_to_non_nullable
               as FileDisposition,
+      enabled: null == enabled
+          ? _value.enabled
+          : enabled // ignore: cast_nullable_to_non_nullable
+              as bool,
     ) as $Val);
   }
 
@@ -130,7 +137,8 @@ abstract class _$$_MonitoredFolderCopyWith<$Res>
       String description,
       String inputFolder,
       NucleusOneFolder n1Folder,
-      FileDisposition fileDisposition});
+      FileDisposition fileDisposition,
+      bool enabled});
 
   @override
   $NucleusOneFolderCopyWith<$Res> get n1Folder;
@@ -155,6 +163,7 @@ class __$$_MonitoredFolderCopyWithImpl<$Res>
     Object? inputFolder = null,
     Object? n1Folder = null,
     Object? fileDisposition = null,
+    Object? enabled = null,
   }) {
     return _then(_$_MonitoredFolder(
       id: null == id
@@ -181,6 +190,10 @@ class __$$_MonitoredFolderCopyWithImpl<$Res>
           ? _value.fileDisposition
           : fileDisposition // ignore: cast_nullable_to_non_nullable
               as FileDisposition,
+      enabled: null == enabled
+          ? _value.enabled
+          : enabled // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 }
@@ -196,7 +209,8 @@ class _$_MonitoredFolder
       required this.description,
       required this.inputFolder,
       required this.n1Folder,
-      required this.fileDisposition});
+      required this.fileDisposition,
+      required this.enabled});
 
   factory _$_MonitoredFolder.fromJson(Map<String, dynamic> json) =>
       _$$_MonitoredFolderFromJson(json);
@@ -213,10 +227,12 @@ class _$_MonitoredFolder
   final NucleusOneFolder n1Folder;
   @override
   final FileDisposition fileDisposition;
+  @override
+  final bool enabled;
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'MonitoredFolder(id: $id, name: $name, description: $description, inputFolder: $inputFolder, n1Folder: $n1Folder, fileDisposition: $fileDisposition)';
+    return 'MonitoredFolder(id: $id, name: $name, description: $description, inputFolder: $inputFolder, n1Folder: $n1Folder, fileDisposition: $fileDisposition, enabled: $enabled)';
   }
 
   @override
@@ -229,7 +245,8 @@ class _$_MonitoredFolder
       ..add(DiagnosticsProperty('description', description))
       ..add(DiagnosticsProperty('inputFolder', inputFolder))
       ..add(DiagnosticsProperty('n1Folder', n1Folder))
-      ..add(DiagnosticsProperty('fileDisposition', fileDisposition));
+      ..add(DiagnosticsProperty('fileDisposition', fileDisposition))
+      ..add(DiagnosticsProperty('enabled', enabled));
   }
 
   @override
@@ -246,13 +263,14 @@ class _$_MonitoredFolder
             (identical(other.n1Folder, n1Folder) ||
                 other.n1Folder == n1Folder) &&
             (identical(other.fileDisposition, fileDisposition) ||
-                other.fileDisposition == fileDisposition));
+                other.fileDisposition == fileDisposition) &&
+            (identical(other.enabled, enabled) || other.enabled == enabled));
   }
 
   @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hash(runtimeType, id, name, description,
-      inputFolder, n1Folder, fileDisposition);
+      inputFolder, n1Folder, fileDisposition, enabled);
 
   @JsonKey(ignore: true)
   @override
@@ -275,7 +293,8 @@ abstract class _MonitoredFolder implements MonitoredFolder {
       required final String description,
       required final String inputFolder,
       required final NucleusOneFolder n1Folder,
-      required final FileDisposition fileDisposition}) = _$_MonitoredFolder;
+      required final FileDisposition fileDisposition,
+      required final bool enabled}) = _$_MonitoredFolder;
 
   factory _MonitoredFolder.fromJson(Map<String, dynamic> json) =
       _$_MonitoredFolder.fromJson;
@@ -292,6 +311,8 @@ abstract class _MonitoredFolder implements MonitoredFolder {
   NucleusOneFolder get n1Folder;
   @override
   FileDisposition get fileDisposition;
+  @override
+  bool get enabled;
   @override
   @JsonKey(ignore: true)
   _$$_MonitoredFolderCopyWith<_$_MonitoredFolder> get copyWith =>

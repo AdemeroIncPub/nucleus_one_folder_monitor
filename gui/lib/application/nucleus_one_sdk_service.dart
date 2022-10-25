@@ -60,11 +60,10 @@ class NucleusOneSdkService {
     required String projectId,
     required String folderId,
   }) async {
-    final asdf = await n1App
+    return n1App
         .organization(organizationId)
         .project(projectId)
         .getDocumentFolder(documentFolderId: folderId);
-    return asdf;
   }
 
   Future<List<T>> _getAllByPaging<T>(_GetQueryResultByCursorFn getQrFn) async {

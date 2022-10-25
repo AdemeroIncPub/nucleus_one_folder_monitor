@@ -18,6 +18,7 @@ _$_MonitoredFolder _$$_MonitoredFolderFromJson(Map<String, dynamic> json) =>
           NucleusOneFolder.fromJson(json['n1Folder'] as Map<String, dynamic>),
       fileDisposition: FileDisposition.fromJson(
           json['fileDisposition'] as Map<String, dynamic>),
+      enabled: json['enabled'] as bool,
     );
 
 Map<String, dynamic> _$$_MonitoredFolderToJson(_$_MonitoredFolder instance) =>
@@ -28,6 +29,7 @@ Map<String, dynamic> _$$_MonitoredFolderToJson(_$_MonitoredFolder instance) =>
       'inputFolder': instance.inputFolder,
       'n1Folder': instance.n1Folder,
       'fileDisposition': instance.fileDisposition,
+      'enabled': instance.enabled,
     };
 
 _$_NucleusOneFolder _$$_NucleusOneFolderFromJson(Map<String, dynamic> json) =>

@@ -108,6 +108,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     final sortedMonitoredFolders = ref.watch(sortedMonitoredFoldersProvider(
         SortArgs(columnIndex: _sortColumn, ascending: _sortAscending)));
     final colorScheme = Theme.of(context).colorScheme;
+    final disabledTextStyle = Theme.of(context).disabledColor;
 
     final columns = [
       DataColumn(
@@ -150,12 +151,18 @@ class _MainScreenState extends ConsumerState<MainScreen> {
         selected: mf.id == _selectedId,
         cells: [
           DataCell(
-            Text(mf.name),
+            Text(
+              mf.name,
+              style: (mf.enabled) ? null : TextStyle(color: disabledTextStyle),
+            ),
             onTap: () => _selectMonitoredFolder(monitoredFolderId: mf.id),
             onDoubleTap: () async => _editMonitoredFolder(context, mf),
           ),
           DataCell(
-            Text(mf.description),
+            Text(
+              mf.description,
+              style: (mf.enabled) ? null : TextStyle(color: disabledTextStyle),
+            ),
             onTap: () => _selectMonitoredFolder(monitoredFolderId: mf.id),
             onDoubleTap: () async => _editMonitoredFolder(context, mf),
           ),
@@ -353,30 +360,30 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   }
 
   Future<void> _updateMonitoredFoldersFromNucleusOne() async {
-    final settingsNotifier = ref.read(settingsProvider.notifier);
-    final mfs = ref.read(monitoredFoldersProvider);
     final pool = Pool(4);
+    try {
+      final settingsNotifier = ref.read(settingsProvider.notifier);
+      final mfs = ref.read(monitoredFoldersProvider);
 
-    //todo(apn): handle org/project/folder not found
-    // test no longer exists as well as never did, I got 500 error by passing
-    // bogus folderId
-    for (final mf in mfs) {
-      final orgsF =
-          pool.withResource(() => ref.read(n1UserOrganizationsProvider.future));
-      final projectsF = pool.withResource(() => ref.read(
-          n1OrganizationProjectsProvider(mf.n1Folder.organizationId).future));
-      final docFoldersF = mf.n1Folder.folderIds.map((folderId) {
-        final args = GetDocumentFolderByIdArgs(
-          orgId: mf.n1Folder.organizationId,
-          projectId: mf.n1Folder.projectId,
-          folderId: folderId,
-        );
-        return pool.withResource(() {
-          return ref.read(n1DocumentFolderByIdProvider(args).future);
+      //todo(apn): handle org/project/folder not found
+      // test no longer exists as well as never did, I got 500 error by passing
+      // bogus folderId
+      for (final mf in mfs) {
+        final orgsF = pool
+            .withResource(() => ref.read(n1UserOrganizationsProvider.future));
+        final projectsF = pool.withResource(() => ref.read(
+            n1OrganizationProjectsProvider(mf.n1Folder.organizationId).future));
+        final docFoldersF = mf.n1Folder.folderIds.map((folderId) {
+          final args = GetDocumentFolderByIdArgs(
+            orgId: mf.n1Folder.organizationId,
+            projectId: mf.n1Folder.projectId,
+            folderId: folderId,
+          );
+          return pool.withResource(() {
+            return ref.read(n1DocumentFolderByIdProvider(args).future);
+          });
         });
-      });
 
-      try {
         final orgs = await orgsF;
         final projects = await projectsF;
         final docFolders = await Future.wait(docFoldersF);
@@ -394,9 +401,11 @@ class _MainScreenState extends ConsumerState<MainScreen> {
         );
 
         settingsNotifier.saveMonitoredFolder(newMf);
-        // ignore: empty_catches, avoid_catches_without_on_clauses
-      } catch (e) {} // brute force ignore errors updating names
-    }
+      }
+
+      // brute force catch to ignore errors updating names
+      // ignore: empty_catches, avoid_catches_without_on_clauses
+    } catch (e) {}
 
     await pool.close();
     return pool.done;

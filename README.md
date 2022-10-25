@@ -7,8 +7,8 @@ or process that saves documents to folders will work.
 For more information about Nucleus One, visit https://nucleus.one/.
 
 See these documents for more information about this project:
-  - [./service/README.md](./service/README.md)
   - [./gui/README.md](./gui/README.md)
+  - [./service/README.md](./service/README.md)
   - [design.md](./design.md)
 
 ## Development
