@@ -1,0 +1,75 @@
+# EditorConfig is awesome: https://EditorConfig.org
+
+# top-most EditorConfig file
+root = true
+
+[*]
+indent_style = space
+indent_size = 4
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+guidelines = 80, 120
+
+[*.md]
+max_line_length = off
+trim_trailing_whitespace = false
+
+[*.{cs,csproj,html,json,md,props,ruleset,xml,yaml,yml}]
+indent_size = 2
+
+[*.cs]
+################################################################################
+## Analysis Configuration
+## Valid severities are: default,none,silent,suggestion,warning,error
+################################################################################
+
+# IDE0055: Fix formatting
+dotnet_diagnostic.IDE0055.severity = suggestion
+# csharp_new_line_before_open_brace
+# all - Require braces to be on a new line for all expressions ("Allman" style).
+# none - Require braces to be on the same line for all expressions ("K&R").
+# accessors, anonymous_methods, anonymous_types, control_blocks, events,
+# indexers, lambdas, local_functions, methods,
+# object_collection_array_initializers, properties, types - Require braces to be
+# on a new line for the specified code element ("Allman" style).
+csharp_new_line_before_open_brace = none
+# csharp_new_line_before_else
+# true - Place else statements on a new line.
+# false - Place else statements on the same line.
+csharp_new_line_before_else = false
+# csharp_new_line_before_catch
+# true - Place catch statements on a new line.
+# false - Place catch statements on the same line.
+csharp_new_line_before_catch = false
+# csharp_new_line_before_finally
+# true - Require finally statements to be on a new line after the closing brace.
+# false - Require finally statements to be on the same line as the closing brace.
+csharp_new_line_before_finally = false
+# csharp_new_line_between_query_expression_clauses
+# true - Require elements of query expression clauses to be on separate lines
+# false - Require elements of query expression clauses to be on the same line
+csharp_new_line_between_query_expression_clauses = true
+
+# IDE0072: Add missing cases to switch expression
+dotnet_diagnostic.IDE0072.severity = error
+
+# TODO: IDE0160/IDE0161:
+# Confused as to what exaclty rule category this belongs to, see
+# https://github.com/dotnet/roslyn/issues/60546#issuecomment-1086854845
+dotnet_diagnostic.IDE0160.severity = suggestion
+dotnet_diagnostic.IDE0161.severity = suggestion
+# csharp_style_namespace_declarations
+# block_scoped - Namespace declarations should use block scopes for declaration.
+# file_scoped - Namespace declarations should be file scoped.
+csharp_style_namespace_declarations = file_scoped
+
+# RCS1021: Convert lambda expression body to expression body
+dotnet_diagnostic.RCS1021.severity = silent
+
+# RCS1036: Remove redundant empty line
+dotnet_diagnostic.RCS1036.severity = silent
+
+# RCS1196: Call extension method as instance method
+dotnet_diagnostic.RCS1196.severity = silent

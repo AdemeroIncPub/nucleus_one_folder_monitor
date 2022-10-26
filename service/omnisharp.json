@@ -1,0 +1,23 @@
+// options: https://github.com/OmniSharp/omnisharp-roslyn/wiki/Configuration-Options
+{
+  "FormattingOptions": {
+    "EnableEditorConfigSupport": true,
+    "OrganizeImports": true,
+    "NewLineForCatch": false,
+    "NewLineForElse": false,
+    "NewLineForFinally": false,
+    "NewLinesForBracesInAccessors": false,
+    "NewLinesForBracesInAnonymousMethods": false,
+    "NewLinesForBracesInAnonymousTypes": false,
+    "NewLinesForBracesInControlBlocks": false,
+    "NewLinesForBracesInLambdaExpressionBody": false,
+    "NewLinesForBracesInMethods": false,
+    "NewLinesForBracesInObjectCollectionArrayInitializers": false,
+    "NewLinesForBracesInProperties": false,
+    "NewLinesForBracesInTypes": false
+  },
+  "RoslynExtensionsOptions": {
+    "EnableAnalyzersSupport": true,
+    "EnableDecompilationSupport": true
+  }
+}
