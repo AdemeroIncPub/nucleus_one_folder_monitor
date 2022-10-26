@@ -98,8 +98,9 @@ linter:
     - sort_pub_dependencies
 
 analyzer:
-  # exclude:
-  #   - path/to/excluded/files/**
+  exclude:
+    # waiting on https://github.com/flutter/flutter/pull/112733
+    - lib/presentation/widgets/data_table.dart
   language:
     # strict-casts: A value of true ensures that the type inference engine never
     # implicitly casts from dynamic to a more specific type. (default: false)
