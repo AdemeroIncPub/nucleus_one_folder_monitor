@@ -3,7 +3,7 @@ using Microsoft.Extensions.Options;
 namespace Ademero.NucleusOne.FolderMonitor.Service.App;
 
 internal abstract class OptionsConfiguration {
-  public static IServiceCollection ConfigureOptions(
+  internal static IServiceCollection ConfigureOptions(
       HostBuilderContext hostContext, IServiceCollection services) {
     var configRoot = hostContext.Configuration;
 
@@ -35,7 +35,7 @@ internal abstract class OptionsConfiguration {
           }
         }
       }
-      
+
       return ValidateOptionsResult.Success;
     }
   }
@@ -92,20 +92,19 @@ internal record MonitoredFolder {
   public FileDispositionRaw FileDisposition { get; init; } = new();
   public FileDisposition FileDispositionAsUnion {
     get {
-      if (FileDisposition.RuntimeType.Equals("delete",
-          StringComparison.InvariantCultureIgnoreCase)) {
-        return new FileDisposition.Delete();
-      }
-      if (FileDisposition.RuntimeType.Equals("move",
-          StringComparison.InvariantCultureIgnoreCase)) {
-        if (string.IsNullOrWhiteSpace(FileDisposition.FolderPath)) {
+      static FileDisposition.Move getMove(string? folderPath) {
+        if (string.IsNullOrWhiteSpace(folderPath)) {
           throw new InvalidOperationException(
             """Configuration invalid. "fileDisposition.folderPath" must be specified when "runtimeType" is "move".""");
         }
-        return new FileDisposition.Move(FolderPath: FileDisposition.FolderPath);
+        return new FileDisposition.Move(FolderPath: folderPath);
       }
-      throw new InvalidOperationException(
-        """Configuration invalid. "fileDisposition.runtimeType" must be either "delete" or "move".""");
+
+      return FileDisposition.RuntimeType switch {
+        FileDispositionType.Delete => new FileDisposition.Delete(),
+        FileDispositionType.Move => getMove(FileDisposition.FolderPath),
+        _ => throw new NotImplementedException(),
+      };
     }
   }
   public bool Enabled { get; init; } = true;
@@ -126,14 +125,23 @@ internal enum NucleusOneProjectType {
   Department
 }
 
+internal enum FileDispositionType {
+  Delete,
+  Move
+}
+
 internal abstract record FileDisposition {
   private FileDisposition() { }
 
-  public record Delete() : FileDisposition();
-  public record Move(string FolderPath) : FileDisposition();
+  internal record Delete() : FileDisposition();
+  internal record Move(string FolderPath) : FileDisposition();
 }
 
 internal record FileDispositionRaw {
-  public string RuntimeType { get; init; } = "";
+  public FileDispositionType RuntimeType { get; init; }
+
+  /// <summary>
+  /// Null if <see cref="RuntimeType" /> is Delete, a folder path if it is Move.
+  /// </summary>
   public string? FolderPath { get; init; }
 }

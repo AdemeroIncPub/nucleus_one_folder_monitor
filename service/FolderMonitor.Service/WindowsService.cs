@@ -23,7 +23,7 @@ internal sealed class WindowsService : BackgroundService {
     } catch (OperationCanceledException) {
       _logger.LogInformation("Cancel requested, service stopping...");
     } catch (Exception ex) {
-      _logger.LogError(ex, "{Message}", ex.Message);
+      _logger.LogCritical(ex, "{Message}", ex.Message);
 
       // Terminates this process and returns an exit code to the operating system.
       // This is required to avoid the 'BackgroundServiceExceptionBehavior', which

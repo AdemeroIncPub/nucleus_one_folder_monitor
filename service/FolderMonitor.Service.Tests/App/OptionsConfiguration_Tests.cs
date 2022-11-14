@@ -4,6 +4,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using System.Text;
+using Shouldly;
+using NSubstitute.ExceptionExtensions;
 
 namespace Ademero.NucleusOne.FolderMonitor.Service.Tests.App;
 
@@ -92,57 +94,61 @@ public class ApiKeyOptions_Tests {
   }
 
   [Fact]
-  public void ApiKeyOptions_FromJson_HasApiKey() {
+  internal void ApiKeyOptions_FromJson_HasApiKey() {
     var host = CreateHost(_defaultDeleteSettingsJson);
     var options = host.Services.GetRequiredService<IOptions<ApiKeyOptions>>().Value;
-    
-    Assert.Equal("ApiKey1", options.ApiKey);
+
+    options.ApiKey.ShouldBe("ApiKey1");
   }
 
   [Fact]
-  public void MonitoredFoldersByApiKeyOptions_DefaultDelete_HasSettings() {
+  internal void MonitoredFoldersByApiKeyOptions_DefaultDelete_HasSettings() {
     var host = CreateHost(_defaultDeleteSettingsJson);
     var options = host.Services.GetRequiredService<IOptions<MonitoredFoldersByApiKeyOptions>>().Value;
 
     var mf1 = options.MonitoredFoldersByApiKey["ApiKey1"][0];
-    Assert.Equal("mfApiKey1Id1", mf1.Id);
-    Assert.Equal("mfApiKey1Id1" + "Name", mf1.Name);
-    Assert.Equal("mfApiKey1Id1" + "Description", mf1.Description);
-    Assert.Equal("mfApiKey1Id1" + "InputFolder", mf1.InputFolder);
-    Assert.Equal("mfApiKey1Id1" + "N1Folder" + "OrganizationId", mf1.N1Folder.OrganizationId);
-    Assert.Equal("mfApiKey1Id1" + "N1Folder" + "OrganizationName", mf1.N1Folder.OrganizationName);
-    Assert.Equal("mfApiKey1Id1" + "N1Folder" + "ProjectId", mf1.N1Folder.ProjectId);
-    Assert.Equal("mfApiKey1Id1" + "N1Folder" + "ProjectName", mf1.N1Folder.ProjectName);
-    Assert.Equal(NucleusOneProjectType.Project, mf1.N1Folder.ProjectType);
-    Assert.Equal(new[] { "folderId1", "folderId2" }, mf1.N1Folder.FolderIds);
-    Assert.Equal(new[] { "folderName1", "folderName2" }, mf1.N1Folder.FolderNames);
-    Assert.Equal(new FileDisposition.Delete(), mf1.FileDispositionAsUnion);
-    Assert.True(mf1.Enabled);
+    mf1.ShouldSatisfyAllConditions(
+      () => mf1.Id.ShouldBe("mfApiKey1Id1"),
+      () => mf1.Name.ShouldBe("mfApiKey1Id1" + "Name"),
+      () => mf1.Description.ShouldBe("mfApiKey1Id1" + "Description"),
+      () => mf1.InputFolder.ShouldBe("mfApiKey1Id1" + "InputFolder"),
+      () => mf1.N1Folder.OrganizationId.ShouldBe("mfApiKey1Id1" + "N1Folder" + "OrganizationId"),
+      () => mf1.N1Folder.OrganizationName.ShouldBe("mfApiKey1Id1" + "N1Folder" + "OrganizationName"),
+      () => mf1.N1Folder.ProjectId.ShouldBe("mfApiKey1Id1" + "N1Folder" + "ProjectId"),
+      () => mf1.N1Folder.ProjectName.ShouldBe("mfApiKey1Id1" + "N1Folder" + "ProjectName"),
+      () => mf1.N1Folder.ProjectType.ShouldBe(NucleusOneProjectType.Project),
+      () => mf1.N1Folder.FolderIds.ShouldBe(new[] { "folderId1", "folderId2" }),
+      () => mf1.N1Folder.FolderNames.ShouldBe(new[] { "folderName1", "folderName2" }),
+      () => mf1.FileDispositionAsUnion.ShouldBe(new FileDisposition.Delete()),
+      () => mf1.Enabled.ShouldBeTrue()
+    );
   }
 
   [Fact]
-  public void MonitoredFoldersByApiKeyOptions_DefaultMove_HasSettings() {
+  internal void MonitoredFoldersByApiKeyOptions_DefaultMove_HasSettings() {
     var host = CreateHost(_defaultMoveSettingsJson);
     var options = host.Services.GetRequiredService<IOptions<MonitoredFoldersByApiKeyOptions>>().Value;
 
     var mf1 = options.MonitoredFoldersByApiKey["ApiKey1"][0];
-    Assert.Equal("mfApiKey1Id1", mf1.Id);
-    Assert.Equal("mfApiKey1Id1" + "Name", mf1.Name);
-    Assert.Equal("mfApiKey1Id1" + "Description", mf1.Description);
-    Assert.Equal("mfApiKey1Id1" + "InputFolder", mf1.InputFolder);
-    Assert.Equal("mfApiKey1Id1" + "N1Folder" + "OrganizationId", mf1.N1Folder.OrganizationId);
-    Assert.Equal("mfApiKey1Id1" + "N1Folder" + "OrganizationName", mf1.N1Folder.OrganizationName);
-    Assert.Equal("mfApiKey1Id1" + "N1Folder" + "ProjectId", mf1.N1Folder.ProjectId);
-    Assert.Equal("mfApiKey1Id1" + "N1Folder" + "ProjectName", mf1.N1Folder.ProjectName);
-    Assert.Equal(NucleusOneProjectType.Department, mf1.N1Folder.ProjectType);
-    Assert.Equal(new[] { "folderId1", "folderId2" }, mf1.N1Folder.FolderIds);
-    Assert.Equal(new[] { "folderName1", "folderName2" }, mf1.N1Folder.FolderNames);
-    Assert.Equal(new FileDisposition.Move(FolderPath: @"C:\moveToPath"), mf1.FileDispositionAsUnion);
-    Assert.True(mf1.Enabled);
+    mf1.ShouldSatisfyAllConditions(
+      () => mf1.Id.ShouldBe("mfApiKey1Id1"),
+      () => mf1.Name.ShouldBe("mfApiKey1Id1" + "Name"),
+      () => mf1.Description.ShouldBe("mfApiKey1Id1" + "Description"),
+      () => mf1.InputFolder.ShouldBe("mfApiKey1Id1" + "InputFolder"),
+      () => mf1.N1Folder.OrganizationId.ShouldBe("mfApiKey1Id1" + "N1Folder" + "OrganizationId"),
+      () => mf1.N1Folder.OrganizationName.ShouldBe("mfApiKey1Id1" + "N1Folder" + "OrganizationName"),
+      () => mf1.N1Folder.ProjectId.ShouldBe("mfApiKey1Id1" + "N1Folder" + "ProjectId"),
+      () => mf1.N1Folder.ProjectName.ShouldBe("mfApiKey1Id1" + "N1Folder" + "ProjectName"),
+      () => mf1.N1Folder.ProjectType.ShouldBe(NucleusOneProjectType.Department),
+      () => mf1.N1Folder.FolderIds.ShouldBe(new[] { "folderId1", "folderId2" }),
+      () => mf1.N1Folder.FolderNames.ShouldBe(new[] { "folderName1", "folderName2" }),
+      () => mf1.FileDispositionAsUnion.ShouldBe(new FileDisposition.Move("C:\\moveToPath")),
+      () => mf1.Enabled.ShouldBeTrue()
+    );
   }
 
   [Fact]
-  public void MonitoredFoldersByApiKeyOptions_BadProjectType_Throws() {
+  internal void MonitoredFoldersByApiKeyOptions_BadProjectType_Throws() {
     var json = _defaultDeleteSettingsJson.Replace("""
           "projectType": "project",
 """, """
@@ -156,21 +162,21 @@ public class ApiKeyOptions_Tests {
   }
 
   [Fact]
-  public void MonitoredFoldersByApiKeyOptions_BadFileDispositionType_Throws() {
+  internal void MonitoredFoldersByApiKeyOptions_BadFileDispositionType_Throws() {
     var json = _defaultDeleteSettingsJson.Replace("""
           "runtimeType": "delete"
 """, """
           "runtimeType": "invalid"
 """);
     var host = CreateHost(json);
-    Assert.Throws<OptionsValidationException>(() => {
+    Should.Throw<OptionsValidationException>(() => {
       var options = host.Services
         .GetRequiredService<IOptions<MonitoredFoldersByApiKeyOptions>>().Value;
     });
   }
 
   [Fact]
-  public void MonitoredFoldersByApiKeyOptions_MoveFileDispositionMissingFolderPath_Throws() {
+  internal void MonitoredFoldersByApiKeyOptions_MoveFileDispositionMissingFolderPath_Throws() {
     var json = _defaultMoveSettingsJson.Replace("""
         "fileDisposition":
         {
@@ -184,7 +190,7 @@ public class ApiKeyOptions_Tests {
         },
 """);
     var host = CreateHost(json);
-    Assert.Throws<OptionsValidationException>(() => {
+    Should.Throw<OptionsValidationException>(() => {
       var options = host.Services
         .GetRequiredService<IOptions<MonitoredFoldersByApiKeyOptions>>().Value;
     });

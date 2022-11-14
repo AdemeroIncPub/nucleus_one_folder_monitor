@@ -1,6 +1,5 @@
 using Ademero.NucleusOne.FolderMonitor.Service.App;
 using Ademero.NucleusOne.FolderMonitor.Service.Util;
-using Microsoft.Extensions.Options;
 
 namespace Ademero.NucleusOne.FolderMonitor.Service;
 
@@ -8,9 +7,9 @@ namespace Ademero.NucleusOne.FolderMonitor.Service;
 // analysis seems to not be fully working. Maybe a .net 7 thing or just not
 // configure correctly? Keeping this here as an indicator.
 // A couple different types of issues below.
-public class Se_rvice { } // underscore
+public class Service { } // type name same as namespace
 
-public class System { } // type name same as namespace
+public class Se_rvice { } // underscore
 
 public enum Animals { // Missing 0 value
   Dog = 1,
@@ -21,11 +20,11 @@ internal static class Program {
   public static string ApplicationDataPath {
     get {
       var programData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
-      return Path.Join(programData, Constants.ConfigFolder);
+      return Path.Join(programData, Constants.DataFolder);
     }
   }
 
-  public static string AppSettingsFilepath {
+  public static string ApplicationSettingsFilepath {
     get {
       return Path.Join(ApplicationDataPath, Constants.ConfigFilename);
     }
@@ -48,6 +47,11 @@ internal static class Program {
     .ConfigureServices((hostContext, services) => {
       OptionsConfiguration.ConfigureOptions(hostContext, services);
 
+      services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
+      services.AddSingleton<IDirectoryProvider, DirectoryProvider>();
+      services.AddSingleton<IFileProvider, FileProvider>();
+      services.AddSingleton<IFileProcessor, FileProcessor>();
+      services.AddSingleton<IDocumentUploader, DocumentUploader>();
       services.AddSingleton<IFolderMonitorService, FolderMonitorService>();
       services.AddHostedService<WindowsService>();
     });
@@ -56,6 +60,6 @@ internal static class Program {
   private static IConfigurationBuilder ConfigureAppConfiguration(
       HostBuilderContext hostContext, IConfigurationBuilder config) {
     //TODO(apn): create local settings.Environment.json override
-    return config.AddJsonFile(AppSettingsFilepath, optional: true);
+    return config.AddJsonFile(ApplicationSettingsFilepath, optional: true);
   }
 }
