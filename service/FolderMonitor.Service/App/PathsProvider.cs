@@ -52,12 +52,12 @@ internal class PathsProvider : IPathsProvider {
           _fileProvider.WriteAllText(infoPath, info);
         }
       } else {
-        _directoryProvider.CreateDirectory(processingPath);
+        _ = _directoryProvider.CreateDirectory(processingPath);
         _fileProvider.WriteAllText(infoPath, info);
       }
     } catch {
       _logger.LogInformation(
-        "Could not write processing folder info file. Check Permissions. {infoPath}",
+        "Could not write processing folder info file. Check Permissions. {InfoPath}",
         infoPath);
     }
 

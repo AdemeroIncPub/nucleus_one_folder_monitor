@@ -74,7 +74,7 @@ internal class FolderMonitorService : IFolderMonitorService {
         } catch (Exception ex) {
           _logger.LogError(
             ex,
-            "Failed to process failed upload {failedUpload}. Check Permissions.",
+            "Failed to process failed upload {FailedUpload}. Check Permissions.",
             state.UploadingFilePath);
         }
       }
@@ -106,7 +106,7 @@ internal class FolderMonitorService : IFolderMonitorService {
         } catch (CriticalException) {
           throw;
         } catch (Exception ex) {
-          _logger.LogWarning(ex, "Error uploading document {filePath}", filePath);
+          _logger.LogWarning(ex, "Error uploading document {FilePath}", filePath);
           continue;
         }
 
@@ -117,7 +117,7 @@ internal class FolderMonitorService : IFolderMonitorService {
         } catch (CriticalException) {
           throw;
         } catch (Exception ex) {
-          _logger.LogWarning(ex, "Failed post-processing for uploaded document {filePath}", filePath);
+          _logger.LogWarning(ex, "Failed post-processing for uploaded document {FilePath}", filePath);
         }
       }
     }

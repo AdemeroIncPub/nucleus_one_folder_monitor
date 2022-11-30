@@ -211,8 +211,6 @@ public class FileProcessor_Tests : TestBase {
       .ReturnsForAnyArgs(ci => $@"{ci.ArgAt<MonitoredFolder>(0).Id}\uploading\");
     fileProvider.Exists(default!).ReturnsForAnyArgs(
       ci => !ci.ArgAt<string>(0).Contains(@"\uploading\"));
-    directoryProvider.CreateDirectory(default!).ReturnsForAnyArgs(
-      ci => new DirectoryInfo(ci.ArgAt<string>(0)));
 
     // set up file last write time for 2nd to not be ready and others to be ready
     var now = DateTime.Now;
@@ -317,7 +315,7 @@ public class FileProcessor_Tests : TestBase {
     });
   }
 
-  [Theory()]
+  [Theory]
   [AutoDomainData]
   internal void ProcessFileDisposition_IsDelete_Deletes(
     MonitoredFolder monitoredFolder,
@@ -333,7 +331,7 @@ public class FileProcessor_Tests : TestBase {
     fileProvider.Received(1).Delete(filePath);
   }
 
-  [Theory()]
+  [Theory]
   [AutoDomainData]
   internal void ProcessFileDisposition_IsMove_Moves(
     MonitoredFolder monitoredFolder,
@@ -354,7 +352,7 @@ public class FileProcessor_Tests : TestBase {
     fileProvider.Received(1).Move(filePath, moveToFilePath);
   }
 
-  [Theory()]
+  [Theory]
   [AutoDomainData]
   internal void ProcessFileDisposition_IsMove_FileExists_MovesAsCopy(
     MonitoredFolder monitoredFolder,

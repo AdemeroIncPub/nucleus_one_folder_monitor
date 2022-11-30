@@ -25,6 +25,37 @@ indent_size = 2
 ## Valid severities are: default,none,silent,suggestion,warning,error
 ################################################################################
 
+# Is there a way to raise all rules that default lower to suggestion?
+# I"m guessing this is also lowering higher severity rules.
+dotnet_analyzer_diagnostic.severity = suggestion
+
+# CA1008: Enums should have zero value
+dotnet_diagnostic.CA1008.severity = suggestion
+
+# CA1724: Type names should not match namespaces
+dotnet_diagnostic.CA1724.severity = error
+
+# CA1848: Use the LoggerMessage delegates
+dotnet_diagnostic.CA1848.severity = none
+
+# IDE0008: Use explicit type instead of 'var'
+dotnet_diagnostic.IDE0008.severity = silent
+
+# IDE0022: Use expression body for methods
+dotnet_diagnostic.IDE0022.severity = silent
+
+# IDE0025: Use expression body for properties
+dotnet_diagnostic.IDE0025.severity = silent
+
+# IDE0045: Use conditional expression for assignment
+dotnet_diagnostic.IDE0045.severity = silent
+
+# IDE0046: Use conditional expression for return
+dotnet_diagnostic.IDE0046.severity = silent
+
+# IDE0052: Remove unread private member
+dotnet_diagnostic.IDE0052.severity = silent
+
 # IDE0055: Fix formatting
 dotnet_diagnostic.IDE0055.severity = suggestion
 # csharp_new_line_before_open_brace
@@ -33,7 +64,7 @@ dotnet_diagnostic.IDE0055.severity = suggestion
 # accessors, anonymous_methods, anonymous_types, control_blocks, events,
 # indexers, lambdas, local_functions, methods,
 # object_collection_array_initializers, properties, types - Require braces to be
-# on a new line for the specified code element ("Allman" style).
+#   on a new line for the specified code element ("Allman" style).
 csharp_new_line_before_open_brace = none
 # csharp_new_line_before_else
 # true - Place else statements on a new line.
@@ -55,6 +86,9 @@ csharp_new_line_between_query_expression_clauses = true
 # IDE0072: Add missing cases to switch expression
 dotnet_diagnostic.IDE0072.severity = error
 
+# IDE0090: Simplify new expression
+dotnet_diagnostic.IDE0090.severity = silent
+
 # TODO: IDE0160/IDE0161:
 # Confused as to what exaclty rule category this belongs to, see
 # https://github.com/dotnet/roslyn/issues/60546#issuecomment-1086854845
@@ -74,5 +108,17 @@ dotnet_diagnostic.RCS1036.severity = silent
 # RCS1124: Inline local variable.
 dotnet_diagnostic.RCS1124.severity = none
 
+# RCS1161: Enum should declare explicit values
+dotnet_diagnostic.RCS1161.severity = silent
+
+# RCS1163: Unused parameter
+dotnet_diagnostic.RCS1163.severity = silent
+
+# RCS1181: Convert comment to documentation comment
+dotnet_diagnostic.RCS1181.severity = silent
+
 # RCS1196: Call extension method as instance method
 dotnet_diagnostic.RCS1196.severity = silent
+
+# VSTHRD111: Use .ConfigureAwait(bool)
+dotnet_diagnostic.VSTHRD111.severity = none

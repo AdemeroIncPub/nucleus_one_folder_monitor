@@ -43,7 +43,7 @@ internal class DocumentUploader : IDocumentUploader {
   private const string _defaultBaseUrl = "https://client-api.nucleus.one/";
   private const string _defaultBaseUrlPath = "api/v1/";
 
-  private string ApiUrl = _defaultBaseUrl + _defaultBaseUrlPath;
+  private static string ApiUrl => _defaultBaseUrl + _defaultBaseUrlPath;
 
   public async Task UploadDocumentAsync(MonitoredFolder monitoredFolder, string filePath) {
     var uploadInfo = await GetUploadInfoAsync(monitoredFolder);
@@ -68,6 +68,7 @@ internal class DocumentUploader : IDocumentUploader {
   /// <summary>
   /// Starts an upload.
   /// </summary>
+  /// <param name="signedUrl"></param>
   /// <returns>The URI location to upload file data.</returns>
   private async Task<string> StartUploadAsync(string signedUrl) {
     var httpClient = _httpClientFactory.CreateClient();
@@ -76,7 +77,7 @@ internal class DocumentUploader : IDocumentUploader {
     request.Content = new StringContent(string.Empty);
     request.Content.Headers.ContentType = new MediaTypeHeaderValue(Application.Octet);
     var response = await httpClient.SendAsync(request);
-    response.EnsureSuccessStatusCode();
+    _ = response.EnsureSuccessStatusCode();
     var location = response.Headers.GetValues("location").First();
     return Uri.UnescapeDataString(location);
   }
@@ -88,7 +89,7 @@ internal class DocumentUploader : IDocumentUploader {
     using var content = new StreamContent(stream);
     request.Content = content;
     var response = await httpClient.SendAsync(request);
-    response.EnsureSuccessStatusCode();
+    _ = response.EnsureSuccessStatusCode();
   }
 
   private async Task FinishUploadAsync(MonitoredFolder monitoredFolder, UploadInfo uploadInfo, string filePath) {
@@ -104,12 +105,13 @@ internal class DocumentUploader : IDocumentUploader {
     var projectId = monitoredFolder.N1Folder.ProjectId;
     var path = $"organizations/{orgId}/projects/{projectId}/documentUploads";
     var query = $"uniqueId={uploadInfo.UniqueId}&captureOriginal=false";
-    var request = new HttpRequestMessage(HttpMethod.Put, $"{path}?{query}");
-    request.Content = JsonContent.Create(new[] { uploadInfo });
+    var request = new HttpRequestMessage(HttpMethod.Put, $"{path}?{query}") {
+      Content = JsonContent.Create(new[] { uploadInfo })
+    };
 
     var httpClient = GetNucleusOneHttpClient();
     var response = await httpClient.SendAsync(request);
-    response.EnsureSuccessStatusCode();
+    _ = response.EnsureSuccessStatusCode();
   }
 
   private HttpClient GetNucleusOneHttpClient(bool authenticate = true) {

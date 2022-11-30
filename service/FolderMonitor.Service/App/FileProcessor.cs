@@ -42,7 +42,7 @@ internal class FileProcessor : IFileProcessor {
     } catch (Exception ex) {
       _logger.LogError(
         ex,
-        "Failed to read file's LastWriteTime. Check Permissions. {filePath}",
+        "Failed to read file's LastWriteTime. Check Permissions. {FilePath}",
         filePath);
       return false;
     }
@@ -64,7 +64,7 @@ internal class FileProcessor : IFileProcessor {
 
     if (!_directoryProvider.Exists(inputFolder)) {
       _logger.LogInformation(
-        "Failed to read input folder or does not exist. Check Permissions. {inputFolder}",
+        "Failed to read input folder or does not exist. Check Permissions. {InputFolder}",
         inputFolder);
       return;
     }
@@ -76,7 +76,7 @@ internal class FileProcessor : IFileProcessor {
     } catch (Exception ex) {
       _logger.LogError(
         ex,
-        "Failed to read input folder. Check Permissions. {inputFolder}",
+        "Failed to read input folder. Check Permissions. {InputFolder}",
         inputFolder);
     }
   }
@@ -92,7 +92,7 @@ internal class FileProcessor : IFileProcessor {
     } catch (Exception ex) {
       _logger.LogError(
         ex,
-        "Failed to read uploading folder. Check Permissions. {uploadingPath}",
+        "Failed to read uploading folder. Check Permissions. {UploadingPath}",
         uploadingPath);
       return Enumerable.Empty<string>();
     }
@@ -104,11 +104,11 @@ internal class FileProcessor : IFileProcessor {
       var moveToFilePath = Path.Join(folderPath, fileName);
       var originalMoveToFilePath = moveToFilePath; // for logging if file exists
       moveToFilePath = MakeAlternativeFilePathIfExists(moveToFilePath);
-      _directoryProvider.CreateDirectory(folderPath);
+      _ = _directoryProvider.CreateDirectory(folderPath);
       _fileProvider.Move(filePath, moveToFilePath);
       if (moveToFilePath != originalMoveToFilePath) {
         _logger.LogInformation("Uploaded file moved as a copy because destination "
-          + "already exists. {filePath} -> {moveToFilePath}", filePath, moveToFilePath);
+          + "already exists. {FilePath} -> {MoveToFilePath}", filePath, moveToFilePath);
       }
     }
 
@@ -126,7 +126,7 @@ internal class FileProcessor : IFileProcessor {
 
   public void MoveFailedUpload(MonitoredFolder monitoredFolder, string filePath) {
     var failedFolderPath = _pathsProvider.GetFailedUploadsFolderPath(monitoredFolder);
-    _directoryProvider.CreateDirectory(failedFolderPath);
+    _ = _directoryProvider.CreateDirectory(failedFolderPath);
     var moveToFilePath = Path.Join(failedFolderPath, Path.GetFileName(filePath));
     moveToFilePath = MakeAlternativeFilePathIfExists(moveToFilePath);
     _fileProvider.Move(filePath, moveToFilePath);
@@ -153,7 +153,7 @@ internal class FileProcessor : IFileProcessor {
         if (i == 0) {
           _fileTracker.CreateTrackingFile(mf, uploadingFilePath);
           var dir = Path.GetDirectoryName(uploadingFilePath);
-          _directoryProvider.CreateDirectory(dir!);
+          _ = _directoryProvider.CreateDirectory(dir!);
           _fileProvider.Move(filePath, uploadingFilePath);
         } else {
           _fileProvider.Copy(uploadingInfo[0].filePath, uploadingFilePath);
@@ -161,7 +161,7 @@ internal class FileProcessor : IFileProcessor {
       } catch (Exception ex) {
         _logger.LogError(
           ex,
-          "Failed to move file for upload. Check Permissions. File: {filePath} Destination: {uploadingFilePath}",
+          "Failed to move file for upload. Check Permissions. File: {FilePath} Destination: {UploadingFilePath}",
           filePath,
           uploadingFilePath);
         if (i == 0) {
@@ -184,13 +184,9 @@ internal class FileProcessor : IFileProcessor {
     var newFilePath = filePath;
     while (_fileProvider.Exists(newFilePath)) {
       i++;
-      string suffix;
-      if (i == 1) {
-        suffix = " - Copy";
-      } else {
-        suffix = $" - Copy ({i})";
-      }
-
+      string suffix = i == 1
+        ? " - Copy"
+        : $" - Copy ({i})";
       if (dir == null) {
         dir = Path.GetDirectoryName(filePath);
         ext = Path.GetExtension(filePath);

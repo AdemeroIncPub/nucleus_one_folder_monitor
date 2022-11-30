@@ -6,15 +6,9 @@ namespace Ademero.NucleusOne.FolderMonitor.Service;
 // this should trigger an analysis warning for being the same as namespace, but
 // analysis seems to not be fully working. Maybe a .net 7 thing or just not
 // configure correctly? Keeping this here as an indicator.
-// A couple different types of issues below.
-public class Service { } //CA1724 type name same as namespace
-
-public class Se_rvice { } //CA1707  underscore
-
-public enum Animals { //CA1008 Missing 0 value
-  Dog = 1,
-  Cat = 2
-}
+//CA1724 type name same as namespace
+public class Service { }
+public class System { }
 
 internal static class Program {
   public static string ApplicationDataPath {
@@ -24,11 +18,8 @@ internal static class Program {
     }
   }
 
-  public static string ApplicationSettingsFilepath {
-    get {
-      return Path.Join(ApplicationDataPath, Constants.ConfigFilename);
-    }
-  }
+  public static string ApplicationSettingsFilepath =>
+    Path.Join(ApplicationDataPath, Constants.ConfigFilename);
 
   public static async Task Main(string[] args) {
     var hostBuilder = CreateHostBuilder(args);
@@ -42,23 +33,24 @@ internal static class Program {
       options.ServiceName = "Nucleus One Folder Monitor Service";
     })
     .ConfigureAppConfiguration((hostContext, config) => {
-      ConfigureAppConfiguration(hostContext, config);
+      _ = ConfigureAppConfiguration(hostContext, config);
     })
     .ConfigureServices((hostContext, services) => {
-      OptionsConfiguration.ConfigureOptions(hostContext, services);
+      _ = OptionsConfiguration.ConfigureOptions(hostContext, services);
 
-      services.AddHttpClient();
+      _ = services.AddHttpClient();
 
-      services.AddSingleton<IDateTimeOffsetProvider, DateTimeOffsetProvider>();
-      services.AddSingleton<IDirectoryProvider, DirectoryProvider>();
-      services.AddSingleton<IFileProvider, FileProvider>();
-      services.AddSingleton<IFileInfoProvider, FileInfoProvider>();
-      services.AddSingleton<IPathsProvider, PathsProvider>();
-      services.AddSingleton<IFileTracker, FileTracker>();
-      services.AddSingleton<IFileProcessor, FileProcessor>();
-      services.AddSingleton<IDocumentUploader, DocumentUploader>();
-      services.AddSingleton<IFolderMonitorService, FolderMonitorService>();
-      services.AddHostedService<WindowsService>();
+      _ = services.AddSingleton<IDateTimeOffsetProvider, DateTimeOffsetProvider>()
+        .AddSingleton<IDirectoryProvider, DirectoryProvider>()
+        .AddSingleton<IFileProvider, FileProvider>()
+        .AddSingleton<IFileInfoProvider, FileInfoProvider>()
+        .AddSingleton<IPathsProvider, PathsProvider>()
+        .AddSingleton<IFileTracker, FileTracker>()
+        .AddSingleton<IFileProcessor, FileProcessor>()
+        .AddSingleton<IDocumentUploader, DocumentUploader>()
+        .AddSingleton<IFolderMonitorService, FolderMonitorService>();
+
+      _ = services.AddHostedService<WindowsService>();
     });
   }
 

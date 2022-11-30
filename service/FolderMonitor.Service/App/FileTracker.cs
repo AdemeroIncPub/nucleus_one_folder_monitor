@@ -43,7 +43,7 @@ internal class FileTracker : IFileTracker {
     _dateTimeProvider = dateTimeProvider;
     _logger = logger;
   }
-  
+
   private readonly IPathsProvider _pathsProvider;
   private readonly IFileProvider _fileProvider;
   private readonly IDirectoryProvider _directoryProvider;
@@ -77,7 +77,7 @@ internal class FileTracker : IFileTracker {
       try {
         state = ReadState(filePath);
       } catch (Exception ex) {
-        _logger.LogInformation(ex, "Failed to read tracking file {filePath}.", filePath);
+        _logger.LogInformation(ex, "Failed to read tracking file {FilePath}.", filePath);
       }
       if (state != null) {
         yield return state;
@@ -98,11 +98,9 @@ internal class FileTracker : IFileTracker {
   public void TrackUploadAttempt(MonitoredFolder monitoredFolder, string uploadingFilePath) {
     var state = GetState(monitoredFolder, uploadingFilePath);
     var now = _dateTimeProvider.Now;
-    if (state.FirstUploadAttempt == null) {
-      state = state with { FirstUploadAttempt = now, LastUploadAttempt = now };
-    } else {
-      state = state with { LastUploadAttempt = now };
-    }
+    state = state.FirstUploadAttempt == null
+      ? (state with { FirstUploadAttempt = now, LastUploadAttempt = now })
+      : (state with { LastUploadAttempt = now });
     state = state with { UploadAttempts = state.UploadAttempts + 1 };
 
     WriteState(state, monitoredFolder, uploadingFilePath);
@@ -117,7 +115,7 @@ internal class FileTracker : IFileTracker {
       var trackingFilePath = GetTrackingFilePath(monitoredFolder, uploadingFilePath);
       const string msg = "Failed to track upload success. This will result in " +
         "duplicate document uploads. Check Permissions. ";
-      _logger.LogCritical(ex, msg + "{trackingFilePath}", trackingFilePath);
+      _logger.LogCritical(ex, msg + "{TrackingFilePath}", trackingFilePath);
       throw new CriticalException(msg + $"{trackingFilePath}", ex);
     }
   }
@@ -132,7 +130,8 @@ internal class FileTracker : IFileTracker {
       MonitoredFolder monitoredFolder,
       string uploadingFilePath) {
     string json = JsonSerializer.Serialize(state);
-    _directoryProvider.CreateDirectory(_pathsProvider.GetTrackingFolderPath(monitoredFolder));
+    string trackingFolderPath = _pathsProvider.GetTrackingFolderPath(monitoredFolder);
+    _ = _directoryProvider.CreateDirectory(trackingFolderPath);
     var trackingFilePath = GetTrackingFilePath(monitoredFolder, uploadingFilePath);
     _fileProvider.WriteAllText(trackingFilePath, json);
   }

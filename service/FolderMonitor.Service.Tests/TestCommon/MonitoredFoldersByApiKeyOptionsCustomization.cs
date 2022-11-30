@@ -1,8 +1,6 @@
 using Ademero.NucleusOne.FolderMonitor.Service.App;
 using AutoFixture;
 using AutoFixture.Xunit2;
-using Castle.Core.Resource;
-using NSubstitute.Extensions;
 
 namespace Ademero.NucleusOne.FolderMonitor.Service.Tests.TestCommon;
 

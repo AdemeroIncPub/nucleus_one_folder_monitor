@@ -5,12 +5,11 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using System.Text;
 using Shouldly;
-using NSubstitute.ExceptionExtensions;
 
 namespace Ademero.NucleusOne.FolderMonitor.Service.Tests.App;
 
 public class ApiKeyOptions_Tests {
-  private const string _defaultDeleteSettingsJson = """
+  private const string _defaultDeleteSettingsJson = /*lang=json,strict*/ """
 {
   "apiKey": "ApiKey1",
   "monitoredFoldersByApiKey":
@@ -43,7 +42,7 @@ public class ApiKeyOptions_Tests {
 }
 """;
 
-  private const string _defaultMoveSettingsJson = """
+  private const string _defaultMoveSettingsJson = /*lang=json,strict*/ """
 {
   "apiKey": "ApiKey1",
   "monitoredFoldersByApiKey":
@@ -77,7 +76,7 @@ public class ApiKeyOptions_Tests {
 }
 """;
 
-  private IHost CreateHost(string jsonConfig) {
+  private static IHost CreateHost(string jsonConfig) {
     return Host.CreateDefaultBuilder()
       .ConfigureAppConfiguration((hostContext, config) => {
         var jsonStream = new MemoryStream(Encoding.UTF8.GetBytes(jsonConfig));
