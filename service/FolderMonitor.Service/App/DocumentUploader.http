@@ -1,0 +1,51 @@
+/*
+## Upload a File
+httpYac (VS Code extension) code to figure out how to upload a file.
+*/
+# Get a signed url for the upload.
+# @name documentUploads
+# @noRejectUnauthorized
+GET /organizations/{{orgId}}/projects/{{projectId}}/documentUploads
+Authorization: Bearer {{apiKey}}
+###
+# Request to start the upload using the signed url.
+# @name startUpload
+# @forceRef documentUploads
+# @noRejectUnauthorized
+PUT {{decodeURIComponent(documentUploads.SignedUrl)}}
+Content-Type: application/octet-stream
+x-goog-resumable: start
+
+{{
+  exports.uploadDataLocation = response.headers['location'];
+}}
+###
+# Upload the file.
+# @name uploadData
+# @forceRef startUpload
+# @noRejectUnauthorized
+PUT {{decodeURIComponent(uploadDataLocation)}}
+Content-Length: 2
+
+06
+###
+# Finish the upload by setting document info.
+# @forceRef uploadData
+# @noRejectUnauthorized
+PUT /organizations/{{orgId}}/projects/{{projectId}}/documentUploads?uniqueId={{documentUploads.UniqueId}}&captureOriginal=false
+Authorization: Bearer {{apiKey}}
+Content-Type: application/json
+
+[
+    {
+        "DocumentFolderID": "{{documentFolderId}}",
+        "FieldIDsAndValues": null,
+        "ObjectName": "{{documentUploads.ObjectName}}",
+        "ObjectName2": "",
+        "OriginalFilename": "doc06.txt",
+        "OriginalFileSize": 2,
+        "SignedUrl": "{{documentUploads.SignedUrl}}",
+        "SignedUrl2": "",
+        "UniqueId": "{{documentUploads.UniqueId}}"
+    }
+]

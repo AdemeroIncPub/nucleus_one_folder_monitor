@@ -12,7 +12,7 @@ See these documents for more information about this project:
   - [design.md](./design.md)
 
 ## Development
-Ensure .NET 7 and the Flutter SDK is installed on your machine.
+Ensure the .NET 7 SDK and the Flutter SDK is installed on your machine.
 
 ### Pull Requests and Commits
 

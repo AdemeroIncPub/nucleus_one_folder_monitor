@@ -16,14 +16,13 @@ internal sealed class WindowsService : BackgroundService {
   protected override async Task ExecuteAsync(CancellationToken stoppingToken) {
     try {
       while (!stoppingToken.IsCancellationRequested) {
-        _folderMonitorService.ProcessMonitoredFolders(stoppingToken);
-
+        await _folderMonitorService.ProcessMonitoredFoldersAsync(stoppingToken);
         await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
       }
     } catch (OperationCanceledException) {
       _logger.LogInformation("Cancel requested, service stopping...");
     } catch (Exception ex) {
-      _logger.LogCritical(ex, "{Message}", ex.Message);
+      _logger.LogCritical(ex, "Unhandled Exception: {Message}", ex.Message);
 
       // Terminates this process and returns an exit code to the operating system.
       // This is required to avoid the 'BackgroundServiceExceptionBehavior', which
@@ -37,4 +36,3 @@ internal sealed class WindowsService : BackgroundService {
     }
   }
 }
-

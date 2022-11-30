@@ -16,7 +16,7 @@ public class FileProcessor_Tests : TestBase {
   internal void FileReadyToUpload_LastWriteTimeAtLeast5MinutesAgo_True(
     string filePath,
     [Frozen] IFileProvider fileProvider,
-    [Frozen] IDateTimeProvider dateTimeProvider,
+    [Frozen] IDateTimeOffsetProvider dateTimeProvider,
     FileProcessor sut
   ) {
     var now = DateTime.Now;
@@ -31,7 +31,7 @@ public class FileProcessor_Tests : TestBase {
   internal void FileReadyToUpload_LastWriteTimeLessThan5MinutesAgo_False(
     string filePath,
     [Frozen] IFileProvider fileProvider,
-    [Frozen] IDateTimeProvider dateTimeProvider,
+    [Frozen] IDateTimeOffsetProvider dateTimeProvider,
     FileProcessor sut
   ) {
     var now = DateTime.Now;
@@ -46,7 +46,7 @@ public class FileProcessor_Tests : TestBase {
   internal void FileReadyToUpload_ThrowsUnauthorizedAccessException_False(
     string filePath,
     [Frozen] IFileProvider fileProvider,
-    [Frozen] IDateTimeProvider dateTimeProvider,
+    [Frozen] IDateTimeOffsetProvider dateTimeProvider,
     FileProcessor sut
   ) {
     var now = DateTime.Now;
@@ -60,11 +60,14 @@ public class FileProcessor_Tests : TestBase {
   [AutoDomainData]
   internal void GetFilesToUpload_UploadingDirectoryDoesNotExist_Empty(
     MonitoredFolder monitoredFolder,
+    [Frozen] IPathsProvider pathsProvider,
     [Frozen] IDirectoryProvider directoryProvider,
     FileProcessor sut
   ) {
-    var uploadingPath = sut.GetUploadingFolderPath(monitoredFolder);
-    directoryProvider.Exists(uploadingPath).Returns(false);
+    var uploadingFolderPath = "UploadingFolderPath";
+    pathsProvider.GetUploadingFolderPath(monitoredFolder)
+      .Returns(uploadingFolderPath);
+    directoryProvider.Exists(uploadingFolderPath).Returns(false);
     sut.GetFilesToUpload(monitoredFolder).ShouldBeEmpty();
   }
 
@@ -72,12 +75,16 @@ public class FileProcessor_Tests : TestBase {
   [AutoDomainData]
   internal void GetFilesToUpload_NoFiles_Empty(
     MonitoredFolder monitoredFolder,
+    [Frozen] IPathsProvider pathsProvider,
     [Frozen] IDirectoryProvider directoryProvider,
     FileProcessor sut
   ) {
-    var uploadingPath = sut.GetUploadingFolderPath(monitoredFolder);
-    directoryProvider.Exists(uploadingPath).Returns(true);
-    directoryProvider.EnumerateFiles(uploadingPath).Returns(Enumerable.Empty<string>());
+    var uploadingFolderPath = "UploadingFolderPath";
+    pathsProvider.GetUploadingFolderPath(monitoredFolder)
+      .Returns(uploadingFolderPath);
+    directoryProvider.Exists(uploadingFolderPath).Returns(true);
+    directoryProvider.EnumerateFiles(uploadingFolderPath)
+      .Returns(Enumerable.Empty<string>());
     sut.GetFilesToUpload(monitoredFolder).ShouldBeEmpty();
   }
 
@@ -85,12 +92,15 @@ public class FileProcessor_Tests : TestBase {
   [AutoDomainData]
   internal void GetFilesToUpload_EnumerateFilesThrows_Empty(
     MonitoredFolder monitoredFolder,
+    [Frozen] IPathsProvider pathsProvider,
     [Frozen] IDirectoryProvider directoryProvider,
     FileProcessor sut
   ) {
-    var uploadingPath = sut.GetUploadingFolderPath(monitoredFolder);
-    directoryProvider.Exists(uploadingPath).Returns(true);
-    directoryProvider.EnumerateFiles(uploadingPath).Throws<IOException>();
+    var uploadingFolderPath = "UploadingFolderPath";
+    pathsProvider.GetUploadingFolderPath(monitoredFolder)
+      .Returns(uploadingFolderPath);
+    directoryProvider.Exists(uploadingFolderPath).Returns(true);
+    directoryProvider.EnumerateFiles(uploadingFolderPath).Throws<IOException>();
     sut.GetFilesToUpload(monitoredFolder).ShouldBeEmpty();
   }
 
@@ -98,12 +108,15 @@ public class FileProcessor_Tests : TestBase {
   [AutoDomainData]
   internal void GetFilesToUpload_HasFiles_FilePaths(
     MonitoredFolder monitoredFolder,
+    [Frozen] IPathsProvider pathsProvider,
     [Frozen] IDirectoryProvider directoryProvider,
     FileProcessor sut
   ) {
-    var uploadingPath = sut.GetUploadingFolderPath(monitoredFolder);
-    directoryProvider.Exists(uploadingPath).Returns(true);
-    directoryProvider.EnumerateFiles(uploadingPath)
+    var uploadingFolderPath = "UploadingFolderPath";
+    pathsProvider.GetUploadingFolderPath(monitoredFolder)
+      .Returns(uploadingFolderPath);
+    directoryProvider.Exists(uploadingFolderPath).Returns(true);
+    directoryProvider.EnumerateFiles(uploadingFolderPath)
       .Returns(new[] { "file1", "file2", "file3" });
 
     sut.GetFilesToUpload(monitoredFolder)
@@ -172,9 +185,10 @@ public class FileProcessor_Tests : TestBase {
   internal void MoveFilesReadyToUpload_ForFilesReadyToUpload_MovesFiles(
     IFixture fixture,
     IEnumerable<MonitoredFolder> monitoredFolders,
+    [Frozen] IPathsProvider pathsProvider,
     [Frozen] IDirectoryProvider directoryProvider,
     [Frozen] IFileProvider fileProvider,
-    [Frozen] IDateTimeProvider dateTimeProvider
+    [Frozen] IDateTimeOffsetProvider dateTimeProvider
   ) {
     // this tests multiple monitored folders with same input folder (should
     // probably have a test with just one monitored folder too)
@@ -193,6 +207,8 @@ public class FileProcessor_Tests : TestBase {
     directoryProvider.EnumerateFiles(inputFolder).Returns(inFilePaths);
 
     // set up processing folders
+    pathsProvider.GetUploadingFolderPath(default!)
+      .ReturnsForAnyArgs(ci => $@"{ci.ArgAt<MonitoredFolder>(0).Id}\uploading\");
     fileProvider.Exists(default!).ReturnsForAnyArgs(
       ci => !ci.ArgAt<string>(0).Contains(@"\uploading\"));
     directoryProvider.CreateDirectory(default!).ReturnsForAnyArgs(
@@ -206,17 +222,19 @@ public class FileProcessor_Tests : TestBase {
     fileProvider.GetLastWriteTime(default!)
       .ReturnsForAnyArgs(nowMinus5, now.AddMinutes(-4), nowMinus5);
 
+    // act
     var sut = fixture.Create<FileProcessor>();
     sut.MoveFilesReadyToUpload(monitoredFolders, inputFolder);
 
+    // assert
     Assert.All(inFilePaths, (inFile, i) => {
       var mf0 = monitoredFolders.First();
       var mf1 = monitoredFolders.Skip(1).First();
       var mf2 = monitoredFolders.Skip(2).First();
       var inFilename = Path.GetFileName(inFile);
-      var moveDestMf0 = Path.Combine(sut.GetUploadingFolderPath(mf0), inFilename);
-      var copyDestMf1 = Path.Combine(sut.GetUploadingFolderPath(mf1), inFilename);
-      var copyDestMf2 = Path.Combine(sut.GetUploadingFolderPath(mf2), inFilename);
+      var moveDestMf0 = Path.Combine(pathsProvider.GetUploadingFolderPath(mf0), inFilename);
+      var copyDestMf1 = Path.Combine(pathsProvider.GetUploadingFolderPath(mf1), inFilename);
+      var copyDestMf2 = Path.Combine(pathsProvider.GetUploadingFolderPath(mf2), inFilename);
 
       if (i != 1) {
         // file1 and file3 should be processed
@@ -241,9 +259,10 @@ public class FileProcessor_Tests : TestBase {
   internal void MoveFilesReadyToUpload_AFileAlreadyExists_DoesNotMoveFiles(
   IFixture fixture,
     IEnumerable<MonitoredFolder> monitoredFolders,
+    [Frozen] IPathsProvider pathsProvider,
     [Frozen] IDirectoryProvider directoryProvider,
     [Frozen] IFileProvider fileProvider,
-    [Frozen] IDateTimeProvider dateTimeProvider
+    [Frozen] IDateTimeOffsetProvider dateTimeProvider
   ) {
     // this tests multiple monitored folders with same input folder (should
     // probably have a test with just one monitored folder too)
@@ -269,24 +288,29 @@ public class FileProcessor_Tests : TestBase {
       .ReturnsForAnyArgs(nowMinus5, nowMinus5, nowMinus5);
 
     // set up processing folders, make 2nd monitored folder file already exist
+    pathsProvider.GetUploadingFolderPath(default!)
+      .ReturnsForAnyArgs(ci => $@"{ci.ArgAt<MonitoredFolder>(0).Id}\uploading\");
+    //.ReturnsForAnyArgs(@"ProcessingPath\uploading\");
     var sut = fixture.Create<FileProcessor>();
     foreach (var inFile in inFilePaths) {
       var inFilename = Path.GetFileName(inFile);
 
       foreach (var (i, mf) in monitoredFolders.Index()) {
-        var destPath = Path.Join(sut.GetUploadingFolderPath(mf), inFilename);
+        var destPath = Path.Join(pathsProvider.GetUploadingFolderPath(mf), inFilename);
         // return exists true for 2nd file
         fileProvider.Exists(destPath).Returns(i == 1);
       }
     }
 
+    // act
     sut.MoveFilesReadyToUpload(monitoredFolders, inputFolder);
 
+    // assert
     Assert.All(inFilePaths, (inFile, iFile) => {
       var inFilename = Path.GetFileName(inFile);
 
       Assert.All(monitoredFolders, (mf, iMf) => {
-        var destPath = Path.Join(sut.GetUploadingFolderPath(mf), inFilename);
+        var destPath = Path.Join(pathsProvider.GetUploadingFolderPath(mf), inFilename);
         fileProvider.DidNotReceive().Move(inFile, destPath);
         fileProvider.DidNotReceive().Copy(Arg.Any<string>(), destPath);
       });
@@ -307,23 +331,6 @@ public class FileProcessor_Tests : TestBase {
 
     sut.ProcessFileDisposition(monitoredFolder, filePath);
     fileProvider.Received(1).Delete(filePath);
-  }
-
-  [Theory()]
-  [AutoDomainData]
-  internal void ProcessFileDisposition_IsDelete_DeleteFails_ThrowsCriticalException(
-    MonitoredFolder monitoredFolder,
-    string filePath,
-    [Frozen] IFileProvider fileProvider,
-    FileProcessor sut
-  ) {
-    monitoredFolder = UpdateMonitoredFolder(
-      monitoredFolder,
-      fileDisposition: new FileDisposition.Delete());
-    fileProvider.When(x => x.Delete(filePath)).Do(ci => throw new IOException());
-
-    Should.Throw<CriticalException>(() =>
-      sut.ProcessFileDisposition(monitoredFolder, filePath));
   }
 
   [Theory()]
@@ -376,26 +383,6 @@ public class FileProcessor_Tests : TestBase {
       fp => fp.DidNotReceive().Move(filePath, moveToFilePath),
       fp => fp.DidNotReceive().Move(filePath, moveToFilePath2),
       fp => fp.Received(1).Move(filePath, moveToFilePath3));
-  }
-
-  [Theory()]
-  [AutoDomainData]
-  internal void ProcessFileDisposition_IsMove_MoveFails_ThrowsCriticalException(
-    MonitoredFolder monitoredFolder,
-    string filePath,
-    string moveToFolderPath,
-    [Frozen] IFileProvider fileProvider,
-    FileProcessor sut
-  ) {
-    monitoredFolder = UpdateMonitoredFolder(
-      monitoredFolder,
-      fileDisposition: new FileDisposition.Move(moveToFolderPath));
-    var moveToFilePath = Path.Join(moveToFolderPath, Path.GetFileName(filePath));
-    fileProvider.When(x => x.Move(filePath, moveToFilePath))
-      .Do(ci => throw new IOException());
-
-    Should.Throw<CriticalException>(() =>
-      sut.ProcessFileDisposition(monitoredFolder, filePath));
   }
 
   private static IEnumerable<MonitoredFolder> UpdateAllMonitoredFolders(

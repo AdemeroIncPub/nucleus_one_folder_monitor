@@ -8,68 +8,31 @@ internal interface IFileProcessor {
     IEnumerable<MonitoredFolder> monitoredFoldersWithSameInputFolder, string inputFolder);
   IEnumerable<string> GetFilesToUpload(MonitoredFolder monitoredFolder);
   void ProcessFileDisposition(MonitoredFolder monitoredFolder, string filePath);
+  void MoveFailedUpload(MonitoredFolder monitoredFolder, string filePath);
 }
 
 internal class FileProcessor : IFileProcessor {
   public FileProcessor(
+      IFileTracker fileTracker,
+      IPathsProvider pathsProvider,
       IFileProvider fileProvider,
       IDirectoryProvider directoryProvider,
-      IDateTimeProvider dateTimeProvider,
+      IDateTimeOffsetProvider dateTimeProvider,
       ILogger<FileProcessor> logger) {
+    _fileTracker = fileTracker;
+    _pathsProvider = pathsProvider;
     _dateTimeProvider = dateTimeProvider;
     _directoryProvider = directoryProvider;
     _fileProvider = fileProvider;
     _logger = logger;
   }
 
-  private readonly IDateTimeProvider _dateTimeProvider;
+  private readonly IFileTracker _fileTracker;
+  private readonly IPathsProvider _pathsProvider;
+  private readonly IDateTimeOffsetProvider _dateTimeProvider;
   private readonly IDirectoryProvider _directoryProvider;
   private readonly IFileProvider _fileProvider;
   private readonly ILogger<FileProcessor> _logger;
-
-  private static string ProcessingPathBase =>
-    Path.Join(Program.ApplicationDataPath, "processing");
-
-  internal string GetProcessingPath(MonitoredFolder mf) {
-    var idPart = Path
-      .GetInvalidFileNameChars()
-      .Aggregate($"{mf.Id}", (acc, ch) => acc.Replace(ch, '_'))
-      .Trim();
-    var processingPath = Path.Join(ProcessingPathBase, idPart);
-
-    // try to write an info file to make it easier to identify which
-    // MonitoredFolder each processing folder is for.
-    var infoPath = Path.Join(ProcessingPathBase, $"{idPart}.txt");
-    try {
-      var info = $"""
-        Processing Folder: {idPart}
-        Id: {mf.Id}
-        Name: {mf.Name}
-        Description: {mf.Description}
-        InputFolder: {mf.InputFolder}
-        """;
-
-      if (_fileProvider.Exists(infoPath)) {
-        var existingInfo = _fileProvider.ReadAllText(infoPath);
-        if (existingInfo != info) {
-          _fileProvider.WriteAllText(infoPath, info);
-        }
-      } else {
-        _directoryProvider.CreateDirectory(processingPath);
-        _fileProvider.WriteAllText(infoPath, info);
-      }
-    } catch {
-      _logger.LogInformation(
-        "Could not write processing folder info file. Check Permissions. {infoPath}",
-        infoPath);
-    }
-
-    return processingPath;
-  }
-
-  internal string GetUploadingFolderPath(MonitoredFolder mf) {
-    return Path.Join(GetProcessingPath(mf), "uploading");
-  }
 
   public bool FileReadyToUpload(string filePath) {
     try {
@@ -119,7 +82,7 @@ internal class FileProcessor : IFileProcessor {
   }
 
   public IEnumerable<string> GetFilesToUpload(MonitoredFolder monitoredFolder) {
-    var uploadingPath = GetUploadingFolderPath(monitoredFolder);
+    var uploadingPath = _pathsProvider.GetUploadingFolderPath(monitoredFolder);
     if (!_directoryProvider.Exists(uploadingPath)) {
       return Enumerable.Empty<string>();
     }
@@ -136,44 +99,22 @@ internal class FileProcessor : IFileProcessor {
   }
 
   public void ProcessFileDisposition(MonitoredFolder monitoredFolder, string filePath) {
-    void delete() {
-      try {
-        _fileProvider.Delete(filePath);
-      } catch (Exception ex) {
-        const string msg = "File disposition processing failed. Unable to " +
-          "delete file. This will result in duplicate document uploads. " +
-          "Check permissions. ";
-        _logger.LogCritical(ex, msg + "{filePath}", filePath);
-        throw new CriticalException(msg + filePath, ex);
-      }
-    }
-
     void move(string folderPath) {
-      var moveToFilePath = "";
-      try {
-        var fileName = Path.GetFileName(filePath);
-        var maybeMoveToFilePath = Path.Join(folderPath, fileName);
-        moveToFilePath = maybeMoveToFilePath; // for logging if error
-        moveToFilePath = MakeAlternativeFilePathIfExists(maybeMoveToFilePath);
-        _directoryProvider.CreateDirectory(folderPath);
-        _fileProvider.Move(filePath, moveToFilePath);
-        if (moveToFilePath != maybeMoveToFilePath) {
-          _logger.LogInformation("Uploaded file moved as a copy because destination "
-            + "already exists. {fileName} -> {moveToFilePath}", fileName, moveToFilePath);
-        }
-      } catch (Exception ex) {
-        const string msg = "File disposition processing failed. Unable to " +
-          "move file. This will result in duplicate document uploads. " +
-          "Check permissions. ";
-        _logger.LogCritical(ex, msg + "File: {filePath} Destination: {moveToFilePath}"
-          , filePath, moveToFilePath);
-        throw new CriticalException(msg + filePath, ex);
+      var fileName = Path.GetFileName(filePath);
+      var moveToFilePath = Path.Join(folderPath, fileName);
+      var originalMoveToFilePath = moveToFilePath; // for logging if file exists
+      moveToFilePath = MakeAlternativeFilePathIfExists(moveToFilePath);
+      _directoryProvider.CreateDirectory(folderPath);
+      _fileProvider.Move(filePath, moveToFilePath);
+      if (moveToFilePath != originalMoveToFilePath) {
+        _logger.LogInformation("Uploaded file moved as a copy because destination "
+          + "already exists. {filePath} -> {moveToFilePath}", filePath, moveToFilePath);
       }
     }
 
     switch (monitoredFolder.FileDispositionAsUnion) {
       case FileDisposition.Delete:
-        delete();
+        _fileProvider.Delete(filePath);
         break;
       case FileDisposition.Move(var folderPath):
         move(folderPath);
@@ -183,30 +124,39 @@ internal class FileProcessor : IFileProcessor {
     }
   }
 
+  public void MoveFailedUpload(MonitoredFolder monitoredFolder, string filePath) {
+    var failedFolderPath = _pathsProvider.GetFailedUploadsFolderPath(monitoredFolder);
+    _directoryProvider.CreateDirectory(failedFolderPath);
+    var moveToFilePath = Path.Join(failedFolderPath, Path.GetFileName(filePath));
+    moveToFilePath = MakeAlternativeFilePathIfExists(moveToFilePath);
+    _fileProvider.Move(filePath, moveToFilePath);
+  }
+
   private void MoveFileReadyToUpload(
       string filePath,
       IEnumerable<MonitoredFolder> monitoredFolders) {
     // If any destination already exists then skip and try again next loop
-    var uploadingFilePaths = monitoredFolders
+    var uploadingInfo = monitoredFolders
       .Select((mf) => {
-        var folderPath = GetUploadingFolderPath(mf);
+        var folderPath = _pathsProvider.GetUploadingFolderPath(mf);
         string filename = Path.GetFileName(filePath);
-        return Path.Join(folderPath, filename);
+        return (mf, filePath: Path.Join(folderPath, filename));
       }).ToList();
-    if (uploadingFilePaths.Any(_fileProvider.Exists)) {
+    if (uploadingInfo.Any(info => _fileProvider.Exists(info.filePath))) {
       return;
     }
 
     // Move the first one to be sure we can delete the original file, then
     // copy any additional from the first.
-    foreach (var (i, uploadingFilePath) in uploadingFilePaths.Index()) {
+    foreach (var (i, (mf, uploadingFilePath)) in uploadingInfo.Index()) {
       try {
         if (i == 0) {
+          _fileTracker.CreateTrackingFile(mf, uploadingFilePath);
           var dir = Path.GetDirectoryName(uploadingFilePath);
           _directoryProvider.CreateDirectory(dir!);
           _fileProvider.Move(filePath, uploadingFilePath);
         } else {
-          _fileProvider.Copy(uploadingFilePaths[0], uploadingFilePath);
+          _fileProvider.Copy(uploadingInfo[0].filePath, uploadingFilePath);
         }
       } catch (Exception ex) {
         _logger.LogError(

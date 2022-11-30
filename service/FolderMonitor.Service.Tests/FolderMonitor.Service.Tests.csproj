@@ -4,6 +4,7 @@
     <AnalysisLevel>preview-recommended</AnalysisLevel>
     <ImplicitUsings>enable</ImplicitUsings>
     <IsPackable>false</IsPackable>
+    <IsPublishable>false</IsPublishable>
     <Nullable>enable</Nullable>
     <RootNamespace>Ademero.NucleusOne.FolderMonitor.Service.Tests</RootNamespace>
     <TargetFramework>net7.0</TargetFramework>

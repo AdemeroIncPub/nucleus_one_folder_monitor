@@ -6,6 +6,7 @@ using SuperLinq;
 using AutoFixture.Xunit2;
 using NSubstitute;
 using AutoFixture;
+using NSubstitute.ExceptionExtensions;
 
 namespace Ademero.NucleusOne.FolderMonitor.Service.Tests.App;
 
@@ -18,9 +19,10 @@ public class FolderMonitorService_Tests : TestBase {
 
   [Theory]
   [AutoDomainData(configureMembers: true)]
-  internal void ProcessMonitoredFolders_UploadSucceeds_ProcessesFileDisposition(
+  internal async Task ProcessMonitoredFolders_UploadSucceeds_ProcessesFileDispositionAsync(
     IFixture fixture,
     [Frozen] IFileProcessor fileProcessor,
+    [Frozen] IFileTracker fileTracker,
     [Frozen] IDocumentUploader documentUploader,
     MonitoredFoldersByApiKeyOptions monitoredFoldersByApiKeyOptions
   ) {
@@ -32,13 +34,20 @@ public class FolderMonitorService_Tests : TestBase {
     var apiKeyOptions = new ApiKeyOptions { ApiKey = mfsKvp.Key };
     fixture.Inject(apiKeyOptions);
 
-    fileProcessor.GetFilesToUpload(default!)
-      .ReturnsForAnyArgs(new[] { "file1", "file2", "file3" });
-    documentUploader.UploadDocument(default!, default!).ReturnsForAnyArgs(true);
+    var uploadingFilePaths = new[] { "file1", "file2", "file3" };
+    fileProcessor.GetFilesToUpload(default!).ReturnsForAnyArgs(uploadingFilePaths);
+    foreach (var filePath in uploadingFilePaths) {
+      fileTracker.GetState(Arg.Any<MonitoredFolder>(), filePath)
+        .Returns(FileTrackingState.Create(mfsKvp.Value[0], filePath));
+    }
+    documentUploader.UploadDocumentAsync(default!, default!)
+      .ReturnsForAnyArgs(Task.CompletedTask);
 
     var sut = fixture.Create<FolderMonitorService>();
-    sut.ProcessMonitoredFolders(CancellationToken.None);
+    await sut.ProcessMonitoredFoldersAsync(CancellationToken.None);
 
+    // 3 files per 3 monitored folders = 9 files
+    await documentUploader.ReceivedWithAnyArgs(9).UploadDocumentAsync(default!, default!);
     Assert.All(mfs, mf => mf.ShouldSatisfyAllConditions(
       mf => fileProcessor.Received().ProcessFileDisposition(mf, "file1"),
       mf => fileProcessor.Received().ProcessFileDisposition(mf, "file2"),
@@ -47,9 +56,10 @@ public class FolderMonitorService_Tests : TestBase {
 
   [Theory]
   [AutoDomainData(configureMembers: true)]
-  internal void ProcessMonitoredFolders_UploadFails_DoesNotProcessFileDisposition(
+  internal async Task ProcessMonitoredFolders_UploadFails_DoesNotProcessFileDispositionAsync(
   IFixture fixture,
   [Frozen] IFileProcessor fileProcessor,
+  [Frozen] IFileTracker fileTracker,
   [Frozen] IDocumentUploader documentUploader,
   MonitoredFoldersByApiKeyOptions monitoredFoldersByApiKeyOptions
 ) {
@@ -60,14 +70,20 @@ public class FolderMonitorService_Tests : TestBase {
     var apiKeyOptions = new ApiKeyOptions { ApiKey = mfsKvp.Key };
     fixture.Inject(apiKeyOptions);
 
-    fileProcessor.GetFilesToUpload(default!)
-      .ReturnsForAnyArgs(new[] { "file1", "file2", "file3" });
-    documentUploader.UploadDocument(default!, default!).ReturnsForAnyArgs(false);
+    var uploadingFilePaths = new[] { "file1", "file2", "file3" };
+    fileProcessor.GetFilesToUpload(default!).ReturnsForAnyArgs(uploadingFilePaths);
+    foreach (var filePath in uploadingFilePaths) {
+      fileTracker.GetState(Arg.Any<MonitoredFolder>(), filePath)
+        .Returns(FileTrackingState.Create(mfsKvp.Value[0], filePath));
+    }
+    documentUploader.UploadDocumentAsync(default!, default!)
+      .ThrowsAsyncForAnyArgs<Exception>();
 
     var sut = fixture.Create<FolderMonitorService>();
-    sut.ProcessMonitoredFolders(CancellationToken.None);
+    await sut.ProcessMonitoredFoldersAsync(CancellationToken.None);
 
-    documentUploader.ReceivedWithAnyArgs().UploadDocument(default!, default!);
+    // 3 files per 3 monitored folders = 9 files
+    await documentUploader.ReceivedWithAnyArgs(9).UploadDocumentAsync(default!, default!);
     fileProcessor.DidNotReceiveWithAnyArgs().ProcessFileDisposition(default!, default!);
   }
 

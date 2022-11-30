@@ -22,6 +22,9 @@ internal interface IFileProvider {
   /// <inheritdoc cref="File.Delete"></inheritdoc>
   void Delete(string path);
 
+  /// <inheritdoc cref="File.OpenRead"></inheritdoc>
+  FileStream OpenRead(string path);
+
   /// <inheritdoc cref="File.ReadAllText"></inheritdoc>
   string ReadAllText(string path);
 
@@ -58,6 +61,10 @@ internal class FileProvider : IFileProvider {
 
   public void Delete(string path) {
     File.Delete(path);
+  }
+
+  public FileStream OpenRead(string path) {
+    return File.OpenRead(path);
   }
 
   public string ReadAllText(string path) {

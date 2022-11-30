@@ -7,11 +7,11 @@ namespace Ademero.NucleusOne.FolderMonitor.Service;
 // analysis seems to not be fully working. Maybe a .net 7 thing or just not
 // configure correctly? Keeping this here as an indicator.
 // A couple different types of issues below.
-public class Service { } // type name same as namespace
+public class Service { } //CA1724 type name same as namespace
 
-public class Se_rvice { } // underscore
+public class Se_rvice { } //CA1707  underscore
 
-public enum Animals { // Missing 0 value
+public enum Animals { //CA1008 Missing 0 value
   Dog = 1,
   Cat = 2
 }
@@ -47,9 +47,14 @@ internal static class Program {
     .ConfigureServices((hostContext, services) => {
       OptionsConfiguration.ConfigureOptions(hostContext, services);
 
-      services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
+      services.AddHttpClient();
+
+      services.AddSingleton<IDateTimeOffsetProvider, DateTimeOffsetProvider>();
       services.AddSingleton<IDirectoryProvider, DirectoryProvider>();
       services.AddSingleton<IFileProvider, FileProvider>();
+      services.AddSingleton<IFileInfoProvider, FileInfoProvider>();
+      services.AddSingleton<IPathsProvider, PathsProvider>();
+      services.AddSingleton<IFileTracker, FileTracker>();
       services.AddSingleton<IFileProcessor, FileProcessor>();
       services.AddSingleton<IDocumentUploader, DocumentUploader>();
       services.AddSingleton<IFolderMonitorService, FolderMonitorService>();

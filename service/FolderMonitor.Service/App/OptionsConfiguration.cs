@@ -75,21 +75,20 @@ internal abstract class OptionsConfiguration {
 }
 
 internal record ApiKeyOptions {
-  public string ApiKey { get; init; } = "";
+  public required string ApiKey { get; init; }
 }
 
 internal record MonitoredFoldersByApiKeyOptions {
-  public Dictionary<string, MonitoredFolder[]>
-    MonitoredFoldersByApiKey { get; init; } = new();
+  public required Dictionary<string, MonitoredFolder[]> MonitoredFoldersByApiKey { get; init; }
 }
 
 internal record MonitoredFolder {
-  public string Id { get; init; } = "";
-  public string Name { get; init; } = "";
-  public string Description { get; init; } = "";
-  public string InputFolder { get; init; } = "";
-  public NucleusOneFolder N1Folder { get; init; } = new();
-  public FileDispositionRaw FileDisposition { get; init; } = new();
+  public required string Id { get; init; }
+  public required string Name { get; init; }
+  public required string Description { get; init; }
+  public required string InputFolder { get; init; }
+  public required NucleusOneFolder N1Folder { get; init; }
+  public required FileDispositionRaw FileDisposition { get; init; }
   public FileDisposition FileDispositionAsUnion {
     get {
       static FileDisposition.Move getMove(string? folderPath) {
@@ -107,17 +106,17 @@ internal record MonitoredFolder {
       };
     }
   }
-  public bool Enabled { get; init; } = true;
+  public required bool Enabled { get; init; }
 }
 
 internal record NucleusOneFolder {
-  public string OrganizationId { get; init; } = "";
-  public string OrganizationName { get; init; } = "";
-  public string ProjectId { get; init; } = "";
-  public string ProjectName { get; init; } = "";
-  public NucleusOneProjectType ProjectType { get; init; }
-  public string[] FolderIds { get; init; } = Array.Empty<string>();
-  public string[] FolderNames { get; init; } = Array.Empty<string>();
+  public required string OrganizationId { get; init; }
+  public required string OrganizationName { get; init; }
+  public required string ProjectId { get; init; }
+  public required string ProjectName { get; init; }
+  public required NucleusOneProjectType ProjectType { get; init; }
+  public required string[] FolderIds { get; init; }
+  public required string[] FolderNames { get; init; }
 }
 
 internal enum NucleusOneProjectType {
@@ -138,7 +137,7 @@ internal abstract record FileDisposition {
 }
 
 internal record FileDispositionRaw {
-  public FileDispositionType RuntimeType { get; init; }
+  public required FileDispositionType RuntimeType { get; init; }
 
   /// <summary>
   /// Null if <see cref="RuntimeType" /> is Delete, a folder path if it is Move.
