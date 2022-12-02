@@ -13,7 +13,7 @@ namespace Ademero.NucleusOne.FolderMonitor.Service.Tests.App;
 public class FileProcessor_Tests : TestBase {
   [Theory]
   [AutoDomainData]
-  internal void FileReadyToUpload_LastWriteTimeAtLeast5MinutesAgo_True(
+  internal void FileReadyToUpload_LastWriteTimeAtLeast5MinutesAgo_ReturnsTrue(
     string filePath,
     [Frozen] IFileProvider fileProvider,
     [Frozen] IDateTimeOffsetProvider dateTimeProvider,
@@ -28,7 +28,7 @@ public class FileProcessor_Tests : TestBase {
 
   [Theory]
   [AutoDomainData]
-  internal void FileReadyToUpload_LastWriteTimeLessThan5MinutesAgo_False(
+  internal void FileReadyToUpload_LastWriteTimeLessThan5MinutesAgo_ReturnsFalse(
     string filePath,
     [Frozen] IFileProvider fileProvider,
     [Frozen] IDateTimeOffsetProvider dateTimeProvider,
@@ -43,7 +43,7 @@ public class FileProcessor_Tests : TestBase {
 
   [Theory]
   [AutoDomainData]
-  internal void FileReadyToUpload_ThrowsUnauthorizedAccessException_False(
+  internal void FileReadyToUpload_HandlesUnauthorizedAccessException_ReturnsFalse(
     string filePath,
     [Frozen] IFileProvider fileProvider,
     [Frozen] IDateTimeOffsetProvider dateTimeProvider,
@@ -58,7 +58,7 @@ public class FileProcessor_Tests : TestBase {
 
   [Theory]
   [AutoDomainData]
-  internal void GetFilesToUpload_UploadingDirectoryDoesNotExist_Empty(
+  internal void GetFilesToUpload_UploadingDirectoryDoesNotExist_ReturnsEmpty(
     MonitoredFolder monitoredFolder,
     [Frozen] IPathsProvider pathsProvider,
     [Frozen] IDirectoryProvider directoryProvider,
@@ -73,7 +73,7 @@ public class FileProcessor_Tests : TestBase {
 
   [Theory]
   [AutoDomainData]
-  internal void GetFilesToUpload_NoFiles_Empty(
+  internal void GetFilesToUpload_NoFiles_ReturnsEmpty(
     MonitoredFolder monitoredFolder,
     [Frozen] IPathsProvider pathsProvider,
     [Frozen] IDirectoryProvider directoryProvider,
@@ -90,7 +90,7 @@ public class FileProcessor_Tests : TestBase {
 
   [Theory]
   [AutoDomainData]
-  internal void GetFilesToUpload_EnumerateFilesThrows_Empty(
+  internal void GetFilesToUpload_HandlesException_ReturnsEmpty(
     MonitoredFolder monitoredFolder,
     [Frozen] IPathsProvider pathsProvider,
     [Frozen] IDirectoryProvider directoryProvider,
@@ -106,7 +106,7 @@ public class FileProcessor_Tests : TestBase {
 
   [Theory]
   [AutoDomainData]
-  internal void GetFilesToUpload_HasFiles_FilePaths(
+  internal void GetFilesToUpload_HasFiles_ReturnsFilePaths(
     MonitoredFolder monitoredFolder,
     [Frozen] IPathsProvider pathsProvider,
     [Frozen] IDirectoryProvider directoryProvider,
@@ -139,7 +139,7 @@ public class FileProcessor_Tests : TestBase {
 
   [Theory]
   [AutoDomainData(configureMembers: true)]
-  internal void MoveFilesReadyToUpload_InputFolderArgNotSame_Throws(
+  internal void MoveFilesReadyToUpload_InputFolderArgNotSame_ThrowsArgumentException(
     IFixture fixture,
     IEnumerable<MonitoredFolder> monitoredFolders
   ) {
@@ -157,7 +157,7 @@ public class FileProcessor_Tests : TestBase {
 
   [Theory]
   [AutoDomainData(configureMembers: true)]
-  internal void MoveFilesReadyToUpload_MonitoredFolderInputFolderNotSame_Throws(
+  internal void MoveFilesReadyToUpload_MonitoredFolderInputFolderNotSame_ThrowsArgumentException(
     IFixture fixture,
     IEnumerable<MonitoredFolder> monitoredFolders
   ) {

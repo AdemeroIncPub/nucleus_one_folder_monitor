@@ -19,7 +19,7 @@ public class FolderMonitorService_Tests : TestBase {
 
   [Theory]
   [AutoDomainData(configureMembers: true)]
-  internal async Task ProcessMonitoredFolders_UploadSucceeds_ProcessesFileDispositionAsync(
+  internal async Task ProcessMonitoredFolders_UploadSucceeds_ProcessesFileDisposition(
     IFixture fixture,
     [Frozen] IFileProcessor fileProcessor,
     [Frozen] IFileTracker fileTracker,
@@ -56,7 +56,7 @@ public class FolderMonitorService_Tests : TestBase {
 
   [Theory]
   [AutoDomainData(configureMembers: true)]
-  internal async Task ProcessMonitoredFolders_UploadFails_DoesNotProcessFileDispositionAsync(
+  internal async Task ProcessMonitoredFolders_UploadFails_DoesNotProcessFileDisposition(
   IFixture fixture,
   [Frozen] IFileProcessor fileProcessor,
   [Frozen] IFileTracker fileTracker,
@@ -89,7 +89,7 @@ public class FolderMonitorService_Tests : TestBase {
 
   [Theory]
   [AutoDomainData]
-  internal void GetEnabledMonitoredFolders_ValidKey_CorrectItems(
+  internal void GetEnabledMonitoredFolders_ValidKey_ReturnsCorrectItems(
     MonitoredFoldersByApiKeyOptions monitoredFoldersByApiKeyOptions
   ) {
     var keys = monitoredFoldersByApiKeyOptions.MonitoredFoldersByApiKey.Keys;
@@ -105,7 +105,7 @@ public class FolderMonitorService_Tests : TestBase {
 
   [Theory]
   [AutoDomainData]
-  internal void GetEnabledMonitoredFolders_BadKey_Empty(
+  internal void GetEnabledMonitoredFolders_BadKey_ReturnsEmpty(
     MonitoredFoldersByApiKeyOptions monitoredFoldersByApiKeyOptions
   ) {
     var apiKeyOptions = new ApiKeyOptions { ApiKey = "bad key" };
