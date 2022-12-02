@@ -26,6 +26,9 @@ internal interface IDirectoryProvider {
 
   /// <inheritdoc cref="Directory.EnumerateFiles"></inheritdoc>
   IEnumerable<string> EnumerateFiles(string path);
+
+  /// <inheritdoc cref="Directory.EnumerateFiles"></inheritdoc>
+  IEnumerable<string> EnumerateFiles(string path, string searchPattern);
 }
 
 internal class DirectoryProvider : IDirectoryProvider {
@@ -44,5 +47,9 @@ internal class DirectoryProvider : IDirectoryProvider {
 
   public IEnumerable<string> EnumerateFiles(string path) {
     return Directory.EnumerateFiles(path);
+  }
+
+  public IEnumerable<string> EnumerateFiles(string path, string searchPattern) {
+    return Directory.EnumerateFiles(path, searchPattern);
   }
 }

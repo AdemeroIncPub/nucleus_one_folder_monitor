@@ -27,39 +27,13 @@ internal class PathsProvider : IPathsProvider {
     Path.Join(Program.ApplicationDataPath, "processing");
 
   public string GetProcessingPath(MonitoredFolder monitoredFolder) {
-    var mf = monitoredFolder;
-    var idPart = Path
-      .GetInvalidFileNameChars()
-      .Aggregate($"{mf.Id}", (acc, ch) => acc.Replace(ch, '_'))
-      .Trim();
-    var processingPath = Path.Join(ProcessingPathBase, idPart);
+    var infoFileName = new InfoFileName(monitoredFolder);
+    var processingPath = Path.Join(ProcessingPathBase, infoFileName.SafeId);
 
     // try to write an info file to make it easier to identify which
     // MonitoredFolder each processing folder is for.
-    var infoPath = Path.Join(ProcessingPathBase, $"{idPart}.txt");
-    try {
-      var info = $"""
-        Processing Folder: {idPart}
-        Id: {mf.Id}
-        Name: {mf.Name}
-        Description: {mf.Description}
-        InputFolder: {mf.InputFolder}
-        """;
-
-      if (_fileProvider.Exists(infoPath)) {
-        var existingInfo = _fileProvider.ReadAllText(infoPath);
-        if (existingInfo != info) {
-          _fileProvider.WriteAllText(infoPath, info);
-        }
-      } else {
-        _ = _directoryProvider.CreateDirectory(processingPath);
-        _fileProvider.WriteAllText(infoPath, info);
-      }
-    } catch {
-      _logger.LogInformation(
-        "Could not write processing folder info file. Check Permissions. {InfoPath}",
-        infoPath);
-    }
+    DeleteInfoFile(infoFileName, onlyIfNameChanged: true);
+    WriteInfoFile(infoFileName);
 
     return processingPath;
   }
@@ -74,5 +48,77 @@ internal class PathsProvider : IPathsProvider {
 
   public string GetFailedUploadsFolderPath(MonitoredFolder monitoredFolder) {
     return Path.Join(GetProcessingPath(monitoredFolder), "failed");
+  }
+
+  private void DeleteInfoFile(InfoFileName infoFileName, bool onlyIfNameChanged) {
+    try {
+      var infoFilePaths = _directoryProvider.EnumerateFiles(
+        ProcessingPathBase, "*" + infoFileName.SafeId + infoFileName.Extension);
+      foreach (var fp in infoFilePaths) {
+        if (onlyIfNameChanged) {
+          bool isSameName = Path.GetFileName(fp).Equals(
+            infoFileName.FileName, StringComparison.Ordinal);
+          if (!isSameName) {
+            _fileProvider.Delete(fp);
+          }
+        } else {
+          _fileProvider.Delete(fp);
+        }
+      }
+    } catch (Exception ex) {
+      _logger.LogInformation(ex,
+        "Could not clean up processing folder info files. Check Permissions. {InfoPath}",
+        GetProcessingPath(infoFileName.MonitoredFolder));
+    }
+  }
+
+  private void WriteInfoFile(InfoFileName infoFileName) {
+    var infoPath = Path.Join(ProcessingPathBase, infoFileName.FileName);
+    var mf = infoFileName.MonitoredFolder;
+    try {
+      var info = $"""
+        Processing Folder: {infoFileName.SafeId}
+        Id: {mf.Id}
+        Name: {mf.Name}
+        Description: {mf.Description}
+        InputFolder: {mf.InputFolder}
+        """;
+
+      if (_fileProvider.Exists(infoPath)) {
+        var existingInfo = _fileProvider.ReadAllText(infoPath);
+        if (existingInfo != info) {
+          _fileProvider.WriteAllText(infoPath, info);
+        }
+      } else {
+        _ = _directoryProvider.CreateDirectory(ProcessingPathBase);
+        _fileProvider.WriteAllText(infoPath, info);
+      }
+    } catch (Exception ex) {
+      _logger.LogInformation(ex,
+        "Could not write processing folder info file. Check Permissions. {InfoPath}",
+        infoPath);
+    }
+  }
+}
+
+internal record InfoFileName {
+  public InfoFileName(MonitoredFolder monitoredFolder) {
+    MonitoredFolder = monitoredFolder;
+    SafeId = MakeSafePathComponent(monitoredFolder.Id);
+    Extension = ".txt";
+    var safeName = MakeSafePathComponent(monitoredFolder.Name);
+    FileName = safeName + " - " + SafeId + Extension;
+  }
+
+  public MonitoredFolder MonitoredFolder { get; }
+  public string SafeId { get; }
+  public string Extension { get; }
+  public string FileName { get; }
+
+  private static string MakeSafePathComponent(string component) {
+    return Path
+      .GetInvalidFileNameChars()
+      .Aggregate(component, (acc, ch) => acc.Replace(ch, '_'))
+      .Trim();
   }
 }
