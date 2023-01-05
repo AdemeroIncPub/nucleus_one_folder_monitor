@@ -15,7 +15,7 @@ class NucleusOnePath extends StatelessWidget {
   });
 
   final String? organizationName;
-  final N1ProjectType? projectType;
+  final NucleusOneProjectType? projectType;
   final String? projectName;
   final List<String> folderNames;
   final TextStyle? textStyle;
@@ -32,7 +32,7 @@ class NucleusOnePath extends StatelessWidget {
       ]);
     }
     if (projectType != null) {
-      if (projectType == N1ProjectType.project) {
+      if (projectType == NucleusOneProjectType.project) {
         parts.add(Text(slash));
         parts.add(const Icon(FlutterIconCustomIcons.project));
         parts.add(const SizedBox(width: 2));

@@ -329,7 +329,7 @@ mixin _$NucleusOneFolder {
   String get organizationName => throw _privateConstructorUsedError;
   String get projectId => throw _privateConstructorUsedError;
   String get projectName => throw _privateConstructorUsedError;
-  N1ProjectType get projectType => throw _privateConstructorUsedError;
+  NucleusOneProjectType get projectType => throw _privateConstructorUsedError;
   List<String> get folderIds => throw _privateConstructorUsedError;
   List<String> get folderNames => throw _privateConstructorUsedError;
 
@@ -350,7 +350,7 @@ abstract class $NucleusOneFolderCopyWith<$Res> {
       String organizationName,
       String projectId,
       String projectName,
-      N1ProjectType projectType,
+      NucleusOneProjectType projectType,
       List<String> folderIds,
       List<String> folderNames});
 }
@@ -396,7 +396,7 @@ class _$NucleusOneFolderCopyWithImpl<$Res, $Val extends NucleusOneFolder>
       projectType: null == projectType
           ? _value.projectType
           : projectType // ignore: cast_nullable_to_non_nullable
-              as N1ProjectType,
+              as NucleusOneProjectType,
       folderIds: null == folderIds
           ? _value.folderIds
           : folderIds // ignore: cast_nullable_to_non_nullable
@@ -422,7 +422,7 @@ abstract class _$$_NucleusOneFolderCopyWith<$Res>
       String organizationName,
       String projectId,
       String projectName,
-      N1ProjectType projectType,
+      NucleusOneProjectType projectType,
       List<String> folderIds,
       List<String> folderNames});
 }
@@ -466,7 +466,7 @@ class __$$_NucleusOneFolderCopyWithImpl<$Res>
       projectType: null == projectType
           ? _value.projectType
           : projectType // ignore: cast_nullable_to_non_nullable
-              as N1ProjectType,
+              as NucleusOneProjectType,
       folderIds: null == folderIds
           ? _value._folderIds
           : folderIds // ignore: cast_nullable_to_non_nullable
@@ -507,7 +507,7 @@ class _$_NucleusOneFolder
   @override
   final String projectName;
   @override
-  final N1ProjectType projectType;
+  final NucleusOneProjectType projectType;
   final List<String> _folderIds;
   @override
   List<String> get folderIds {
@@ -594,7 +594,7 @@ abstract class _NucleusOneFolder implements NucleusOneFolder {
       required final String organizationName,
       required final String projectId,
       required final String projectName,
-      required final N1ProjectType projectType,
+      required final NucleusOneProjectType projectType,
       required final List<String> folderIds,
       required final List<String> folderNames}) = _$_NucleusOneFolder;
 
@@ -610,7 +610,7 @@ abstract class _NucleusOneFolder implements NucleusOneFolder {
   @override
   String get projectName;
   @override
-  N1ProjectType get projectType;
+  NucleusOneProjectType get projectType;
   @override
   List<String> get folderIds;
   @override

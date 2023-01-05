@@ -52,7 +52,7 @@ class NucleusOneFolder with _$NucleusOneFolder {
     required String organizationName,
     required String projectId,
     required String projectName,
-    required N1ProjectType projectType,
+    required NucleusOneProjectType projectType,
     required final List<String> folderIds,
     required final List<String> folderNames,
   }) = _NucleusOneFolder;

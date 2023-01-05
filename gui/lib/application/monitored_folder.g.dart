@@ -38,7 +38,8 @@ _$_NucleusOneFolder _$$_NucleusOneFolderFromJson(Map<String, dynamic> json) =>
       organizationName: json['organizationName'] as String,
       projectId: json['projectId'] as String,
       projectName: json['projectName'] as String,
-      projectType: $enumDecode(_$N1ProjectTypeEnumMap, json['projectType']),
+      projectType:
+          $enumDecode(_$NucleusOneProjectTypeEnumMap, json['projectType']),
       folderIds:
           (json['folderIds'] as List<dynamic>).map((e) => e as String).toList(),
       folderNames: (json['folderNames'] as List<dynamic>)
@@ -52,14 +53,14 @@ Map<String, dynamic> _$$_NucleusOneFolderToJson(_$_NucleusOneFolder instance) =>
       'organizationName': instance.organizationName,
       'projectId': instance.projectId,
       'projectName': instance.projectName,
-      'projectType': _$N1ProjectTypeEnumMap[instance.projectType]!,
+      'projectType': _$NucleusOneProjectTypeEnumMap[instance.projectType]!,
       'folderIds': instance.folderIds,
       'folderNames': instance.folderNames,
     };
 
-const _$N1ProjectTypeEnumMap = {
-  N1ProjectType.project: 'project',
-  N1ProjectType.department: 'department',
+const _$NucleusOneProjectTypeEnumMap = {
+  NucleusOneProjectType.project: 'project',
+  NucleusOneProjectType.department: 'department',
 };
 
 _$DeleteFileDisposition _$$DeleteFileDispositionFromJson(

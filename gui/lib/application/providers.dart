@@ -80,7 +80,7 @@ final n1UserOrganizationsProvider =
 
 // ignore: non_constant_identifier_names
 final n1OrganizationProjects_ProjectTypeFilterProvider =
-    StateProvider.autoDispose<N1ProjectType?>((ref) {
+    StateProvider.autoDispose<NucleusOneProjectType?>((ref) {
   return null;
 });
 

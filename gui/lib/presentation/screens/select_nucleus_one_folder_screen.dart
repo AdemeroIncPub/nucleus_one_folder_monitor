@@ -34,7 +34,7 @@ class _SelectNucleusOneFolderScreenState
 
   n1.UserOrganization? _navigatedOrg;
   n1.OrganizationProject? _navigatedProject;
-  N1ProjectType? _navigatedProjectType;
+  NucleusOneProjectType? _navigatedProjectType;
   n1.DocumentFolder? _selectedFolder;
   n1.OrganizationProject? _selectedProject;
 
@@ -222,12 +222,12 @@ class _SelectNucleusOneFolderScreenState
         if (index == 0) {
           return _projectTypeListTile(
             context: context,
-            projectType: N1ProjectType.project,
+            projectType: NucleusOneProjectType.project,
           );
         } else {
           return _projectTypeListTile(
             context: context,
-            projectType: N1ProjectType.department,
+            projectType: NucleusOneProjectType.department,
           );
         }
       },
@@ -318,7 +318,7 @@ class _SelectNucleusOneFolderScreenState
 
   Widget _projectTypeListTile({
     required BuildContext context,
-    required N1ProjectType projectType,
+    required NucleusOneProjectType projectType,
   }) {
     void navToFolder() {
       ref
@@ -330,11 +330,12 @@ class _SelectNucleusOneFolderScreenState
       });
     }
 
-    final projectTypeText =
-        (projectType == N1ProjectType.project) ? 'Projects' : 'Departments';
+    final projectTypeText = (projectType == NucleusOneProjectType.project)
+        ? 'Projects'
+        : 'Departments';
     return _commonListTile(
       context: context,
-      titleIcon: (projectType == N1ProjectType.project)
+      titleIcon: (projectType == NucleusOneProjectType.project)
           ? const Icon(FlutterIconCustomIcons.project)
           : const Icon(FlutterIconCustomIcons.department),
       title: Text(projectTypeText),
@@ -357,7 +358,7 @@ class _SelectNucleusOneFolderScreenState
 
     return _commonListTile(
       context: context,
-      titleIcon: (_navigatedProjectType == N1ProjectType.project)
+      titleIcon: (_navigatedProjectType == NucleusOneProjectType.project)
           ? const Icon(FlutterIconCustomIcons.project)
           : const Icon(FlutterIconCustomIcons.department),
       title: Text(project.name),
@@ -450,7 +451,7 @@ class _SelectNucleusOneFolderScreenState
         return Row();
       }
       if (_selectedFolder == null) {
-        if (_navigatedProjectType == N1ProjectType.project) {
+        if (_navigatedProjectType == NucleusOneProjectType.project) {
           return Row(
             children: [
               const Icon(FlutterIconCustomIcons.project),
@@ -500,7 +501,7 @@ class _SelectNucleusOneFolderScreenState
                           organizationName: _navigatedOrg!.organizationName,
                           projectId: _selectedProject!.id,
                           projectName: _selectedProject!.name,
-                          projectType: N1ProjectType.fromAccessType(
+                          projectType: NucleusOneProjectType.fromAccessType(
                               _selectedProject!.accessType)!,
                           folderIds: folders.map((e) => e.id).toList(),
                           folderNames: folders.map((e) => e.name).toList(),
