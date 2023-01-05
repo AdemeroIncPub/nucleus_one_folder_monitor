@@ -51,7 +51,7 @@ sc stop NucleusOneFolderMonitorService
 ## Uninstall
 After uninstalling by using the steps below, optionally delete the published
 files, the source code, and the settings and data in
-`"%ProgramData%\\nucleus_one_folder_monitor"`.
+`"%ProgramData%\\Nucleus One Folder Monitor"`.
 
 ### Uninstall the service
 Stop the service, then:

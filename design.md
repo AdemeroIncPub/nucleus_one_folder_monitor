@@ -57,8 +57,13 @@ The backend is a .NET 7 (C#) Windows Service.
       have unfortunate names (https://nssm.cc/).
 
 ### Config
-- Mappings and other settings will be stored as json at
-  "%PROGRAMDATA%\nucleus_one_folder_monitor\settings.json".
+- Monitored Folders settings are stored as json at
+  "%PROGRAMDATA%\Nucleus One Folder Monitor\settings.json".
+- Other settings location(s) TBD. The reason for possibly multiple files is that
+  a Flutter GUI needs read/write and a C# Service needs at least read to the
+  settings.json. If any Service specific settings, such as logging
+  configuration, are present then the GUI will need to know how to keep those
+  settings on config write.
 - Service reads settings at startup and settings changes do not take effect
   until service restart.
   - Initially, service restart can be done manually in Services MMC.

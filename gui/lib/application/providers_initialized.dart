@@ -18,7 +18,7 @@ final _settingsPathProvider = FutureProvider((ref) async {
   // todo(apn): folder will be different if a PR for
   // https://github.com/flutter/flutter/issues/112792 lands
   // ignore: unnecessary_non_null_assertion
-  return path_.join(programData!, productId, 'settings.json');
+  return path_.join(programData!, productName, 'settings.json');
 });
 
 final settingsPathProvider = Provider((ref) {
