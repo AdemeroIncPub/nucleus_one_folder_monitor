@@ -72,6 +72,11 @@ internal class PathsProvider : IPathsProvider {
     }
   }
 
+  /// <summary>
+  /// Write a file to associate a processing folder with a MonitoredFolder.
+  /// This is only for human convenience.
+  /// </summary>
+  /// <param name="infoFileName"></param>
   private void WriteInfoFile(InfoFileName infoFileName) {
     var infoPath = Path.Join(ProcessingPathBase, infoFileName.FileName);
     var mf = infoFileName.MonitoredFolder;

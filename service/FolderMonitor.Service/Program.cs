@@ -3,13 +3,6 @@ using Ademero.NucleusOne.FolderMonitor.Service.Util;
 
 namespace Ademero.NucleusOne.FolderMonitor.Service;
 
-// this should trigger an analysis warning for being the same as namespace, but
-// analysis seems to not be fully working. Maybe a .net 7 thing or just not
-// configure correctly? Keeping this here as an indicator.
-//CA1724 type name same as namespace
-public class Service { }
-public class System { }
-
 internal static class Program {
   public static string ApplicationDataPath {
     get {

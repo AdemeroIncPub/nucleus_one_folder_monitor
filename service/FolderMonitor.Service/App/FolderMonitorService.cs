@@ -33,7 +33,7 @@ internal class FolderMonitorService : IFolderMonitorService {
   private readonly MonitoredFoldersByApiKeyOptions _monitoredFoldersByApiKeyOptions;
   private readonly ILogger<FolderMonitorService> _logger;
 
-  private const int MaxAttempts = 10;
+  internal const int MaxAttempts = 10;
 
   public Task ProcessMonitoredFoldersAsync(CancellationToken stoppingToken) {
     IEnumerable<MonitoredFolder> enabledMonitoredFolders = GetEnabledMonitoredFolders(

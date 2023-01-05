@@ -144,9 +144,9 @@ public class FileProcessor_Tests : TestBase {
     IEnumerable<MonitoredFolder> monitoredFolders
   ) {
     var inputFolder = monitoredFolders.First().InputFolder;
-    monitoredFolders = UpdateAllMonitoredFolders(
-      inputFolder: inputFolder,
-      monitoredFolders: monitoredFolders.ToArray());
+    monitoredFolders = MonitoredFoldersUtil.UpdateAllMonitoredFolders(
+      monitoredFolders,
+      inputFolder: inputFolder);
     fixture.Inject(monitoredFolders);
 
     var sut = fixture.Create<FileProcessor>();
@@ -162,9 +162,9 @@ public class FileProcessor_Tests : TestBase {
     IEnumerable<MonitoredFolder> monitoredFolders
   ) {
     var inputFolder = monitoredFolders.First().InputFolder;
-    monitoredFolders = UpdateAllMonitoredFolders(
-      inputFolder: inputFolder,
-      monitoredFolders: monitoredFolders.ToArray());
+    monitoredFolders = MonitoredFoldersUtil.UpdateAllMonitoredFolders(
+      monitoredFolders,
+      inputFolder: inputFolder);
     // set 2nd MonitoredFolder's InputFolder to something different
     monitoredFolders = monitoredFolders.Select((mf, i) => {
       if (i == 1) {
@@ -195,9 +195,9 @@ public class FileProcessor_Tests : TestBase {
     //
     // set all input folders the same
     var inputFolder = Path.GetFullPath(monitoredFolders.First().InputFolder);
-    monitoredFolders = UpdateAllMonitoredFolders(
-      inputFolder: inputFolder,
-      monitoredFolders: monitoredFolders.ToArray());
+    monitoredFolders = MonitoredFoldersUtil.UpdateAllMonitoredFolders(
+      monitoredFolders,
+      inputFolder: inputFolder);
     fixture.Inject(monitoredFolders);
 
     // set up input files, 3 for each monitored folder
@@ -267,9 +267,9 @@ public class FileProcessor_Tests : TestBase {
     //
     // set all input folders the same
     var inputFolder = Path.GetFullPath(monitoredFolders.First().InputFolder);
-    monitoredFolders = UpdateAllMonitoredFolders(
-      inputFolder: inputFolder,
-      monitoredFolders: monitoredFolders.ToArray());
+    monitoredFolders = MonitoredFoldersUtil.UpdateAllMonitoredFolders(
+      monitoredFolders,
+      inputFolder: inputFolder);
     fixture.Inject(monitoredFolders);
 
     // set up input files, 3 for each monitored folder
@@ -323,7 +323,7 @@ public class FileProcessor_Tests : TestBase {
     [Frozen] IFileProvider fileProvider,
     FileProcessor sut
   ) {
-    monitoredFolder = UpdateMonitoredFolder(
+    monitoredFolder = MonitoredFoldersUtil.UpdateMonitoredFolder(
       monitoredFolder,
       fileDisposition: new FileDisposition.Delete());
 
@@ -341,7 +341,7 @@ public class FileProcessor_Tests : TestBase {
     [Frozen] IFileProvider fileProvider,
     FileProcessor sut
   ) {
-    monitoredFolder = UpdateMonitoredFolder(
+    monitoredFolder = MonitoredFoldersUtil.UpdateMonitoredFolder(
       monitoredFolder,
       fileDisposition: new FileDisposition.Move(moveToFolderPath));
 
@@ -361,7 +361,7 @@ public class FileProcessor_Tests : TestBase {
     [Frozen] IFileProvider fileProvider,
     FileProcessor sut
   ) {
-    monitoredFolder = UpdateMonitoredFolder(
+    monitoredFolder = MonitoredFoldersUtil.UpdateMonitoredFolder(
       monitoredFolder,
       fileDisposition: new FileDisposition.Move(moveToFolderPath));
 
@@ -381,41 +381,5 @@ public class FileProcessor_Tests : TestBase {
       fp => fp.DidNotReceive().Move(filePath, moveToFilePath),
       fp => fp.DidNotReceive().Move(filePath, moveToFilePath2),
       fp => fp.Received(1).Move(filePath, moveToFilePath3));
-  }
-
-  private static IEnumerable<MonitoredFolder> UpdateAllMonitoredFolders(
-      string? inputFolder = null,
-      FileDisposition? fileDisposition = null,
-      params MonitoredFolder[] monitoredFolders) {
-    return monitoredFolders.Select(mf => UpdateMonitoredFolder(
-      mf, inputFolder, fileDisposition));
-  }
-
-  private static MonitoredFolder UpdateMonitoredFolder(
-      MonitoredFolder monitoredFolder,
-      string? inputFolder = null,
-      FileDisposition? fileDisposition = null
-  ) {
-    var updated = monitoredFolder with {
-      InputFolder = inputFolder ?? monitoredFolder.InputFolder
-    };
-    if (fileDisposition != null) {
-      updated = fileDisposition switch {
-        FileDisposition.Delete => monitoredFolder with {
-          FileDisposition = new FileDispositionRaw() {
-            RuntimeType = FileDispositionType.Delete,
-            FolderPath = null
-          }
-        },
-        FileDisposition.Move(var folderPath) => monitoredFolder with {
-          FileDisposition = new FileDispositionRaw() {
-            RuntimeType = FileDispositionType.Move,
-            FolderPath = folderPath
-          }
-        },
-        _ => throw new NotImplementedException(),
-      };
-    }
-    return updated;
   }
 }
