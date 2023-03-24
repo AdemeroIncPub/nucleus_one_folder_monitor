@@ -7,27 +7,31 @@ For more information see [../README.md](../README.md).
 
 ## Usage
 - Generate an api key in your user profile in the Nucleus One web app.
-- Ensure the Flutter SDK is installed on your machine.
+- Ensure Flutter Version Manager ([FVM](https://fvm.app/)) is installed on your machine.
 - Clone this repository to your machine.
 - Open a terminal window to your cloned repository (to the same folder as this
   README.md).
+- Install the Flutter SDK version found in project config:
+  ```
+  fvm install
+  ```
 - Get required dependencies:
   ```
-  flutter pub get
+  fvm flutter pub get
   ```
 - Run the app:
   ```
-  flutter run -d windows
+  fvm flutter run -d windows
   ```
 - Use the app to configure folders to monitor.
 
 ## Development
-Ensure the Flutter SDK is installed on your machine.
+Follow the [Usage](#usage) directions to get setup.
 
 For more information see [../README.md](../README.md).
 
 ### Testing
 
 ```
-flutter test
+fvm flutter test
 ```

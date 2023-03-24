@@ -1,9 +1,19 @@
 {
+  // Use FVM for Flutter SDK
+  "dart.flutterSdkPath": ".fvm/flutter_sdk",
+  "search.exclude": {
+    // Remove .fvm files from search
+    "**/.fvm": true
+  },
+  "files.watcherExclude": {
+    // Remove .fvm files from file watching
+    "**/.fvm": true
+  },
   "files.exclude": {
     // freezed generated files
     "**/*.freezed.dart": true,
     // json_serialized generated files
-    "**/*.g.dart": true
+    "**/*.g.dart": true,
   },
   "flutterStylizer": {
     "groupAndSortGetterMethods": true,

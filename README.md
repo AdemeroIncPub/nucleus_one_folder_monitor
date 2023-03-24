@@ -12,7 +12,12 @@ See these documents for more information about this project:
   - [design.md](./design.md)
 
 ## Development
-Ensure the .NET 7 SDK and the Flutter SDK is installed on your machine.
+Ensure the .NET 7 SDK and the Flutter Version Manager ([FVM](https://fvm.app/)) is installed on your machine.
+
+- Open in VS Code using the provided workspace:
+  ```
+  code .\nucleus_one_folder_monitor.code-workspace
+  ```
 
 ### Pull Requests and Commits
 
