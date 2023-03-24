@@ -46,10 +46,20 @@ internal class DirectoryProvider : IDirectoryProvider {
   }
 
   public IEnumerable<string> EnumerateFiles(string path) {
+    // EnumerateFiles may cause StackoverflowException if the path does not
+    // exist - not sure where this is documented or maybe a .NET bug.
+    if (!Exists(path)) {
+      return Enumerable.Empty<string>();
+    }
     return Directory.EnumerateFiles(path);
   }
 
   public IEnumerable<string> EnumerateFiles(string path, string searchPattern) {
+    // EnumerateFiles may cause StackoverflowException if the path does not
+    // exist - not sure where this is documented or maybe a .NET bug.
+    if (!Exists(path)) {
+      return Enumerable.Empty<string>();
+    }
     return Directory.EnumerateFiles(path, searchPattern);
   }
 }
